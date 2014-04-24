@@ -22,7 +22,15 @@ var processor = null;
 
 var contextStream = null;
 
-require(['packet/Decoder', 'packet/PacketData', 'data/ISSRawData'], function(Decoder, PacketData, ISSRawData){
+require(
+	[
+	 	'packet/AFSK_Demodulator',
+	 	'data/ISSRawData'
+	 ],
+	function(
+		AFSK_Demodulator,
+		ISSRawData
+	){
 
 	// Get Button elements
 	var issButton = document.getElementById('iss');
@@ -45,10 +53,7 @@ require(['packet/Decoder', 'packet/PacketData', 'data/ISSRawData'], function(Dec
 
 		var sampleRatio = 44100/sampleRate;
 
-		decoder = new Decoder();
-		decoder.reset();
-		decoder.setSampleRate(44100);
-		decoder.setReceivedCallback(gotPacket);
+		decoder = new AFSK_Demodulator(44100, 1200, 0.0925, 0, 1200, 2200);
 
 		/*
 		 * Play test data packet
@@ -73,11 +78,15 @@ require(['packet/Decoder', 'packet/PacketData', 'data/ISSRawData'], function(Dec
 
 				var subSampledPoint = Math.floor(point*sampleRatio);
 
+				var received;
 				if(subSampledPoint != lastPoint)
-					decoder.processByte(ISSRawData[subSampledPoint]);
+					received = decoder.process_byte(ISSRawData[subSampledPoint]);
+
+				if(received != null)
+					gotPacket(received);
 
 				if(ISSRawData.length > subSampledPoint)
-					output[i] = (ISSRawData[subSampledPoint]-128)/256;
+					output[i] = ISSRawData[subSampledPoint]/256;
 				else
 					output[i] = 0;
 
@@ -145,14 +154,11 @@ require(['packet/Decoder', 'packet/PacketData', 'data/ISSRawData'], function(Dec
 		processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
 
 		// Create decoder and set it to its default inital state
-		decoder = new Decoder();
-		decoder.reset();
-
 		// Set decoder sample rate from audio context sample rate
-		decoder.setSampleRate(audioContext.sampleRate);
+		decoder = new AFSK_Demodulator(audioContext.sampleRate, 1200, 0.0925, 0, 1200, 2200);
 
 		// Set callback so we know when a packet is decoded
-		decoder.setReceivedCallback(gotPacket);
+		//decoder.setReceivedCallback(gotPacket);
 
 		// Callback with audio data
 		processor.onaudioprocess = function(e){
@@ -167,7 +173,7 @@ require(['packet/Decoder', 'packet/PacketData', 'data/ISSRawData'], function(Dec
 			 * expects an unsigned byte input
 			 */
 			for(var i = 0; i < input.length; i++)
-				decoder.processByte(Math.round(input[i]*256+128));
+				decoder.process_byte(Math.round(input[i]*256));
 
 		};
 
@@ -187,20 +193,28 @@ require(['packet/Decoder', 'packet/PacketData', 'data/ISSRawData'], function(Dec
 
 	}
 
-	function gotPacket(packets){
+	function gotPacket(packet){
 
-		for(var i = 0; i < packets.length; i++){
+		var newRow = packetTable.insertRow(0);
+		var cell1 = newRow.insertCell(0);
+		var cell2 = newRow.insertCell(1);
 
-			var newRow = packetTable.insertRow(0);
-			var cell1 = newRow.insertCell(0);
-			var cell2 = newRow.insertCell(1);
-	
-			cell1.innerHTML = new Date().toLocaleString();
-			cell2.innerHTML = packets[i].toString();
+		var packet_str = "";
+
+		for(var i = 0; i < packet.length; i++){
+
+			var char = String.fromCharCode(packet[i]);
+
+			// Is char a printable character
+			if(packet[i] >= 32 && packet[i] <= 128)
+				packet_str += char;
+			else
+				packet_str += '.';
 
 		}
 
-		packets.length = 0;
+		cell1.innerHTML = new Date().toLocaleString();
+		cell2.innerHTML = packet_str;
 
 	}
 

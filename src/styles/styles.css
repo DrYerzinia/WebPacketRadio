@@ -1,0 +1,28 @@
+
+#button-div {
+
+	overflow: hidden;
+
+}
+
+.button {
+
+	float: right;
+
+	text-align: center;
+
+	vertical-align: middle;
+
+	font-size: 20px;
+
+	line-height: 50px;
+
+	border: black 3px solid;
+	border-radius: 10px;
+
+	margin: 10px;
+
+	width: 200px;
+	height: 50px;
+
+}

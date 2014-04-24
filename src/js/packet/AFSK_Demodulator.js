@@ -12,15 +12,11 @@ define(function(){
 		this.frequency_0 = frequency_0;
 		this.frequency_1 = frequency_1;
 
-		this.input_buffer.size = 0;
-		this.fcd_buffer.size   = 0;
+		this.input_buffer = [];
+		this.fcd_buffer = [];
 
 		this.fcMax = 0;
 		this.fcMin = 0;
-
-		this.bit_sequence = [];
-
-		this.byte_sequence = [];
 
 		this.reset();
 
@@ -32,13 +28,13 @@ define(function(){
 
 		this.window = Math.floor(this.sample_rate/this.bit_rate+0.5);
 
-		this.bitwidth = this.sample_rate/this.bit_rate;
+		this.bitwidth = Math.floor(this.sample_rate/this.bit_rate);
 
 		/*
 		 * Calculate Goertzel coefficents for calculating frequency magnitudes
 		 */
 		var k0 = Math.floor(0.5+(this.window*this.frequency_0/this.sample_rate)),
-			k1 = Math.floir(0.5+(this.window*this.frequency_1/this.sample_rate)),
+			k1 = Math.floor(0.5+(this.window*this.frequency_1/this.sample_rate)),
 			w0 = (2*Math.PI/this.window)*k0,
 			w1 = (2*Math.PI/this.window)*k1;
 
@@ -49,26 +45,22 @@ define(function(){
 
 		this.bit_stuffing = false;
 
-		if(this.input_buffer.size != 0)
-			this.input_buffer.destory();
-		this.input_buffer = new ring_buffer(this.window+2);
+		this.input_buffer = [];
 
-		if(this.fcd_buffer.size != 0)
-			this.fcd_buffer.destory();
-		this.fcd_buffer = new ring_buffer(this.window+2);
+		this.fcd_buffer = [];
 
 		this.byte_sequence = [];
 		this.bit_sequence = [];
 
 	};
 
-	AFSK_Demodulator.prototype.proccess_byte = function(data_point){
+	AFSK_Demodulator.prototype.process_byte = function(data_point){
 
 		var new_data = null;
 
-		this.input_buffer.put(data_point);
+		this.input_buffer.push(data_point);
 
-		if(this.input_buffer.avail() > this.window){
+		if(this.input_buffer.length > this.window){
 
 			var q1_0 = 0,
 				q1_1 = 0,
@@ -78,8 +70,8 @@ define(function(){
 			var i;
 			for(i = 0; i <= this.window; i++){
 
-				var q0_0 = this.coeff0*q1_0 - q2_0 + this.input_buffer.get(i),
-					q0_1 = this.coeff1*q1_1 - q2_1 + this.input_buffer.get(i);
+				var q0_0 = this.coeff0*q1_0 - q2_0 + this.input_buffer[i],
+					q0_1 = this.coeff1*q1_1 - q2_1 + this.input_buffer[i];
 				q2_0 = q1_0;
 				q2_1 = q1_1;
 				q1_0 = q0_0;
@@ -106,20 +98,19 @@ define(function(){
 
 			fcd -= generated_offset;
 
-			this.input_buffer.pop();
+			this.input_buffer.shift();
 
-			this.fcd_buffer.put(fcd);
+			this.fcd_buffer.push(fcd);
 
-			var avail = this.fcd_buffer.avail();
+			var avail = this.fcd_buffer.length;
 			if(avail > this.window/2){
 
 				var fcd_avg = 0;
 				for(i = 0; i < avail; i++)
-					fcd_avg += this.fcd_buffer.get(i);
+					fcd_avg += this.fcd_buffer[i];
 				fcd_avg /= avail;
 
-				this.fcd_buffer.pop(fcd_buffer);
-
+				this.fcd_buffer.shift();
 
 				var current_value = 0;
 				if(fcd_avg < 0)
@@ -130,7 +121,7 @@ define(function(){
 					this.last_bit = current_value;
 
 					// Calculate how many bit lengths there are to the transition
-					var new_bits = Math.floor(((this.count_last)/(this.bitwidth))+0.5);
+					var new_bits = Math.floor((this.count_last/this.bitwidth)+0.5);
 
 					// If we are not bit stuffing Add a 0
 					if(!this.bit_stuffing)
