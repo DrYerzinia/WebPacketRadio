@@ -26,14 +26,14 @@ define(
 		var destination_address = "";
 		var source_address = "";
 
-		for(i = 0; i < 7 && data[i] != 0x40; i++)
-			destination_address +=  String.fromCharCode(data[i]>>1);
+		for(i = 0; i < 6 && data[i] != 0x40; i++)
+			destination_address +=  String.fromCharCode(data[i] >> 1);
 
-		for(i = 7; i < 14 && data[i] != 0x40; i++)
-			source_address += String.fromCharCode(data[i]>>1);
+		for(i = 7; i < 13 && data[i] != 0x40; i++)
+			source_address += String.fromCharCode(data[i] >> 1);
 
-		packet.set_source_address(source_address, String.fromCharCode((data[6] >> 1) - 0x30));
-		packet.set_destination_address(destination_address, String.fromCharCode((data[13] >> 1) - 0x30));
+		packet.set_source_address(source_address, (data[13] & 0x1F) >> 1);
+		packet.set_destination_address(destination_address, (data[6] & 0x1F)  >> 1);
 
 		var n = 14;
 		while(true){
@@ -48,11 +48,11 @@ define(
 			if(n+7 >= data.length) break;
 
 			var new_address = "";
-			for(i = n; i < n+7; i++) new_address += String.fromCharCode(data[i]>>1);
+			for(i = n; i < n+6 && data[i] != 0x40; i++) new_address += String.fromCharCode(data[i]>>1);
 
 			n += 7;
 
-			packet.add_repeater_address(new_address, String.fromCharCode((data[n-1] >> 1) - 0x30));
+			packet.add_repeater_address(new_address, (data[n-1] & 0x1F) >> 1);
 
 		}
 
@@ -124,14 +124,14 @@ define(
 		this.data = [];
 
 		// Add source addresess
-		APRSPacket.push_address_to_data(this.data, this.source_address, this.source_ssid);
+		APRSPacket.push_address_to_data(this.data, this.source_address, this.source_ssid, 0x60);
 
 		// Add destination address
-		APRSPacket.push_address_to_data(this.data, this.destination_address, this.destination_ssid);
+		APRSPacket.push_address_to_data(this.data, this.destination_address, this.destination_ssid, 0xE0);
 
 		// Add repeater addresses
 		for(i = 0; i < this.repeater_addresses.length; i++)
-			APRSPacket.push_address_to_data(this.data, this.repeater_addresses[i], this.repeater_ssids[i]);
+			APRSPacket.push_address_to_data(this.data, this.repeater_addresses[i], this.repeater_ssids[i], 0xE0);
 
 		// Mark end of addressses
 		this.data[this.data.length - 1] |= 1;
@@ -152,14 +152,14 @@ define(
 		return this.data;
 	};
 
-	APRSPacket.push_address_to_data = function(data, address, ssid){
+	APRSPacket.push_address_to_data = function(data, address, ssid, ssid_top){
 
 		for(var i = 0; i < 6; i++){
 			if(i < address.length) data.push(address.charCodeAt(i) << 1);
 			else data.push(0x40); // 0x20 (space) << 1
 		}
 
-		data.push((0x30 + ssid) << 1);
+		data.push((ssid << 1) | ssid_top);
 
 	};
 
@@ -192,7 +192,7 @@ define(
 		this.data.push(val & 0xFF);
 		this.data.push((val & 0xFF00) >> 8);
 
-		this.fcs = (this.data[this.data.length-1] << 8) + this.data[this.data.length-2];;
+		this.fcs = (this.data[this.data.length-1] << 8) + this.data[this.data.length-2];
 		
 	};
 
@@ -229,11 +229,11 @@ define(
 		info = "";
 		
 		info += "Size: " + this.data.length + "\n";
-		info += "Destination Address: " + this.destination_address + "\n";
-		info += "Source Address: " + this.source_address + "\n";
+		info += "Destination Address: " + this.destination_address + '-' + this.destination_ssid + "\n";
+		info += "Source Address: " + this.source_address + '-' + this.source_ssid + "\n";
 	
 		for(var i = 0; i < this.repeater_addresses.length; i++)
-			info += "Repeater-" + (i+1) + ": " + this.repeater_addresses[i] + "\n";
+			info += "Repeater-" + (i+1) + ": " + this.repeater_addresses[i] + '-' + this.repeater_ssids[i] + "\n";
 	
 		info += "\nData:\n";
 	

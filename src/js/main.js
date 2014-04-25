@@ -40,7 +40,9 @@ require(
 	var issButton = document.getElementById('iss'),
 		listenButton = document.getElementById('listen'),
 		send_button = document.getElementById('send'),
-		download_button = document.getElementById('download-raw');
+		download_button = document.getElementById('download-raw'),
+		settings_button = document.getElementById('settings'),
+		save_settings_button = document.getElementById('save-settings');
 
 	var listening = "no";
 
@@ -48,6 +50,46 @@ require(
 	var packetTable = document.getElementById('packet-data-table-body');
 
 	var decoder = null;
+
+	var settings =
+		{
+
+			bit_rate: 1200,
+
+			noise: 0,
+			offset: 0.0925,
+
+			frequency_0: 1200,
+			frequency_1: 2400,
+
+			output_file_sr: 44100
+
+		};
+
+	save_settings_button.onclick = function(){
+
+		settings.bit_rate = parseFloat(document.getElementById('settings-bit-rate').value);
+
+		settings.noise = parseFloat(document.getElementById('settings-noise').value);
+		settings.offset = parseFloat(document.getElementById('settings-offset').value);
+
+		settings.frequency_0 = parseFloat(document.getElementById('settings-frequency-0').value);
+		settings.frequency_1 = parseFloat(document.getElementById('settings-frequency-1').value);
+
+		settings.output_file_sr = parseFloat(document.getElementById('settings-output-sr').value);
+
+	};
+
+	settings_button.onclick = function(){
+
+		var settings_div = document.getElementById('settings-div');
+
+		if(settings_div.style.display == 'none')
+			settings_div.style.display = 'block';
+		else
+			settings_div.style.display = 'none';
+
+	};
 
 	// Decode ISS Test data
 	issButton.onclick = function(){
@@ -59,7 +101,14 @@ require(
 
 		var sampleRatio = 44100/sampleRate;
 
-		decoder = new AFSK_Demodulator(44100, 1200, 0.0925, 0, 1200, 2200);
+		decoder = new AFSK_Demodulator(
+				44100,
+				settings.bit_rate,
+				settings.offset,
+				settings.noise,
+				settings.frequency_0,
+				settings.frequency_1
+			);
 
 		/*
 		 * Play test data packet
@@ -134,7 +183,14 @@ require(
 
 	download_button.onclick = function(){
 
-		var modulator = new AFSK_Modulator(44100, 1200, 0.0925, 0, 1200, 2200),
+		var modulator = new AFSK_Modulator(
+				settings.output_file_sr,
+				settings.bit_rate,
+				settings.offset,
+				settings.noise,
+				settings.frequency_0,
+				settings.frequency_1
+			),
 		packet = generate_message();
 
 		modulator.set_data(packet.get_data());
@@ -160,7 +216,14 @@ require(
 
 	send_button.onclick = function(){
 
-		var modulator = new AFSK_Modulator(audioContext.sampleRate, 1200, 0.0925, 0, 1200, 2200),
+		var modulator = new AFSK_Modulator(
+				audioContext.sampleRate,
+				settings.bit_rate,
+				settings.offset,
+				settings.noise,
+				settings.frequency_0,
+				settings.frequency_1
+			),
 			packet = generate_message();
 
 		modulator.set_data(packet.get_data());
@@ -257,7 +320,14 @@ require(
 
 		// Create decoder and set it to its default initial state
 		// Set decoder sample rate from audio context sample rate
-		decoder = new AFSK_Demodulator(audioContext.sampleRate, 1200, 0.0925, 0, 1200, 2200);
+		decoder = new AFSK_Demodulator(
+				audioContext.sampleRate,
+				settings.bit_rate,
+				settings.offset,
+				settings.noise,
+				settings.frequency_0,
+				settings.frequency_1
+			);
 
 		// Set callback so we know when a packet is decoded
 		//decoder.setReceivedCallback(gotPacket);
@@ -309,12 +379,16 @@ require(
 
 		if(valid){
 
-			var newRow = packetTable.insertRow(0);
-			var cell1 = newRow.insertCell(0);
-			var cell2 = newRow.insertCell(1);
+			var newRow = packetTable.insertRow(0),
+				time = newRow.insertCell(0),
+				source = newRow.insertCell(1),
+				destination = newRow.insertCell(2),
+				message = newRow.insertCell(3);
 
-			cell1.innerHTML = new Date().toLocaleString();
-			cell2.innerHTML = packet.to_string();
+			time.innerHTML = new Date().toLocaleString();
+			source.innerHTML = packet.source_address + "-" + packet.source_ssid;
+			destination.innerHTML = packet.destination_address + "-" + packet.destination_ssid;
+			message.innerHTML = packet.to_string();
 
 			console.log(packet.info_string());
 

@@ -14,7 +14,14 @@
 
 #packet-data-table thead tr :first-child {
 
-	width: 200px;
+	width: 180px;
+
+}
+
+#packet-data-table thead tr :nth-child(2),
+#packet-data-table thead tr :nth-child(3) {
+
+	width: 100px;
 
 }
 
@@ -27,6 +34,25 @@
 #message-buttons {
 	float: right;
 	width: 200px;
+}
+
+.input-group label {
+
+
+	display: inline-block;
+	width: 200px;
+
+	margin-left: 10px;
+
+}
+
+.input-group input {
+
+	width: 200px;
+
+	margin-right: 10px;
+
+	
 }
 
 .button-small {
