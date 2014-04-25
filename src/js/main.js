@@ -289,6 +289,8 @@ require(
 			cell1.innerHTML = new Date().toLocaleString();
 			cell2.innerHTML = packet.to_string();
 
+			console.log(packet.info_string());
+
 		}
 
 	}

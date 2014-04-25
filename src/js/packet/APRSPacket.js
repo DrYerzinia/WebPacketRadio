@@ -1,9 +1,11 @@
 define(
 	[
-	 	'crc/crccitt'
+	 	'crc/crccitt',
+	 	'math/base'
 	],
 	function(
-		crccitt
+		crccitt,
+		base
 	){
 	
 	var APRSPacket = function(){
@@ -68,7 +70,7 @@ define(
 
 		packet.set_message_data(message_data);
 
-		this.crc
+		packet.fcs = (data[data.length-1] << 8) + data[data.length-2];
 
 		return packet;
 
@@ -190,29 +192,33 @@ define(
 		this.data.push(val & 0xFF);
 		this.data.push((val & 0xFF00) >> 8);
 
+		this.fcs = (this.data[this.data.length-1] << 8) + this.data[this.data.length-2];;
+		
 	};
 
 	APRSPacket.prototype.recalculate_crc = function(){
 		//
 	};
 
+	function printable(val){
+
+		c = String.fromCharCode(val);
+
+		// Is char a printable character
+		if(val >= 32 && val <= 128)
+			return c;
+
+		return '.';
+
+	}
+
 	APRSPacket.prototype.to_string = function(){
 
 		var packet_str = "",
 			i, c;
 
-		for(i = 0; i < this.message_data.length; i++){
-
-			c = String.fromCharCode(this.message_data[i]);
-
-			// Is char a printable character
-			if(this.message_data[i] >= 32 && this.message_data[i] <= 128)
-				packet_str += c;
-
-			else
-				packet_str += '.';
-
-		}
+		for(i = 0; i < this.message_data.length; i++)
+			packet_str += printable(this.message_data[i]);
 
 		return packet_str;
 
@@ -220,7 +226,55 @@ define(
 
 	APRSPacket.prototype.info_string = function(){
 
-		//
+		info = "";
+		
+		info += "Size: " + this.data.length + "\n";
+		info += "Destination Address: " + this.destination_address + "\n";
+		info += "Source Address: " + this.source_address + "\n";
+	
+		for(var i = 0; i < this.repeater_addresses.length; i++)
+			info += "Repeater-" + (i+1) + ": " + this.repeater_addresses[i] + "\n";
+	
+		info += "\nData:\n";
+	
+		var i = 0;
+		while(i < this.data.length){
+	
+			for(var j = 0; j < 20; j++){
+	
+				if(i < this.data.length){
+	
+					info += printable(this.data[i]);
+	
+				} else
+					info += " ";
+	
+				i++;
+	
+			}
+	
+			i -= 20;
+	
+			info += "  |  ";
+	
+			for(var j = 0; j < 20; j++){
+	
+				if(i < this.data.length){
+	
+					info += " " + base.toHexString(this.data[i], 2);
+		 			i++;
+	
+				}
+	
+			}
+	
+			info += "\n";
+	
+		}
+	
+		info += "\nFCS: " + base.toHexString(this.fcs, 4) + "\n";
+	
+		return info;
 
 	};
 
