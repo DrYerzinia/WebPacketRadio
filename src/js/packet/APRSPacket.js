@@ -123,11 +123,11 @@ define(
 
 		this.data = [];
 
-		// Add source addresess
-		APRSPacket.push_address_to_data(this.data, this.source_address, this.source_ssid, 0x60);
-
 		// Add destination address
 		APRSPacket.push_address_to_data(this.data, this.destination_address, this.destination_ssid, 0xE0);
+
+		// Add source addresess
+		APRSPacket.push_address_to_data(this.data, this.source_address, this.source_ssid, 0x60);
 
 		// Add repeater addresses
 		for(i = 0; i < this.repeater_addresses.length; i++)
