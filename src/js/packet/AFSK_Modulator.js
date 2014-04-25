@@ -39,9 +39,7 @@ define(function(){
 			same_count = 0,
 			bit, byte, i, k;
 
-		AFSK_Modulator.add_preambles(this.frequency_data, 10, 0);
-
-		this.frequency_data.push(0);
+		AFSK_Modulator.add_preambles(this.frequency_data, 50, 0);
 
 		for(i = 0; i < data.length; i++){
 
@@ -83,7 +81,7 @@ define(function(){
 
 		}
 
-		AFSK_Modulator.add_preambles(this.frequency_data, 2, last_freq);
+		AFSK_Modulator.add_preambles(this.frequency_data, 50, last_freq);
 
 	}
 
@@ -128,7 +126,9 @@ define(function(){
 
 		}
 
-	}
+		frequency_data.push(last_freq);
+
+	};
 
 	return AFSK_Modulator;
 
