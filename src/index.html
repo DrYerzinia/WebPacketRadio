@@ -7,19 +7,38 @@
 	</head>
 	<body>
 		<h1>Web Packet Radio</h1>
+		<br/><hr/><br/>
+		<div>
+			<div>
+
+				Source Address:
+				<input id="source-address" type="text" />
+				<select id="source-ssid"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option></select>
+
+				<div style="display:inline-block;width:20px;"></div>
+
+				Destination Address:
+				<input id="destination-address" type="text"/>
+
+			</div>
+			<br/>
+			<textarea id="message"></textarea>
+			<div id="send" class="button">Send</div>
+		</div>
+		<br/><hr/><br/>
 		<div id="button-div">
 			<div id="iss" class="button">ISS</div>
 			<div id="listen" class="button">Listen</div>
 		</div>
 		<div>
-			<table>
+			<table id="packet-data-table">
 				<thead>
 					<tr>
 						<td>Time</td>
 						<td>Data</td>
 					</tr>
 				</thead>
-				<tbody id="packetTableBody">
+				<tbody id="packet-data-table-body">
 				</tbody>
 			</table>
 		</div>

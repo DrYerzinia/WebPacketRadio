@@ -1,4 +1,23 @@
 
+#message {
+
+    width: calc(100% - 240px);
+    height: 100px;
+
+}
+
+#packet-data-table {
+
+	width: 100%;
+
+}
+
+#packet-data-table thead tr :first-child {
+
+	width: 200px;
+
+}
+
 #button-div {
 
 	overflow: hidden;
@@ -24,5 +43,13 @@
 
 	width: 200px;
 	height: 50px;
+
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+
+	cursor: pointer;
 
 }

@@ -25,21 +25,26 @@ var contextStream = null;
 require(
 	[
 	 	'packet/AFSK_Demodulator',
+	 	'packet/AFSK_Modulator',
+	 	'packet/APRSPacket',
 	 	'data/ISSRawData'
 	 ],
 	function(
 		AFSK_Demodulator,
+		AFSK_Modulator,
+		APRSPacket,
 		ISSRawData
 	){
 
 	// Get Button elements
 	var issButton = document.getElementById('iss');
 	var listenButton = document.getElementById('listen');
+	var send_button = document.getElementById('send');
 
 	var listening = "no";
 
 	// Get packet table
-	var packetTable = document.getElementById('packetTableBody');
+	var packetTable = document.getElementById('packet-data-table-body');
 
 	var decoder = null;
 
@@ -86,7 +91,7 @@ require(
 					gotPacket(received);
 
 				if(ISSRawData.length > subSampledPoint)
-					output[i] = ISSRawData[subSampledPoint]/256;
+					output[i] = ISSRawData[subSampledPoint]/128;
 				else
 					output[i] = 0;
 
@@ -95,6 +100,76 @@ require(
 
 
 				lastPoint = subSampledPoint;
+
+			}
+
+		};
+		processor.connect(audioContext.destination);
+
+	};
+
+	send_button.onclick = function(){
+
+		var message = document.getElementById('message').value,
+			source_address = document.getElementById('source-address').value,
+			source_ssid = parseFloat(document.getElementById('source-ssid').value),
+			destination_address = document.getElementById('destination-address').value;
+
+		var modulator = new AFSK_Modulator(audioContext.sampleRate, 1200, 0.0925, 0, 1200, 2200);
+
+		var message_data = [];
+		for(var i = 0; i < message.length; i++)
+			message_data.push(message.charCodeAt(i));
+
+		var packet = new APRSPacket(message_data);
+		packet.set_source_address(source_address, source_ssid);
+		packet.set_destination_address(destination_address, 0);
+		packet.set_control(APRSPacket.STD_CONTROL);
+		packet.set_PID(APRSPacket.STD_PID);
+		packet.set_message_data(message_data);
+		packet.generate_data();
+
+		modulator.set_data(packet.get_data());
+
+		var disconnect_next = false;
+
+		var data = [];
+
+		// Play the modulated data
+		processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
+		processor.onaudioprocess = function(e){
+
+			if(disconnect_next == true){
+
+				processor.disconnect();
+				delete processor;
+
+				var int_dat = new Int8Array(data);
+				var blob = new Blob([int_dat], {type: "application/octet-binary"});
+			    var url  = window.URL.createObjectURL(blob);
+			    window.location.assign(url);
+
+			    return;
+
+			}
+
+			
+			var output = e.outputBuffer.getChannelData(0);
+
+			for(var i = 0; i < output.length; i++, point++){
+
+				var point = modulator.get_next();
+
+				if(point != null){
+					output[i] = point/128;
+					data.push(point);
+				}
+
+				else {
+					output[i] = 0;
+					disconnect_next = true;
+				}
+
 
 			}
 
@@ -153,7 +228,7 @@ require(
 		source = audioContext.createMediaStreamSource(stream);
 		processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
 
-		// Create decoder and set it to its default inital state
+		// Create decoder and set it to its default initial state
 		// Set decoder sample rate from audio context sample rate
 		decoder = new AFSK_Demodulator(audioContext.sampleRate, 1200, 0.0925, 0, 1200, 2200);
 
@@ -162,18 +237,25 @@ require(
 
 		// Callback with audio data
 		processor.onaudioprocess = function(e){
-
+			
 			// Get input buffer
 			var input = e.inputBuffer.getChannelData(0);
 
+			var received;
+
 			/*
 			 * input buffer is a 32 float with a range of -0.5 to 0.5
-			 * We multiply it to 256 and add 128 so it is centered
-			 * at 128 and has a range of 0 to 256 because our decoder
-			 * expects an unsigned byte input
+			 * We multiply it by 256 to get it in a range of -128 to 128
+			 * for a signed byte
 			 */
-			for(var i = 0; i < input.length; i++)
-				decoder.process_byte(Math.round(input[i]*256));
+			for(var i = 0; i < input.length; i++){
+
+				received = decoder.process_byte(Math.round(input[i]*256));
+
+				if(received != null)
+					gotPacket(received);
+
+			}
 
 		};
 
@@ -188,33 +270,26 @@ require(
 		 */
 		processor.connect(audioContext.destination);
 
-		listenButton.innerHTML = "stop";
+		listenButton.innerHTML = "Stop";
 		listening = "yes";
 
 	}
 
-	function gotPacket(packet){
+	function gotPacket(packet_data){
 
-		var newRow = packetTable.insertRow(0);
-		var cell1 = newRow.insertCell(0);
-		var cell2 = newRow.insertCell(1);
+		var packet = APRSPacket.from_data(packet_data);
+		var valid = packet.crc_check();
 
-		var packet_str = "";
+		if(valid){
 
-		for(var i = 0; i < packet.length; i++){
+			var newRow = packetTable.insertRow(0);
+			var cell1 = newRow.insertCell(0);
+			var cell2 = newRow.insertCell(1);
 
-			var char = String.fromCharCode(packet[i]);
-
-			// Is char a printable character
-			if(packet[i] >= 32 && packet[i] <= 128)
-				packet_str += char;
-			else
-				packet_str += '.';
+			cell1.innerHTML = new Date().toLocaleString();
+			cell2.innerHTML = packet.to_string();
 
 		}
-
-		cell1.innerHTML = new Date().toLocaleString();
-		cell2.innerHTML = packet_str;
 
 	}
 
