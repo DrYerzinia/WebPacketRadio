@@ -24,6 +24,23 @@
 
 }
 
+#message-buttons {
+	float: right;
+	width: 200px;
+}
+
+.button-small {
+
+	width: 180px !important;
+	height: 20px !important;
+
+	line-height: 20px !important;
+
+	margin: 5px !important;
+	margin-right: 20px !important;
+
+}
+
 .button {
 
 	float: right;

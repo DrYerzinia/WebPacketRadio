@@ -37,9 +37,10 @@ require(
 	){
 
 	// Get Button elements
-	var issButton = document.getElementById('iss');
-	var listenButton = document.getElementById('listen');
-	var send_button = document.getElementById('send');
+	var issButton = document.getElementById('iss'),
+		listenButton = document.getElementById('listen'),
+		send_button = document.getElementById('send'),
+		download_button = document.getElementById('download-raw');
 
 	var listening = "no";
 
@@ -108,19 +109,17 @@ require(
 
 	};
 
-	send_button.onclick = function(){
+	function generate_message(){
 
 		var message = document.getElementById('message').value,
-			source_address = document.getElementById('source-address').value,
-			source_ssid = parseFloat(document.getElementById('source-ssid').value),
-			destination_address = document.getElementById('destination-address').value;
-
-		var modulator = new AFSK_Modulator(audioContext.sampleRate, 1200, 0.0925, 0, 1200, 2200);
+		source_address = document.getElementById('source-address').value,
+		source_ssid = parseFloat(document.getElementById('source-ssid').value),
+		destination_address = document.getElementById('destination-address').value;
 
 		var message_data = [];
 		for(var i = 0; i < message.length; i++)
 			message_data.push(message.charCodeAt(i));
-
+		
 		var packet = new APRSPacket(message_data);
 		packet.set_source_address(source_address, source_ssid);
 		packet.set_destination_address(destination_address, 0);
@@ -129,11 +128,45 @@ require(
 		packet.set_message_data(message_data);
 		packet.generate_data();
 
+		return packet;
+
+	};
+
+	download_button.onclick = function(){
+
+		var modulator = new AFSK_Modulator(44100, 1200, 0.0925, 0, 1200, 2200),
+		packet = generate_message();
+
+		modulator.set_data(packet.get_data());
+
+		var data = [];
+
+		while(true){
+
+			var point = modulator.get_next();
+
+			if(point == null) break;
+
+			data.push(point);
+
+		}
+
+		var int_dat = new Int8Array(data);
+		var blob = new Blob([int_dat], {type: "application/octet-binary"});
+	    var url  = window.URL.createObjectURL(blob);
+	    window.location.assign(url);
+
+	};
+
+	send_button.onclick = function(){
+
+		var modulator = new AFSK_Modulator(audioContext.sampleRate, 1200, 0.0925, 0, 1200, 2200),
+			packet = generate_message();
+
 		modulator.set_data(packet.get_data());
 
 		var disconnect_next = false;
 
-		var data = [];
 
 		// Play the modulated data
 		processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
@@ -143,11 +176,6 @@ require(
 
 				processor.disconnect();
 				delete processor;
-
-				var int_dat = new Int8Array(data);
-				var blob = new Blob([int_dat], {type: "application/octet-binary"});
-			    var url  = window.URL.createObjectURL(blob);
-			    window.location.assign(url);
 
 			    return;
 
@@ -162,7 +190,6 @@ require(
 
 				if(point != null){
 					output[i] = point/128;
-					data.push(point);
 				}
 
 				else {
