@@ -42,7 +42,8 @@ require(
 		send_button = document.getElementById('send'),
 		download_button = document.getElementById('download-raw'),
 		settings_button = document.getElementById('settings'),
-		save_settings_button = document.getElementById('save-settings');
+		save_settings_button = document.getElementById('save-settings'),
+		map_button = document.getElementById('toggle-map');
 
 	var listening = "no";
 
@@ -77,6 +78,17 @@ require(
 		settings.frequency_1 = parseFloat(document.getElementById('settings-frequency-1').value);
 
 		settings.output_file_sr = parseFloat(document.getElementById('settings-output-sr').value);
+
+	};
+
+	map_button.onclick = function(){
+
+		var map_div = document.getElementById('map-div');
+
+		if(map_div.style.display == 'none')
+			map_div.style.display = 'block';
+		else
+			map_div.style.display = 'none';
 
 	};
 

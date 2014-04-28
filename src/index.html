@@ -7,7 +7,13 @@
 	</head>
 	<body>
 		<h1>Web Packet Radio</h1>
-		<hr/><br/>
+		<hr style="float:left;width:calc(100% - 220px);"/>
+		<div style="margin-top:-4px !important;" id="toggle-map" class="button button-small">Toggle Map</div>
+		<br/><br/>
+		<div id="map-div" style="display:none;">
+			Work In Progress
+			<hr/><br/>
+		</div>
 		<div id="settings-div" style="display:none;">
 
 			<div class="input-group">
@@ -51,7 +57,7 @@
 
 			<br/>
 
-			<hr/></br>
+			<hr/><br/>
 
 		</div>
 		<div>
@@ -78,6 +84,7 @@
 		</div>
 		<br/><hr/><br/>
 		<div id="button-div">
+			<div id="remote" class="button">Remote Decoder</div>
 			<div id="iss" class="button">ISS</div>
 			<div id="listen" class="button">Listen</div>
 		</div>
