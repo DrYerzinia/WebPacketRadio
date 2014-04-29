@@ -6,6 +6,34 @@ h1 {
 
 }
 
+#ui_toaster {
+
+	position: absolute;
+	right: 0;
+	top: 0;
+
+}
+
+.ui_default_toast {
+
+	height: 50px;
+	width: 300px;
+
+	line-height: 50px;
+
+	padding: 10px;
+	margin: 10px;
+
+	border: black 3px solid;
+	border-radius: 10px;
+
+	text-align: center;
+	vertical-align: middle;
+
+	background-color: white;
+
+}
+
 #message {
 
     width: calc(100% - 240px);

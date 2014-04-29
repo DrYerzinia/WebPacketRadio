@@ -29,12 +29,14 @@ require(
 	 	'packet/AFSK_Demodulator',
 	 	'packet/AFSK_Modulator',
 	 	'packet/APRSPacket',
+	 	'util/ui',
 	 	'text!../config.json'
 	],
 	function(
 		AFSK_Demodulator,
 		AFSK_Modulator,
 		APRSPacket,
+		ui,
 		config_json
 	){
 
@@ -92,6 +94,7 @@ require(
 			remove_decoder_socket.onerror = function (error) {
 
 				console.log('WebSocket Error ' + error);
+				ui.toast('WebSocket Error: ' + error, {ttl: 2000});
 
 				remove_decoder_socket.close();
 				remove_decoder_socket = null;
@@ -237,6 +240,7 @@ require(
 		if(ISSRunning == true){
 
 			console.log('Already running!');
+			ui.toast('Already running!', {ttl: 2000});
 
 		} else if(ISSRawData == null){
 
