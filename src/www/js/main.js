@@ -93,8 +93,8 @@ require(
 			// Log errors
 			remove_decoder_socket.onerror = function (error) {
 
-				console.log('WebSocket Error ' + error);
-				ui.toast('WebSocket Error: ' + error, {ttl: 2000});
+				console.log('WebSocket Error ' + error.type);
+				ui.toast('WebSocket Error: ' + error.type, {ttl: 2000});
 
 				remove_decoder_socket.close();
 				remove_decoder_socket = null;
