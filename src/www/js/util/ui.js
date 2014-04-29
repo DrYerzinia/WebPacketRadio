@@ -1,8 +1,28 @@
+/**
+ * @author	Michael Marques <dryerzinia@gmail.com>
+ */
+
+/**
+ * @module util
+ */
+
 define(
 	function(){
 
+		/**
+		 * Containts functions for creating UI elements in the DOM
+		 * @class UI
+		 */
 		var ui = {};
 
+		/**
+		 * Creates a message in the corner of the webstie that displays for a period of time
+		 * set by settings.ttl to convey information about a recent event to the user
+		 * @method toast
+		 * @param {String} message Message to display on screen
+		 * @param {Object} settings Dictionary of settings for the toast
+		 * @retrun {Object} Div Element of the Toast Message
+		 */
 		ui.toast = function(message, settings){
 
 			var toaster = document.getElementById('ui_toaster');

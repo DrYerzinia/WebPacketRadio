@@ -34,6 +34,17 @@ h1 {
 
 }
 
+#map-canvas {
+
+	display: block;
+
+	width: 640px;
+	height: 480px;
+
+	margin: 0 auto;
+
+}
+
 #message {
 
     width: calc(100% - 240px);
