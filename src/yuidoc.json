@@ -7,7 +7,7 @@
 		"linkNatives": "true",
 		"attributesEmit": "true",
 		"tabtospace": 4,
-		"paths": "./js",
+		"paths": "./www/js",
 		"outdir": "../doc"
 	}
 }

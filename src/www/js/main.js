@@ -41,12 +41,14 @@ require(
 		listenButton = document.getElementById('listen'),
 		send_button = document.getElementById('send'),
 		download_button = document.getElementById('download-raw'),
+		remote_button = document.getElementById('remote'),
 		settings_button = document.getElementById('settings'),
 		save_settings_button = document.getElementById('save-settings'),
 		map_button = document.getElementById('toggle-map');
 
 	var ISSRawData = null,
-		ISSRunning = false;
+		ISSRunning = false,
+		remove_decoder_socket = null;
 
 	var listening = "no";
 
@@ -69,6 +71,44 @@ require(
 			output_file_sr: 44100
 
 		};
+
+	remote_button.onclick = function(){
+
+		if(!remove_decoder_socket){
+
+			var location = 'ws://' + window.location.host + ":8080";
+			remove_decoder_socket = new WebSocket(location, ['soap']);
+
+			// Log errors
+			remove_decoder_socket.onerror = function (error) {
+				console.log('WebSocket Error ' + error);
+			};
+
+			// Log messages from the server
+			remove_decoder_socket.onmessage = function (e) {
+				if(e.data instanceof Blob){
+			
+					var blobReader = new FileReader();
+					blobReader.onloadend = function(){
+						var data = new Uint8Array(blobReader.result);
+						gotPacket(data);
+					};
+					blobReader.readAsArrayBuffer(e.data);
+
+				}
+			};
+			remote_button.innerHTML = "DC Remote Decoder";
+			
+		} else {
+
+			remove_decoder_socket.close();
+			remove_decoder_socket = null;
+			remote_button.innerHTML = "Remote Decoder";
+			
+
+		}
+
+	};
 
 	save_settings_button.onclick = function(){
 
