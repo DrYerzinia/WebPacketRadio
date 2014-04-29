@@ -13,13 +13,9 @@ requirejs.config({
 
 	baseUrl: 'js',
 
-	paths: {
-		data: '../data'
-	}
-
 });
 
-// Global so webkits garbage collector doesent go terminator on this shit
+// Global so webkits garbage collector doesen't go terminator on this
 // Set up Audio Input variables
 var audioContext =  new (window.AudioContext||window.webkitAudioContext);
 var bufferSize = 8192;
@@ -33,13 +29,11 @@ require(
 	 	'packet/AFSK_Demodulator',
 	 	'packet/AFSK_Modulator',
 	 	'packet/APRSPacket',
-	 	'data/ISSRawData'
-	 ],
+	],
 	function(
 		AFSK_Demodulator,
 		AFSK_Modulator,
-		APRSPacket,
-		ISSRawData
+		APRSPacket
 	){
 
 	// Get Button elements
@@ -50,6 +44,9 @@ require(
 		settings_button = document.getElementById('settings'),
 		save_settings_button = document.getElementById('save-settings'),
 		map_button = document.getElementById('toggle-map');
+
+	var ISSRawData = null,
+		ISSRunning = false;
 
 	var listening = "no";
 
@@ -109,8 +106,9 @@ require(
 
 	};
 
-	// Decode ISS Test data
-	issButton.onclick = function(){
+	function run_ISS(){
+
+		ISSRunning = true;
 
 		var point = 0;
 		var lastPoint = -1;
@@ -136,9 +134,11 @@ require(
 		processor.onaudioprocess = function(e){
 
 			if(disconnectNext == true){
-
+				
 				processor.disconnect();
 				delete processor;
+
+				ISSRunning = false;
 
 				return;
 
@@ -151,7 +151,7 @@ require(
 
 				var subSampledPoint = Math.floor(point*sampleRatio);
 
-				var received;
+				var received = null;
 				if(subSampledPoint != lastPoint)
 					received = decoder.process_byte(ISSRawData[subSampledPoint]);
 
@@ -173,6 +173,50 @@ require(
 
 		};
 		processor.connect(audioContext.destination);
+
+	};
+
+	// Decode ISS Test data
+	issButton.onclick = function(){
+
+		if(ISSRunning == true){
+
+			console.log('Already running!');
+
+		} else if(ISSRawData == null){
+
+			ISSRunning = true;
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', 'data/ISSData.raw', true);
+
+			xhr.responseType = 'arraybuffer';
+
+			xhr.onload = function(e){
+
+				if(this.status == 200){
+
+					ISSRawData = new Int8Array(this.response);
+
+					console.log('ISS data loaded\nlength: ' + ISSRawData.length);
+
+					run_ISS();
+
+				} else {
+
+					console.log('Could not load ISS data');
+
+				}
+
+			};
+
+			xhr.send();
+
+		} else {
+
+			run_ISS();
+
+		}
 
 	};
 
@@ -247,7 +291,6 @@ require(
 		modulator.set_data(packet.get_data());
 
 		var disconnect_next = false;
-
 
 		// Play the modulated data
 		processor = audioContext.createScriptProcessor(bufferSize, 1, 1);
