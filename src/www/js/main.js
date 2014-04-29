@@ -29,12 +29,16 @@ require(
 	 	'packet/AFSK_Demodulator',
 	 	'packet/AFSK_Modulator',
 	 	'packet/APRSPacket',
+	 	'text!../config.json'
 	],
 	function(
 		AFSK_Demodulator,
 		AFSK_Modulator,
-		APRSPacket
+		APRSPacket,
+		config_json
 	){
+
+	var config = JSON.parse(config_json);
 
 	// Get Button elements
 	var issButton = document.getElementById('iss'),
@@ -76,7 +80,12 @@ require(
 
 		if(!remove_decoder_socket){
 
-			var location = 'ws://' + window.location.host + ":8080";
+			var host = config.remote_decoder_host;
+
+			if(host == "self")
+				host = window.location.host;
+
+			var location = 'ws://' + host + ":8080";
 			remove_decoder_socket = new WebSocket(location, ['soap']);
 
 			// Log errors
