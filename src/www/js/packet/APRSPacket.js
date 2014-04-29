@@ -395,7 +395,7 @@ define(
 	
 		}
 	
-		info += "\nFCS: " + base.toHexString(this.fcs, 4) + "\n";
+		info += "\nFCS: " + base.to_hex_string(this.fcs, 4) + "\n";
 	
 		return info;
 

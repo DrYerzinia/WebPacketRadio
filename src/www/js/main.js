@@ -81,7 +81,13 @@ require(
 
 			// Log errors
 			remove_decoder_socket.onerror = function (error) {
+
 				console.log('WebSocket Error ' + error);
+
+				remove_decoder_socket.close();
+				remove_decoder_socket = null;
+				remote_button.innerHTML = "Remote Decoder";
+
 			};
 
 			// Log messages from the server
