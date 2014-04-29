@@ -1,33 +1,103 @@
+/**
+ * @file	AFSK_Demodulator.js
+ * @author	Michael Marques <dryerzinia@gmail.com>
+ * @brief	Demodulator for AFSK modulated AX.25 Frames.
+ *
+ * This file contains a AFSK_Demodulator which takes in 8 bit
+ * signed samples from an audio signal and attempts to decode
+ * a AFSK modulated signal for packet data.
+ */
+
 define(function(){
 
-	function AFSK_Demodulator(sr, br, off, nf, frequency_0, frequency_1){
+	/**
+	 * Set up the demodulator with parameters for the type of signal to receive
+	 */
+	var AFSK_Demodulator = function(sr, br, off, nf, frequency_0, frequency_1){
 
-
+		/**
+		 * Sample rate of the incoming audio data in Samples per Second
+		 * Do not adjust this value directly, instead call the appropriate
+		 * functions on the decoder as other variables require re-calibration
+		 * when these change
+		 */
 		this.sample_rate = sr;
+		/**
+		 * Bit rate of the encoded digital information in the audio signal
+		 * Do not adjust this value directly, instead call the appropriate
+		 * functions on the decoder as other variables require re-calibration
+		 * when these change
+		 */
 		this.bit_rate = br;
 
+		/**
+		 * A number from 0.0-1.0 to multiply by the average signal magnitude and
+		 * then add to the signal to offset the signal so Zero-Crossings of the
+		 * Fourier Coefficient data are more accurately spaced
+		 * The Fourier Coefficients tend to be biased towards f0 TODO: more testing needed to confirm this statement
+		 */
 		this.offset = off;
+		/**
+		 * Float value that will be multiplied be average Fourier signal magnitude
+		 * to determine what samples should be considered erasure
+		 * TODO: Testing has proved this unhelpful thus far, further testing needed
+		 *  May remove this all together
+		 */
 		this.noise_floor = nf;
 
+		/**
+		 * Frequency of the 1st AFSK Symbol
+		 * Standard VHF packet is 1200/2200 Hz
+		 * Standard HF packet is
+		 *  PK232 tones 1600/1800 Hz
+		 *  KAM tones 2110/2310 Hz
+		 */
 		this.frequency_0 = frequency_0;
+		/**
+		 * Frequency of the 2nd AFSK Symbol
+		 */
 		this.frequency_1 = frequency_1;
 
 		this.input_buffer = [];
 		this.fcd_buffer = [];
 
+		/**
+		 * Max of Fourier Coefficients calculated with what is essentially
+		 * a peak detector with decay
+		 * Used with offset parameter to adjust the center of the signal for
+		 * determining Zero-Crossings of the Averaged Fourier signal
+		 */
 		this.fcMax = 0;
+		/**
+		 * Min of Fourier Coefficients
+		 */
 		this.fcMin = 0;
 
 		this.reset();
 
 	};
 
+	/**
+	 * Resets several variables if one of the demodulator parameters is adjusted
+	 * or if a packet has been received
+	 */
 	AFSK_Demodulator.prototype.reset = function(){
 
+		/**
+		 * Count of samples since last Zero-Crossing
+		 */
 		this.count_last = 0;
 
+		/**
+		 * Width of the window of samples to run Goertzels algorithm on and to
+		 * average Fourier coefficients across
+		 */
 		this.window = Math.floor(this.sample_rate/this.bit_rate+0.5);
 
+		/**
+		 * Width of a bit calculated from Sample Rate and Bit Rate
+		 * TODO: call reset in the functions that set Sample Rate and Bit Rate
+		 */
 		this.bitwidth = Math.floor(this.sample_rate/this.bit_rate);
 
 		/*
@@ -38,22 +108,61 @@ define(function(){
 			w0 = (2*Math.PI/this.window)*k0,
 			w1 = (2*Math.PI/this.window)*k1;
 
+		/**
+		 * Goertzel Coefficient for calculating magnitude of frequency 0
+		 */
 		this.coeff0 = 2*Math.cos(w0);
+		/**
+		 * Goertzel Coefficient for calculating magnitude of frequency 1
+		 */
 		this.coeff1 = 2*Math.cos(w1);
 
+		/**
+		 * Value of the last bit to be decoded
+		 * used to check if there has been a Zero-Crossing
+		 */
 		this.last_bit = 0;
 
+		/**
+		 * Indicator if bit stuffing is occurring
+		 */
 		this.bit_stuffing = false;
 
+		/**
+		 * Buffer to hold incoming data until there is enough to fill the window
+		 * and calculate Fourier Coefficients
+		 */
 		this.input_buffer = [];
 
+		/**
+		 * Buffer of Fourier Coefficients so we can average them and smooth out
+		 * the signal for extracting bits from Zero-Crossings
+		 */
 		this.fcd_buffer = [];
 
+		/**
+		 * Expandable array containing the sequence of bytes in the received packet
+		 * It has a default size of 330 to contain a standard APRS packet without
+		 * any reallocations
+		 */
 		this.byte_sequence = [];
+		/**
+		 * A 14 character ring buffer for Bit Data
+		 * Stores currently demodulated bits after Bit Stuffing removal and
+		 * NRZI decoding
+		 * The highest number of bits that should be collected before they are
+		 * pushed to the byte array is 12, 8 for a byte + 6 from bit stuffing
+		 */
 		this.bit_sequence = [];
 
 	};
 
+	/**
+	 * Pass another byte of signal data to the demodulator
+	 * @returns a pointer to a char array containing a demodulated packet
+	 *  if this byte did not complete demodulation of a packet it returns a
+	 *  null instead
+	 */
 	AFSK_Demodulator.prototype.process_byte = function(data_point){
 
 		var new_data = null;
@@ -194,30 +303,57 @@ define(function(){
 
 	};
 
+	/**
+	 * Adjust the sample rate of the audio signal that is being processed
+	 * This function resets the window width so these parameters cannot be
+	 * adjusted directly
+	 */
 	AFSK_Demodulator.prototype.set_sample_rate = function(sr){
 		this.sample_rate = sr;
 		this.reset();
 	};
 
+	/**
+	 * Adjust the bit rate of the incoming data
+	 * This function resets the window width so these parameters cannot be
+	 * adjusted directly
+	 */
 	AFSK_Demodulator.prototype.set_bit_rate = function(br){
 		this.bit_rate = br;
 		this.reset();
 	};
 
+	/**
+	 * Sets frequency of the 1st tone data will be modulated on
+	 */
 	AFSK_Demodulator.prototype.set_frequency_0 = function(f0){
 		this.frequency_0 = f0;
 		this.reset();
 	};
 
+	/**
+	 * Sets frequency of the 2nd tone data will be modulated on
+	 */
 	AFSK_Demodulator.prototype.set_frequency_1 = function(f1){
 		this.frequency_1 = f1;
 		this.reset();
 	};
 
+	/**
+	 * Sets the offset of the demodulator
+	 * This will multiply by the average signal magnitude and be added to the
+	 * Fourier coefficient delta to better center the signal
+	 */
 	AFSK_Demodulator.prototype.set_offset = function(off){
 		this.offset = off;
 	};
 
+	/**
+	 * Sets the Noise Floor
+	 * Fourier coefficients deltas that are below this value multiplied by
+	 * the average signal magnitude will be ignored as they pertain to
+	 * detecting Zero-Crossings
+	 */
 	AFSK_Demodulator.prototype.set_noise_floor = function(nf){
 		this.noise_floor = nf;
 	};
