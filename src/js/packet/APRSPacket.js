@@ -1,3 +1,16 @@
+/**
+ * @author	Michael Marques <dryerzinia@gmail.com>
+ */
+
+/**
+ *  @module Packet
+ */
+
+/**
+ * Stores the raw and parsed data from an AX.25 APRS packet
+ * @class APRSPacket
+ */
+
 define(
 	[
 	 	'crc/crccitt',
@@ -7,14 +20,23 @@ define(
 		crccitt,
 		base
 	){
-	
+
+	/**
+	 * @constructor
+	 */
 	var APRSPacket = function(){
 
 		this.repeater_addresses = [];
 		this.repeater_ssids = [];
 
 	};
-	
+
+	/**
+	 * Create packet from raw data
+	 * @method from_data
+	 * @param {Array} data Raw packet data from decoder
+	 * @returns APRSPacket
+	 */
 	APRSPacket.from_data = function(data){
 
 		var packet = new APRSPacket();
@@ -76,6 +98,12 @@ define(
 
 	};
 
+	/**
+	 * Set the source address of the packet
+	 * @method set_source_address
+	 * @param {String} address Address of sender
+	 * @param {int} ssid SSID of the sender address
+	 */
 	APRSPacket.prototype.set_source_address = function(address, ssid){
 
 		this.source_address = address;
@@ -83,6 +111,12 @@ define(
 
 	};
 
+	/**
+	 * Set the destination address of the packet
+	 * @method set_destination_address
+	 * @param {String} address Destionation address of packet
+	 * @param {int} ssid SSID of the destination Address
+	 */
 	APRSPacket.prototype.set_destination_address = function(address, ssid){
 
 		this.destination_address = address;
@@ -90,6 +124,12 @@ define(
 
 	};
 
+	/**
+	 * Add a repeater address to the packet
+	 * @method add_repeater_address
+	 * @param address Address of repeater to add
+	 * @param ssid SSID of 
+	 */
 	APRSPacket.prototype.add_repeater_address = function(address, ssid){
 
 		this.repeater_addresses.push(address);
@@ -97,26 +137,50 @@ define(
 
 	};
 
+	/**
+	 * Set the PID field value of the AX.25 Frame
+	 * @method set_PID
+	 * @param {int} PID PID value of the AX.25 Frame
+	 */
 	APRSPacket.prototype.set_PID = function(PID){
 		this.PID = PID;
 	};
 
+	/**
+	 * Set the Control field value of the AX.25 Frame
+	 * @method set_control
+	 * @param {int} control Control value of the AX.25 Frame
+	 */
 	APRSPacket.prototype.set_control = function(control){
 		this.control = control;
-	}
+	};
 
+	/**
+	 * Sets the message data of the AX.25 Frame
+	 * @method set_message_data
+	 * @param message_data
+	 */
 	APRSPacket.prototype.set_message_data = function(message_data){
 
 		this.message_data = message_data;
 
 	};
 
+	/**
+	 * Sets the raw data of the packet
+	 * @method set_data
+	 * @param {Array} data Raw packet data
+	 */
 	APRSPacket.prototype.set_data = function(data){
 
 		this.data = data;
 
 	};
 
+	/**
+	 * Generate Raw Data for the packet from its properties
+	 * @method generate_data
+	 */
 	APRSPacket.prototype.generate_data = function(){
 
 		var i = 0;
@@ -148,10 +212,24 @@ define(
 
 	};
 
+	/**
+	 * Get raw data property of this packet
+	 * @method get_data
+	 * @return Raw packet data property
+	 */
 	APRSPacket.prototype.get_data = function(){
 		return this.data;
 	};
 
+	/**
+	 * Add a address to the the data array of raw packet data
+	 * @method push_address_to_data
+	 * @static
+	 * @param {Array} data Raw data array
+	 * @param {String} address Address to add
+	 * @param {int} ssid SSID of the address
+	 * @param {int} ssid_top Top 3 bits of SSID Field to use depending on type of address
+	 */
 	APRSPacket.push_address_to_data = function(data, address, ssid, ssid_top){
 
 		for(var i = 0; i < 6; i++){
@@ -163,17 +241,42 @@ define(
 
 	};
 
+	/**
+	 * AX.25 Normal control field for APRS Packet
+	 * @property STD_CONTROL
+	 * @static
+	 */
 	APRSPacket.STD_CONTROL = 0x03;
+	/**
+	 * AX.25 Normal PID field for APRS Packet
+	 * @property STD_PID
+	 * @static
+	 */
 	APRSPacket.STD_PID = 0xF0;
 
+	/**
+	 * AX.25 CRC Polynomial
+	 * @property CRC_POLY
+	 * @static
+	 */
 	APRSPacket.CRC_POLY = 0x8408;
 
+	/**
+	 * Calculates the CRC for the packet
+	 * @method crc
+	 * @return {int} Packet CRC Value
+	 */
 	APRSPacket.prototype.crc = function(){
 
 		return crccitt(this.data, this.data.length - 2, APRSPacket.CRC_POLY);
 
 	};
 
+	/**
+	 * Checks if the CRC value is valid
+	 * @method crc_check
+	 * @return {Boolean} True if the CRC value is valid, false if not
+	 */
 	APRSPacket.prototype.crc_check = function(){
 
 		var received_crc = (this.data[this.data.length-1] << 8) + this.data[this.data.length-2];
@@ -185,6 +288,10 @@ define(
 
 	};
 
+	/**
+	 * Add a CRC to raw data of the packet
+	 * @method add_crc
+	 */
 	APRSPacket.prototype.add_crc = function(){
 
 		var val = crccitt(this.data, this.data.length, APRSPacket.CRC_POLY);
@@ -196,10 +303,16 @@ define(
 		
 	};
 
+	/**
+	 * @method recalculate_crc
+	 */
 	APRSPacket.prototype.recalculate_crc = function(){
 		//
 	};
 
+	/*
+	 * Internal function to check if a function is printable
+	 */
 	function printable(val){
 
 		c = String.fromCharCode(val);
@@ -212,10 +325,15 @@ define(
 
 	}
 
+	/**
+	 * Creates a Human readable string of the AX.25 message section
+	 * @method to_string
+	 * @return {String} Human readable string of the AX.25 message section
+	 */
 	APRSPacket.prototype.to_string = function(){
 
 		var packet_str = "",
-			i, c;
+			i;
 
 		for(i = 0; i < this.message_data.length; i++)
 			packet_str += printable(this.message_data[i]);
@@ -224,6 +342,11 @@ define(
 
 	};
 
+	/**
+	 * Creates a detailed human readable string
+	 * @method info_string
+	 * @return {String} Human readable detailed information on packet
+	 */
 	APRSPacket.prototype.info_string = function(){
 
 		info = "";
@@ -261,7 +384,7 @@ define(
 	
 				if(i < this.data.length){
 	
-					info += " " + base.toHexString(this.data[i], 2);
+					info += " " + base.to_hex_string(this.data[i], 2);
 		 			i++;
 	
 				}

@@ -1,17 +1,24 @@
 /**
- * @file	AFSK_Demodulator.js
  * @author	Michael Marques <dryerzinia@gmail.com>
- * @brief	Demodulator for AFSK modulated AX.25 Frames.
- *
- * This file contains a AFSK_Demodulator which takes in 8 bit
- * signed samples from an audio signal and attempts to decode
- * a AFSK modulated signal for packet data.
+ */
+
+/**
+ * Code for modulating/demodulating storing and parsing data in AFSK Modulated
+ * AX.25 packets
+ * @module Packet
+ * @main
+ */
+
+/**
+ * A AFSK_Demodulator which takes in 8 bit signed samples from an audio signal
+ * and attempts to decode a AFSK modulated signal for AX.25 packets.
+ * @class AFSK_Demodulator
  */
 
 define(function(){
 
 	/**
-	 * Set up the demodulator with parameters for the type of signal to receive
+	 * @constructor
 	 */
 	var AFSK_Demodulator = function(sr, br, off, nf, frequency_0, frequency_1){
 
@@ -20,6 +27,8 @@ define(function(){
 		 * Do not adjust this value directly, instead call the appropriate
 		 * functions on the decoder as other variables require re-calibration
 		 * when these change
+		 * @property sample_rate
+		 * @type int
 		 */
 		this.sample_rate = sr;
 		/**
@@ -27,6 +36,8 @@ define(function(){
 		 * Do not adjust this value directly, instead call the appropriate
 		 * functions on the decoder as other variables require re-calibration
 		 * when these change
+		 * @property bit_rate
+		 * @type int
 		 */
 		this.bit_rate = br;
 
@@ -35,6 +46,8 @@ define(function(){
 		 * then add to the signal to offset the signal so Zero-Crossings of the
 		 * Fourier Coefficient data are more accurately spaced
 		 * The Fourier Coefficients tend to be biased towards f0 TODO: more testing needed to confirm this statement
+		 * @property offset
+		 * @type float
 		 */
 		this.offset = off;
 		/**
@@ -42,6 +55,8 @@ define(function(){
 		 * to determine what samples should be considered erasure
 		 * TODO: Testing has proved this unhelpful thus far, further testing needed
 		 *  May remove this all together
+		 * @property noise_floor
+		 * @type float
 		 */
 		this.noise_floor = nf;
 
@@ -51,14 +66,30 @@ define(function(){
 		 * Standard HF packet is
 		 *  PK232 tones 1600/1800 Hz
 		 *  KAM tones 2110/2310 Hz
+		 * @property frequency_0
+		 * @type int
 		 */
 		this.frequency_0 = frequency_0;
 		/**
 		 * Frequency of the 2nd AFSK Symbol
+		 * @property frequency_1
+		 * @type int
 		 */
 		this.frequency_1 = frequency_1;
 
+		/**
+		 * Buffer to hold incoming data until there is enough to fill the window
+		 * and calculate Fourier Coefficients
+		 * @property input_buffer
+		 * @type Array
+		 */
 		this.input_buffer = [];
+		/**
+		 * Buffer of Fourier Coefficients so we can average them and smooth out
+		 * the signal for extracting bits from Zero-Crossings
+		 * @property fcd_buffer
+		 * @type Array
+		 */
 		this.fcd_buffer = [];
 
 		/**
@@ -66,9 +97,13 @@ define(function(){
 		 * a peak detector with decay
 		 * Used with offset parameter to adjust the center of the signal for
 		 * determining Zero-Crossings of the Averaged Fourier signal
+		 * @property fcMax
+		 * @type float
 		 */
 		this.fcMax = 0;
 		/**
+		 * @property fcMin
+		 * @type float
 		 * Min of Fourier Coefficients
 		 */
 		this.fcMin = 0;
@@ -80,23 +115,30 @@ define(function(){
 	/**
 	 * Resets several variables if one of the demodulator parameters is adjusted
 	 * or if a packet has been received
+	 * @method reset
 	 */
 	AFSK_Demodulator.prototype.reset = function(){
 
 		/**
 		 * Count of samples since last Zero-Crossing
+		 * @property count_last
+		 * @type int
 		 */
 		this.count_last = 0;
 
 		/**
 		 * Width of the window of samples to run Goertzels algorithm on and to
 		 * average Fourier coefficients across
+		 * @property window
+		 * @type int
 		 */
 		this.window = Math.floor(this.sample_rate/this.bit_rate+0.5);
 
 		/**
 		 * Width of a bit calculated from Sample Rate and Bit Rate
 		 * TODO: call reset in the functions that set Sample Rate and Bit Rate
+		 * @property bitwidth
+		 * @type int
 		 */
 		this.bitwidth = Math.floor(this.sample_rate/this.bit_rate);
 
@@ -109,41 +151,43 @@ define(function(){
 			w1 = (2*Math.PI/this.window)*k1;
 
 		/**
+		 * @property coeff0
+		 * @type float
 		 * Goertzel Coefficient for calculating magnitude of frequency 0
 		 */
 		this.coeff0 = 2*Math.cos(w0);
 		/**
 		 * Goertzel Coefficient for calculating magnitude of frequency 1
+		 * @property coeff1
+		 * @type float
 		 */
 		this.coeff1 = 2*Math.cos(w1);
 
 		/**
 		 * Value of the last bit to be decoded
 		 * used to check if there has been a Zero-Crossing
+		 * @property last_bit
+		 * @type int
 		 */
 		this.last_bit = 0;
 
 		/**
 		 * Indicator if bit stuffing is occurring
+		 * @property bit_stuffing
+		 * @type boolean
 		 */
 		this.bit_stuffing = false;
 
-		/**
-		 * Buffer to hold incoming data until there is enough to fill the window
-		 * and calculate Fourier Coefficients
-		 */
 		this.input_buffer = [];
 
-		/**
-		 * Buffer of Fourier Coefficients so we can average them and smooth out
-		 * the signal for extracting bits from Zero-Crossings
-		 */
 		this.fcd_buffer = [];
 
 		/**
 		 * Expandable array containing the sequence of bytes in the received packet
 		 * It has a default size of 330 to contain a standard APRS packet without
 		 * any reallocations
+		 * @property byte_sequence
+		 * @type Array
 		 */
 		this.byte_sequence = [];
 		/**
@@ -152,6 +196,8 @@ define(function(){
 		 * NRZI decoding
 		 * The highest number of bits that should be collected before they are
 		 * pushed to the byte array is 12, 8 for a byte + 6 from bit stuffing
+		 * @property bit_sequence
+		 * @type Array
 		 */
 		this.bit_sequence = [];
 
@@ -159,7 +205,9 @@ define(function(){
 
 	/**
 	 * Pass another byte of signal data to the demodulator
-	 * @returns a pointer to a char array containing a demodulated packet
+	 * @method process_byte
+	 * @param {int} data_point Next data point to process
+	 * @return {Array} a pointer to a char array containing a demodulated packet
 	 *  if this byte did not complete demodulation of a packet it returns a
 	 *  null instead
 	 */
@@ -307,6 +355,8 @@ define(function(){
 	 * Adjust the sample rate of the audio signal that is being processed
 	 * This function resets the window width so these parameters cannot be
 	 * adjusted directly
+	 * @method set_sample_rate
+	 * @param {int} sr Sample Rate the data is at
 	 */
 	AFSK_Demodulator.prototype.set_sample_rate = function(sr){
 		this.sample_rate = sr;
@@ -317,6 +367,8 @@ define(function(){
 	 * Adjust the bit rate of the incoming data
 	 * This function resets the window width so these parameters cannot be
 	 * adjusted directly
+	 * @method set_bit_rate
+	 * @param {int} br Bit Rate the modulated data will be at
 	 */
 	AFSK_Demodulator.prototype.set_bit_rate = function(br){
 		this.bit_rate = br;
@@ -325,6 +377,8 @@ define(function(){
 
 	/**
 	 * Sets frequency of the 1st tone data will be modulated on
+	 * @method set_frequency_0
+	 * @param {int} f0 The first frequency data will be modulated with
 	 */
 	AFSK_Demodulator.prototype.set_frequency_0 = function(f0){
 		this.frequency_0 = f0;
@@ -333,6 +387,8 @@ define(function(){
 
 	/**
 	 * Sets frequency of the 2nd tone data will be modulated on
+	 * @method set_frequency_1
+	 * @param {int} f1 The second frequency data will be modulated with
 	 */
 	AFSK_Demodulator.prototype.set_frequency_1 = function(f1){
 		this.frequency_1 = f1;
@@ -343,6 +399,8 @@ define(function(){
 	 * Sets the offset of the demodulator
 	 * This will multiply by the average signal magnitude and be added to the
 	 * Fourier coefficient delta to better center the signal
+	 * @method set_offset
+	 * @param {float} off The offset to shift the signal by
 	 */
 	AFSK_Demodulator.prototype.set_offset = function(off){
 		this.offset = off;
@@ -353,6 +411,8 @@ define(function(){
 	 * Fourier coefficients deltas that are below this value multiplied by
 	 * the average signal magnitude will be ignored as they pertain to
 	 * detecting Zero-Crossings
+	 * @method set_noise_floor
+	 * @param {int} nf The level of the signal noise floor
 	 */
 	AFSK_Demodulator.prototype.set_noise_floor = function(nf){
 		this.noise_floor = nf;

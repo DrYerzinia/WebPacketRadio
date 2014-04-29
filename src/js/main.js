@@ -1,6 +1,12 @@
 /**
- * @file
- * @author DrYerzinia <DrYerzinia@gmail.com>
+ * @author	Michael Marques <dryerzinia@gmail.com>
+ */
+
+/**
+ * Stats the WebPacketRadio main WebApp enabling the user to send and receive
+ * AFSK Modulated AX.25 packets through the sound card
+ * @module Main
+ * @main
  */
 
 requirejs.config({
@@ -305,6 +311,7 @@ require(
 	};
 
 	/**
+	 * @method getUserMedia
 	 * Universal getUserMedia function
 	 */
 	function getUserMedia(params, success, error){
@@ -317,6 +324,7 @@ require(
 
 	/**
 	 * Start the decoder when we get a stream
+	 * @method getStream
 	 * @param stream Audio input stream from sound device
 	 */
 	function getStream(stream){
@@ -409,6 +417,7 @@ require(
 	}
 
 	/**
+	 * @method getStreamError
 	 * Inform user of error, we could not get stream
 	 */
 	function getStreamError(code){

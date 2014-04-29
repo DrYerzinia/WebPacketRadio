@@ -1,0 +1,13 @@
+{
+	"name": "WebPacketDemodulator",
+	"description": "A stand alone WebApp for demodulating AFSK packets.",
+	"version": "0.1",
+	"url": "http://dryerzinia.io/standalone/WebPacketRadio/",
+	"options": {
+		"linkNatives": "true",
+		"attributesEmit": "true",
+		"tabtospace": 4,
+		"paths": "./js",
+		"outdir": "../doc"
+	}
+}

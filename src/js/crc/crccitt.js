@@ -1,8 +1,25 @@
+/**
+ * @author	Michael Marques <dryerzinia@gmail.com>
+  */
+
+/**
+ * Contains functions for calcuating crc's
+ * @module CRC
+ * @main
+ */
+
+/**
+ * @class CRC
+ */
+
 define(function(){
 
+	/**
+	 * Calculates CRC-CITT value of given data
+	 * @method crccitt
+	 * @return CRC value of data using given polynomial
+	 */
 	var crccitt = function(data, len, polynomial){
-
-		var len
 
 		var crc = 0xFFFF;
 		var i;
@@ -26,7 +43,7 @@ define(function(){
 
 		return crc;
 
-	}
+	};
 
 	return crccitt;
 

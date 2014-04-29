@@ -1,7 +1,21 @@
+/**
+ * @author	Michael Marques <dryerzinia@gmail.com>
+ */
+
+/**
+ * @module Packet
+ */
+
+/**
+ * Generates a AFSK Modulated audio signal that containts the given packet
+ * data
+ * @class AFSK_Modulator
+ */
+
 define(function(){
 	
-	/*
-	 * Create a modulator to make a signal to send
+	/**
+	 * @constructor
 	 */
 	var AFSK_Modulator = function(sr, br, off, nf, frequency_0, frequency_1){
 
@@ -18,18 +32,21 @@ define(function(){
 
 	};
 
-	/*
+	/**
 	 * Reset the modulator to time 0
+	 * @method reset
 	 */
 	AFSK_Modulator.prototype.reset = function(){
 
 		this.phase = 0;
 		this.time = 0;
 
-	}
+	};
 
-	/*
+	/**
 	 * Prepare the data for modulation
+	 * @method set_data
+	 * @param {Array} data Raw data to create the packet from
 	 */
 	AFSK_Modulator.prototype.set_data = function(data){
 
@@ -83,10 +100,11 @@ define(function(){
 
 		AFSK_Modulator.add_preambles(this.frequency_data, 50, last_freq);
 
-	}
+	};
 
-	/*
+	/**
 	 * Get the next point in the modulated Sin Wave of the signal
+	 * @method get_next
 	 */
 	AFSK_Modulator.prototype.get_next = function(){
 
@@ -106,8 +124,13 @@ define(function(){
 
 	};
 
-	/*
+	/**
 	 * Add preamble to the signal
+	 * @method add_preambles
+	 * @static
+	 * @param {Array} frequency_data Array holding which frequency to send for each consecutive bit period
+	 * @param {int} n Number of preambles to add
+	 * @param {int} last_freq Last frequency that was used to send
 	 */
 	AFSK_Modulator.add_preambles = function(frequency_data, n, last_freq){
 
