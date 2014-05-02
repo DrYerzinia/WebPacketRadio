@@ -15,12 +15,16 @@ define(
 	[
 	 	'crc/crccitt',
 	 	'math/base',
-	 	'packet/APRSMessages/APRS_MIC_E'
+	 	'packet/APRSMessages/APRS_MIC_E',
+	 	'packet/APRSMessages/APRS_Pos_TS',
+	 	'packet/APRSMessages/APRS_Pos_no_TS'
 	],
 	function(
 		crccitt,
 		base,
-		APRS_MIC_E
+		APRS_MIC_E,
+		APRS_Pos_TS,
+		APRS_Pos_no_TS
 	){
 
 	/**
@@ -446,7 +450,12 @@ define(
 
 	APRSPacket.PACKET_TYPE = {
 		'\'': APRS_MIC_E,
-		'`' : APRS_MIC_E
+		'`' : APRS_MIC_E,
+		'@' : APRS_Pos_TS,
+		'/' : APRS_Pos_TS,
+		'[' : APRS_Pos_TS,
+		'!' : APRS_Pos_no_TS,
+		'=' : APRS_Pos_no_TS
 	};
 
 	APRSPacket.SSID_SYMBOL_TABLE =
