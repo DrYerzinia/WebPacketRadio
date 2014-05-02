@@ -15,6 +15,16 @@ define(
 
 		var Icon = function(url, position){
 
+			this.image = new Image();
+
+			this.is_loaded = false;
+
+			//
+
+		};
+
+		Icon.prototype.render(position, zoom){
+
 			//
 
 		};

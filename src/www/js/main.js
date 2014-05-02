@@ -258,7 +258,7 @@ require(
 			ISSRunning = true;
 
 			var xhr = new XMLHttpRequest();
-			xhr.open('GET', 'data/ISSData.raw', true);
+			xhr.open('GET', 'data/audio/ISSData.raw', true);
 
 			xhr.responseType = 'arraybuffer';
 
