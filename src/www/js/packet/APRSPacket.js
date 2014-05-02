@@ -413,7 +413,34 @@ define(
 
 	APRSPacket.prototype.get_symbol = function(){
 
-		return '0';
+		if(this.aprs_info != null){
+			var sym = this.aprs_info.symbol_code,
+				table = this.aprs_info.symbol_table,
+				actual_sym;
+
+			if(sym != null && table != null){
+				// Primary Symbol Table
+				if(table == '/'){
+					actual_sym = APRSPacket.SYMBOL_TABLE[sym];
+					if(actual_sym != null)
+						return actual_sym;
+				}
+				// Secondary Symbol Table
+				else {
+					// Table sybol can be overlay indicator
+					actual_sym = APRSPacket.ALTERNATE_SYMBOL_TABLE[sym];
+					if(actual_sym != null)
+						return actual_sym;
+				}
+			}
+
+		}
+
+		if(this.destination_ssid > 0 && this.destination_ssid < 16)
+			return APRSPacket.SSID_SYMBOL_TABLE[this.destination_ssid - 1];
+
+		return null;
+
 
 	};
 
@@ -422,105 +449,218 @@ define(
 		'`' : APRS_MIC_E
 	};
 
-	APRSPacket.SYMBOL_TABLE = {
-			'!': 'Sheriff',
-			'"': 'Reserved',
-			'#': 'Digi',
-			'$': 'Phone',
-			'%': 'DX',
-			'&': 'HFGateway',
-			'\'': 'SmallAircraft',
-			'(': 'MobileSatGroundStation',
-			')': 'Handicap',
-			'*': 'SnowMobile',
-			'+': 'RedCross',
-			',': 'BoyScouts',
-			'-': 'House',
-			'.': 'X',
-			'/': 'Dot',
-			'0': '0',
-			'1': '1',
-			'2': '2',
-			'3': '3',
-			'4': '4',
-			'5': '5',
-			'6': '6',
-			'7': '7',
-			'8': '8',
-			'9': '9',
-			':': 'Fire',
-			';': 'Campground',
-			'<': 'Motorcycle',
-			'=': 'Train',
-			'>': 'Car',
-			'?': 'Server',
-			'@': 'Hurricane',
-			'A': 'AidStation',
-			'B': 'BBS',
-			'C': 'Canoe',
-			'D': 'D',
-			'E': 'Eyeball',
-			'F': 'Tractor',
-			'G': 'GridSquare',
-			'H': 'Hotel',
-			'I': 'TCPIP',
-			'J': 'J',
-			'K': 'School',
-			'L': 'L',
-			'M': 'MacAPRS',
-			'N': 'NTS',
-			'O': 'Balloon',
-			'P': 'Police',
-			'Q': 'Q',
-			'R': 'RV',
-			'S': 'SpaceShuttle',
-			'T': 'SSTV',
-			'U': 'Bus',
-			'V': 'ATV',
-			'W': 'WX',
-			'X': 'Helicopter',
-			'Y': 'Yacht',
-			'Z': 'WinAPRS',
-			'[': 'Jogger',
-			'\\': 'Triangle',
-			']': 'PBBS',
-			'^': 'LargeAircraft',
-			'_': 'WX',
-			'`': 'DishAntenna',
-			'a': 'Ambulance',
-			'b': 'Bicycle',
-			'c': 'c',
-			'd': 'FireDept',
-			'e': 'Horse',
-			'f': 'FireTruck',
-			'g': 'Glider',
-			'h': 'Hospital',
-			'i': 'IOTA',
-			'j': 'Jeep',
-			'k': 'Truck',
-			'l': 'Laptop',
-			'm': 'MicRepeater',
-			'n': 'Node',
-			'o': 'EmergencyOPS',
-			'p': 'Rover',
-			'q': 'GridSquareA',
-			'r': 'Antenna',
-			's': 'Ship',
-			't': 'TruckStop',
-			'u': 'SemiTruck',
-			'v': 'Van',
-			'w': 'WaterStation',
-			'x': 'XAPRS',
-			'y': 'Yagi',
-			'z': 'z',
-			'{': 'Res2',
-			'|': 'Bar',
-			'}': 'Res3',
-			'~': 'Tilda'
-		};
+	APRSPacket.SSID_SYMBOL_TABLE =
+		[
+		 	'Ambulance',
+		 	'Bus',
+		 	'FireTruck',
+		 	'Bicycle',
+		 	'Yacht',
+		 	'Helicopter',
+		 	'SmallAircraft',
+		 	'Ship',
+		 	'Car',
+		 	'Motorcyle',
+		 	'Balloon',
+		 	'Jeep',
+            'RV',
+            'Truck',
+            'Van'
+	 	];
 
-		APRSPacket.ALTERNATE_SYMBOL_TABLE = {
-		};
+	APRSPacket.SYMBOL_TABLE = {
+		'!': 'Sheriff',
+		'"': 'Reserved',
+		'#': 'Digi',
+		'$': 'Phone',
+		'%': 'DX',
+		'&': 'HFGateway',
+		'\'': 'SmallAircraft',
+		'(': 'MobileSatGroundStation',
+		')': 'Handicap',
+		'*': 'SnowMobile',
+		'+': 'RedCross',
+		',': 'BoyScouts',
+		'-': 'House',
+		'.': 'X',
+		'/': 'Dot',
+		'0': '0',
+		'1': '1',
+		'2': '2',
+		'3': '3',
+		'4': '4',
+		'5': '5',
+		'6': '6',
+		'7': '7',
+		'8': '8',
+		'9': '9',
+		':': 'Fire',
+		';': 'Campground',
+		'<': 'Motorcycle',
+		'=': 'Train',
+		'>': 'Car',
+		'?': 'Server',
+		'@': 'Hurricane',
+		'A': 'AidStation',
+		'B': 'BBS',
+		'C': 'Canoe',
+		'D': 'D',
+		'E': 'Eyeball',
+		'F': 'Tractor',
+		'G': 'GridSquare',
+		'H': 'Hotel',
+		'I': 'TCPIP',
+		'J': 'J',
+		'K': 'School',
+		'L': 'L',
+		'M': 'MacAPRS',
+		'N': 'NTS',
+		'O': 'Balloon',
+		'P': 'Police',
+		'Q': 'Q',
+		'R': 'RV',
+		'S': 'SpaceShuttle',
+		'T': 'SSTV',
+		'U': 'Bus',
+		'V': 'ATV',
+		'W': 'WX',
+		'X': 'Helicopter',
+		'Y': 'Yacht',
+		'Z': 'WinAPRS',
+		'[': 'Jogger',
+		'\\': 'Triangle',
+		']': 'PBBS',
+		'^': 'LargeAircraft',
+		'_': 'WX',
+		'`': 'DishAntenna',
+		'a': 'Ambulance',
+		'b': 'Bicycle',
+		'c': 'c',
+		'd': 'FireDept',
+		'e': 'Horse',
+		'f': 'FireTruck',
+		'g': 'Glider',
+		'h': 'Hospital',
+		'i': 'IOTA',
+		'j': 'Jeep',
+		'k': 'Truck',
+		'l': 'Laptop',
+		'm': 'MicRepeater',
+		'n': 'Node',
+		'o': 'EmergencyOPS',
+		'p': 'Rover',
+		'q': 'GridSquareA',
+		'r': 'Antenna',
+		's': 'Ship',
+		't': 'TruckStop',
+		'u': 'SemiTruck',
+		'v': 'Van',
+		'w': 'WaterStation',
+		'x': 'XAPRS',
+		'y': 'Yagi',
+		'z': 'z',
+		'{': 'Reserved',
+		'|': 'Bar',
+		'}': 'Reserved',
+		'~': 'Tilda'
+	};
+
+	APRSPacket.ALTERNATE_SYMBOL_TABLE = {
+		'!': 'Emergency',
+		'"': 'Reserved',
+		'#': 'Digi',		// overlay
+		'$': 'Bank',
+		'%': 'Reserved',
+		'&': 'HFGateway', 	// overlay
+		'\'': 'CrashSite',
+		'(': 'Cloudy',
+		')': 'RedLight',
+		'*': 'Snow',
+		'+': 'Church',
+		',': 'GirlScouts',
+		'-': 'HouseHF',
+		'.': 'UnknownPosition',
+		'/': 'BlackDot',
+		'0': 'Circle',			// overlay
+		'1': 'Circle',			// overlay
+		'2': 'Circle',			// overlay
+		'3': 'Circle',			// overlay
+		'4': 'Circle',			// overlay
+		'5': 'Circle',			// overlay
+		'6': 'Circle',			// overlay
+		'7': 'Circle',			// overlay
+		'8': 'Circle',			// overlay
+		'9': 'Gas',
+		':': 'Hail',
+		';': 'ParkPicnic',
+		'<': 'NWSAdvisory',
+		'=': 'Reserved',
+		'>': 'CarAlt',
+		'?': 'InfoKiosk',
+		'@': 'HurricaneAlt',
+		'A': 'Box',
+		'B': 'BlowingSnow',
+		'C': 'CoastGuard',
+		'D': 'Drizzle',
+		'E': 'Smoke',
+		'F': 'FreezingRain',
+		'G': 'SnowShower',
+		'H': 'Haze',
+		'I': 'RainShower',
+		'J': 'Lightning',
+		'K': 'Kenwood',
+		'L': 'Lighthouse',
+		'M': 'Reserved',
+		'N': 'NavBuoy',
+		'O': 'Rocket',
+		'P': 'Parking',
+		'Q': 'Earthquake',
+		'R': 'Restaurant',
+		'S': 'Satellite',
+		'T': 'ThunderStorm',
+		'U': 'Sunny',
+		'V': 'VORTACNavAid',
+		'W': 'NWSSite',		// overlay
+		'X': 'PharmacyRX',
+		'Y': 'Reserved',
+		'Z': 'Reserved',
+		'[': 'WallCloud',
+		'\\': 'Reserved',
+		']': 'Reserved',
+		'^': 'Aircraft', // aircraft overlay
+		'_': 'WX',			// overlay
+		'`': 'Rain',
+		'a': 'ARRLRACES',	// overlay
+		'b': 'BlowingDustSand',
+		'c': 'CivilDefense',
+		'd': 'DX',			// Callsign prefix
+		'e': 'Sleet',
+		'f': 'FunnelCloud',
+		'g': 'GaleFlags',
+		'h': 'HamStore',
+		'i': 'IndoorDigi',	// overlay
+		'j': 'WorkZone',
+		'k': 'RedBus',
+		'l': 'Reserved',
+		'm': 'ValueSignpost',
+		'n': 'TriangleAlt',	// overlay
+		'o': 'SmallCircle',
+		'p': 'PartlyCloudy',
+		'q': 'Reserved',
+		'r': 'Restrooms',
+		's': 'ShipBoat',
+		't': 'Tornado',
+		'u': 'Truck',		// overlay
+		'v': 'Van',			// overlay
+		'w': 'Flooding',
+		'x': 'Reserved',
+		'y': 'Tornado2',
+		'z': 'RedHouse',
+		'{': 'Fog',
+		'|': 'Bar',
+		'}': 'Reserved',
+		'~': 'Tilda',
+	};
 
 	return APRSPacket;
 

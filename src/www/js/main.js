@@ -526,16 +526,16 @@ require(
 
 			if(packet.aprs_info){
 				var coord = packet.aprs_info.get_latlong(),
-					sym = packet.aprs_info.get_symbol()
-				if(coord){
+					sym = packet.get_symbol();
+				if(coord && sym){
 					// put the waypoint on the map and refresh the view
-					map.add_object(new Icon('data/image/aprs_symbols/' + APRSPacket.SYMBOL_TABLE[sym] + '.gif', coord));
+					map.add_object(new Icon('data/image/aprs_symbols/' + sym + '.gif', coord));
 					map.render();
 				}
 			}
 
 			// Log detailed packet info to console
-			console.log(packet.info_string());
+			//console.log(packet.info_string());
 
 		}
 

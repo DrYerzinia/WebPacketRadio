@@ -173,7 +173,7 @@ define(
 			this.speed = aspeed;
 			this.heading = aheading;
 
-			var symTableID = String.fromCharCode(packet.message_data[8]);
+			this.symbol_table = String.fromCharCode(packet.message_data[8]);
 			this.symbol_code = String.fromCharCode(packet.message_data[7]);
 
 		};
@@ -181,12 +181,6 @@ define(
 		APRS_MIC_E.prototype.get_latlong = function(){
 
 			return this.coordinates;
-
-		};
-
-		APRS_MIC_E.prototype.get_symbol = function(){
-
-			return this.symbol_code;
 
 		};
 
