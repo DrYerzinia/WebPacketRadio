@@ -78,7 +78,7 @@ define(
 			// Set up canvas events
 			var t = this;
 			// Zooming in/out
-			this.canvas.onmousewheel = function(e){
+			var wheel = function(e){
 
 				e.preventDefault();
 				d = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
@@ -88,6 +88,10 @@ define(
 				t._scroll(x, y, d);
 
 			};
+			if(window.addEventListener){
+				this.canvas.addEventListener("mousewheel", wheel, false);
+				this.canvas.addEventListener('DOMMouseScroll', wheel, false);
+			} else this.canvas.onmousewheel = wheel;
 			// Zooming in
 			this.canvas.ondblclick = function(e){
 				e.preventDefault();
