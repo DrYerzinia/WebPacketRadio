@@ -354,16 +354,48 @@ define(
 						}
 					);
 
+					var draw_x = Math.floor( this.canvas.width/2  + ((j - Math.floor(w/2) - offset_x) * Map.TILE_SIDE_LENGTH) ),
+						draw_y = Math.floor( this.canvas.height/2 + ((k - Math.floor(h/2) - offset_y) * Map.TILE_SIDE_LENGTH) );
+
 					if(next_tile.is_loaded){
 
 						next_tile.render(
 							this.ctx,
-							Math.floor( this.canvas.width/2  + ((j - Math.floor(w/2) - offset_x) * Map.TILE_SIDE_LENGTH) ),
-							Math.floor( this.canvas.height/2 + ((k - Math.floor(h/2) - offset_y) * Map.TILE_SIDE_LENGTH) )
+							draw_x,
+							draw_y
 						);
 
-					}
+					} else {
 
+						// Else try tiles up to 4 levels above it in zoom view
+						var found = false;
+						for(var i = 1; i < 5 && this.zoom - i >= 0; i++){
+							var i2 = Math.pow(2, i),
+								i2l = Map.TILE_SIDE_LENGTH/i2,
+								tile_above = this.tile_loader.get(Math.floor(l/i2), Math.floor(m/i2), this.zoom - i);
+							if(tile_above.is_loaded){
+								found = true;
+								tile_above.render_section(
+									this.ctx,
+									draw_x,
+									draw_y,
+									(l % i2) * i2l,
+									(m % i2) * i2l,
+									i2l,
+									i2l
+								);
+								break;
+							}
+						}
+						// If we cant draw any kind of map draw black square with loading writen on it
+						if(!found) {
+							this.ctx.fillStyle = "black";
+							this.ctx.fillRect(draw_x, draw_y, Map.TILE_SIDE_LENGTH, Map.TILE_SIDE_LENGTH);
+							this.ctx.fillStyle = "white";
+							this.ctx.font = "16px Arial";
+							this.ctx.fillText("Loading...", draw_x - (this.ctx.measureText("Loading...").width / 2), draw_y + (Map.TILE_SIDE_LENGTH / 2) + 8);
+						}
+					}
 				}
 			}
 

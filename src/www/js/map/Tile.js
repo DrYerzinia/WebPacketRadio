@@ -67,6 +67,14 @@ define(
 
 		};
 
+		Tile.prototype.render_section = function(ctx, x, y, sx, sy, wx, wy){
+
+			this.last_accessed = Date.now();
+			ctx.drawImage(this.image, sx, sy, wx, wy, x, y, 256, 256);
+
+		};
+
+
 		return Tile;
 
 	}
