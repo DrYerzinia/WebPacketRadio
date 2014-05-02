@@ -3,11 +3,13 @@
  */
 
 /**
+ * A slippy map implementation
  * @module Map
  * @main
  */
 
 /**
+ * Manages all parts of a Map
  * @class Map
  */
 
@@ -75,6 +77,7 @@ define(
 
 			// Set up canvas events
 			var t = this;
+			// Zooming in/out
 			this.canvas.onmousewheel = function(e){
 
 				e.preventDefault();
@@ -82,37 +85,47 @@ define(
 				var off = dom.offset(t.canvas),
 					x = (e.pageX - off.x) / t.canvas.width,
 					y = (e.pageY - off.y) / t.canvas.height;
-				t.scroll(x, y, d);
+				t._scroll(x, y, d);
 
 			};
+			// Zooming in
 			this.canvas.ondblclick = function(e){
 				e.preventDefault();
 				if(e.button == 0){
 					var off = dom.offset(t.canvas),
 						x = (e.pageX - off.x) / t.canvas.width,
 						y = (e.pageY - off.y) / t.canvas.height;
-					t.scroll(x, y, 1);
+					t._scroll(x, y, 1);
 				}
 			};
 			var time_last_right = Date.now();
 			this.canvas.onmousedown = function(e){
 				e.preventDefault();
+
+				// Start map drag
 				if(e.button == 0){
 					t.canvas.style.cursor = 'move';
 					t.clicking = true;
 					t.mouse_x = e.pageX;
 					t.mouse_y = e.pageY;
-				} else if(e.button == 2){
+
+				}
+
+				// Zoom out on right dbl click
+				else if(e.button == 2){
+
 					var now = Date.now();
 					if(now - time_last_right < 300){
 						var off = dom.offset(t.canvas),
 							x = (e.pageX - off.x) / t.canvas.width,
 							y = (e.pageY - off.y) / t.canvas.height;
-						t.scroll(x, y, -1);
+						t._scroll(x, y, -1);
 					}
 					time_last_right = now;
 				}
 			};
+
+			// Drag map if Left Mouse Button down
 			this.canvas.onmousemove = function(e){
 				if(t.clicking){
 					t.drag(e.pageX - t.mouse_x, t.mouse_y - e.pageY);
@@ -121,9 +134,13 @@ define(
 					t.mouse_y = e.pageY;
 				}
 			};
+
+			// Add multiple callback to mouse up if its not there
 			if(!window.onmouseup){
 				window.onmouseup = dom.multiple_callback();
 			}
+
+			// Add mouseup call back to end dragging
 			dom.add_callback(
 				window.onmouseup,
 				function(e){
@@ -140,6 +157,11 @@ define(
 
 		};
 
+		/**
+		 * Calculates the number of tiles the side of the map is composed of
+		 * for the current zoom level
+		 * @method get_side_tiles
+		 */
 		Map.prototype.get_side_tiles = function(){
 
 			var z;
@@ -160,13 +182,28 @@ define(
 
 		};
 
+		/**
+		 * Add's a Map object (i.e. Icon) to be drawn on the map
+		 * @method add_object
+		 * @param {Map_Object} obj Object to add to the map
+		 */
 		Map.prototype.add_object = function(obj){
 
 			this.objects.push(obj);
 
 		};
 
-		Map.prototype.scroll = function(px, py, d){
+		/**
+		 * Zooms in and out the map, called from scroll and dbl click events
+		 * keeps cursor is same geographical position on map when using mouse
+		 * to scroll
+		 * @method _scroll
+		 * @private
+		 * @param {float} px Ratio relative to Map width that the mouse was at
+		 * @param {float} py Ratio relative to Map height that the mouse was at
+		 * @param {int} d Specifies which way to zoom in/out 1/-1
+		 */
+		Map.prototype._scroll = function(px, py, d){
 
 			if(d > 0 && this.zoom < 18){
 
@@ -194,6 +231,13 @@ define(
 
 		};
 
+		/**
+		 * Gets a dx dy in pixles from a mouse event to move the map
+		 * and maintains the bounds of the position of the map
+		 * @method drag
+		 * @param {int} dx distance in pixels the mouse was dragged on the x axis
+		 * @param {int} dy distance in pixels the mouse was dragged on the y axis
+		 */
 		Map.prototype.drag = function(dx, dy){
 
 			var z = this.get_side_tiles();
@@ -220,12 +264,10 @@ define(
 		 * Animator loop, tells the editor that canvas needs to be redrawn because
 		 * something changed.  Only updates at a maximum of 30 FPS, but at least one
 		 * time after being called.
-		 * @function
-		 * @todo which should be enum
-		 * @param {string} which Specifies which views need to be redrawn 
+		 * @method render
 		 * @param {boolean} self Lets function know if it was called by itself
 		 */
-		Map.prototype.render = function(which, self){
+		Map.prototype.render = function(self){
 
 			var t = this;
 
@@ -234,7 +276,7 @@ define(
 				if(!this.rendering){
 					setTimeout(
 						function(){
-							t.render(which, true);
+							t.render(true);
 						},
 						33
 					);
@@ -246,7 +288,7 @@ define(
 				if(this.rendering){
 					setTimeout(
 						function(){
-							t.render(which, true);
+							t.render(true);
 						},
 						33
 					);
@@ -255,7 +297,13 @@ define(
 				this.do_render();
 			}
 		};
-		
+
+		/**
+		 * Renders the map including any objects to be displayd on the map
+		 * TODO: draw upper tile streched if missing data or draw black if that
+		 * is also not loaded
+		 * @method do_render
+		 */
 		Map.prototype.do_render = function(){
 
 			var w = Math.floor(this.canvas.width / Map.TILE_SIDE_LENGTH) + 4,
@@ -341,6 +389,11 @@ define(
 
 		};
 
+		/**
+		 * Length in pixels of a tile side
+		 * @property TILE_SIDE_LENGTH
+		 * @static
+		 */
 		Map.TILE_SIDE_LENGTH = 256;
 
 		return Map;
