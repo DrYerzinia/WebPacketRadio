@@ -14,11 +14,13 @@
 define(
 	[
 	 	'crc/crccitt',
-	 	'math/base'
+	 	'math/base',
+	 	'packet/APRSMessages/APRS_MIC_E'
 	],
 	function(
 		crccitt,
-		base
+		base,
+		APRS_MIC_E
 	){
 
 	/**
@@ -91,6 +93,14 @@ define(
 		}
 
 		packet.set_message_data(message_data);
+
+		// Parse APRS Message
+		var APRS_message_type = APRSPacket.PACKET_TYPE[String.fromCharCode(message_data[0])];
+
+		if(APRS_message_type)
+			packet.aprs_info = new APRS_message_type(packet);
+		else
+			packet.aprs_info = null;
 
 		packet.fcs = (data[data.length-1] << 8) + data[data.length-2];
 
@@ -400,6 +410,117 @@ define(
 		return info;
 
 	};
+
+	APRSPacket.prototype.get_symbol = function(){
+
+		return '0';
+
+	};
+
+	APRSPacket.PACKET_TYPE = {
+		'\'': APRS_MIC_E,
+		'`' : APRS_MIC_E
+	};
+
+	APRSPacket.SYMBOL_TABLE = {
+			'!': 'Sheriff',
+			'"': 'Reserved',
+			'#': 'Digi',
+			'$': 'Phone',
+			'%': 'DX',
+			'&': 'HFGateway',
+			'\'': 'SmallAircraft',
+			'(': 'MobileSatGroundStation',
+			')': 'Handicap',
+			'*': 'SnowMobile',
+			'+': 'RedCross',
+			',': 'BoyScouts',
+			'-': 'House',
+			'.': 'X',
+			'/': 'Dot',
+			'0': '0',
+			'1': '1',
+			'2': '2',
+			'3': '3',
+			'4': '4',
+			'5': '5',
+			'6': '6',
+			'7': '7',
+			'8': '8',
+			'9': '9',
+			':': 'Fire',
+			';': 'Campground',
+			'<': 'Motorcycle',
+			'=': 'Train',
+			'>': 'Car',
+			'?': 'Server',
+			'@': 'Hurricane',
+			'A': 'AidStation',
+			'B': 'BBS',
+			'C': 'Canoe',
+			'D': 'D',
+			'E': 'Eyeball',
+			'F': 'Tractor',
+			'G': 'GridSquare',
+			'H': 'Hotel',
+			'I': 'TCPIP',
+			'J': 'J',
+			'K': 'School',
+			'L': 'L',
+			'M': 'MacAPRS',
+			'N': 'NTS',
+			'O': 'Balloon',
+			'P': 'Police',
+			'Q': 'Q',
+			'R': 'RV',
+			'S': 'SpaceShuttle',
+			'T': 'SSTV',
+			'U': 'Bus',
+			'V': 'ATV',
+			'W': 'WX',
+			'X': 'Helicopter',
+			'Y': 'Yacht',
+			'Z': 'WinAPRS',
+			'[': 'Jogger',
+			'\\': 'Triangle',
+			']': 'PBBS',
+			'^': 'LargeAircraft',
+			'_': 'WX',
+			'`': 'DishAntenna',
+			'a': 'Ambulance',
+			'b': 'Bicycle',
+			'c': 'c',
+			'd': 'FireDept',
+			'e': 'Horse',
+			'f': 'FireTruck',
+			'g': 'Glider',
+			'h': 'Hospital',
+			'i': 'IOTA',
+			'j': 'Jeep',
+			'k': 'Truck',
+			'l': 'Laptop',
+			'm': 'MicRepeater',
+			'n': 'Node',
+			'o': 'EmergencyOPS',
+			'p': 'Rover',
+			'q': 'GridSquareA',
+			'r': 'Antenna',
+			's': 'Ship',
+			't': 'TruckStop',
+			'u': 'SemiTruck',
+			'v': 'Van',
+			'w': 'WaterStation',
+			'x': 'XAPRS',
+			'y': 'Yagi',
+			'z': 'z',
+			'{': 'Res2',
+			'|': 'Bar',
+			'}': 'Res3',
+			'~': 'Tilda'
+		};
+
+		APRSPacket.ALTERNATE_SYMBOL_TABLE = {
+		};
 
 	return APRSPacket;
 

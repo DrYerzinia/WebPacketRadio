@@ -11,21 +11,23 @@
  */
 
 define(
-	function(){
+	[
+	 	'util/Image_Loader'
+	],
+	function(
+		Image_Loader
+	){
 
-		var Icon = function(url, position){
+		var Icon = function(url, coordinates){
 
-			this.image = new Image();
-
-			this.is_loaded = false;
-
-			//
+			this.image = Image_Loader.get(url);
+			this.coordinates = coordinates;
 
 		};
 
-		Icon.prototype.render(position, zoom){
+		Icon.prototype.render = function(ctx, x, y){
 
-			//
+			ctx.drawImage(this.image, x - (this.image.width / 2), y - (this.image.height / 2));
 
 		};
 

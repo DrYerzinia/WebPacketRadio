@@ -15,6 +15,7 @@ define(
 	[
 	 	'map/Tile',
 	 	'map/Tile_Loader',
+	 	'map/Location_Conversions',
 	 	'map/LatLong',
 	 	'map/XY',
 	 	'util/dom'
@@ -22,6 +23,7 @@ define(
 	function(
 		Tile,
 		Tile_Loader,
+		Location_Conversions,
 		LatLong,
 		XY,
 		dom
@@ -36,7 +38,7 @@ define(
 			 * Current xy position of the map
 			 * @property position
 			 */
-			this.position = Map.latlong_to_tilexy(coordinates, zoom);
+			this.position = Location_Conversions.latlong_to_tilexy(coordinates, zoom);
 			/**
 			 * Current zoom level of the map
 			 * @property zoom
@@ -59,7 +61,7 @@ define(
 			 * Renderable map objects with lat longs
 			 * @property objects
 			 */
-			this.objects = {};
+			this.objects = [];
 
 			// Check for tile cache DB and if it exists create connection
 
@@ -129,7 +131,7 @@ define(
 
 		Map.prototype.add_object = function(obj){
 
-			this.object.push(obj);
+			this.objects.push(obj);
 
 		};
 
@@ -163,8 +165,23 @@ define(
 
 		Map.prototype.drag = function(dx, dy){
 
-			this.position.x -= dx/256;
-			this.position.y += dy/256;
+			var z = this.get_side_tiles();
+
+			this.position.x -= dx/Map.TILE_SIDE_LENGTH;
+			this.position.y += dy/Map.TILE_SIDE_LENGTH;
+
+			// Keep x and y in bounds
+			if(this.position.x < 0){
+				this.position.x = ((this.position.x + 1) % z) + z - 1;
+			} else if(this.position.x > z){
+				this.position.x = this.position.x % z;
+			}
+
+			if(this.position.y < 0){
+				this.position.y = ((this.position.y + 1) % z) + z - 1;
+			} else if(this.position.y > z){
+				this.position.y = this.position.y % z;
+			}
 
 		};
 
@@ -204,28 +221,14 @@ define(
 					);
 				}
 				this.rendering = false;
-				this.render_map();
-				this.render_objs();
+				this.do_render();
 			}
-		};
-
-		/*
-		 * Render objects
-		 */
-		Map.prototype.render_objs = function(){
-
-			for(j = 0; j < this.objects.length; j++){
-
-				this.objects[j].render(this.position, this.zoom);
-
-			}
-
 		};
 		
-		Map.prototype.render_map = function(){
+		Map.prototype.do_render = function(){
 
-			var w = Math.floor(this.canvas.width / 256) + 4,
-				h = Math.floor(this.canvas.height / 256) + 4,
+			var w = Math.floor(this.canvas.width / Map.TILE_SIDE_LENGTH) + 4,
+				h = Math.floor(this.canvas.height / Map.TILE_SIDE_LENGTH) + 4,
 				cfloor_x = Math.floor(this.position.x),
 				cfloor_y = Math.floor(this.position.y),
 				offset_x = this.position.x - cfloor_x,
@@ -235,6 +238,9 @@ define(
 				t = this,
 				j, k, l, m;
 
+			/*
+			 * Render the map tiles
+			 */
 			for(j = 0; j < w; j++){
 				for(k = 0; k < h; k++){
 
@@ -273,8 +279,8 @@ define(
 
 						next_tile.render(
 							this.ctx,
-							Math.floor( this.canvas.width/2  + ((j - Math.floor(w/2) - offset_x) * 256) ),
-							Math.floor( this.canvas.height/2 + ((k - Math.floor(h/2) - offset_y) * 256) )
+							Math.floor( this.canvas.width/2  + ((j - Math.floor(w/2) - offset_x) * Map.TILE_SIDE_LENGTH) ),
+							Math.floor( this.canvas.height/2 + ((k - Math.floor(h/2) - offset_y) * Map.TILE_SIDE_LENGTH) )
 						);
 
 					}
@@ -282,21 +288,29 @@ define(
 				}
 			}
 
-		};
-		
-		Map.long2tile = function(lon, zoom){
-			return (lon + 180) / 360 * Math.pow(2, zoom);
-		};
-	
-		Map.lat2tile = function(lat, zoom){
-			return (1 - Math.log( Math.tan( lat * Math.PI / 180 ) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom);
+			/*
+			 * Render objects
+			 */
+			for(j = 0; j < this.objects.length; j++){
+
+				var pos = Location_Conversions.latlong_to_tilexy(this.objects[j].coordinates, this.zoom);
+
+				if(
+					pos.x > this.position.x - w/2 &&
+					pos.x < this.position.x + w/2 &&
+					pos.y > this.position.y - h/2 &&
+					pos.y < this.position.y + h/2
+				){
+
+					this.objects[j].render(this.ctx, this.canvas.width/2 + (pos.x - this.position.x)*Map.TILE_SIDE_LENGTH, this.canvas.height/2 + (pos.y - this.position.y)*Map.TILE_SIDE_LENGTH);
+
+				}
+
+			}
+
 		};
 
-		Map.latlong_to_tilexy = function(latlong, zoom){
-
-			return new XY(Map.long2tile(latlong.longitude, zoom), Map.lat2tile(latlong.latitude, zoom));
-
-		};
+		Map.TILE_SIDE_LENGTH = 256;
 
 		return Map;
 
