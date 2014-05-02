@@ -29,6 +29,8 @@ require(
 	 	'packet/AFSK_Demodulator',
 	 	'packet/AFSK_Modulator',
 	 	'packet/APRSPacket',
+	 	'map/Map',
+	 	'map/LatLong',
 	 	'util/ui',
 	 	'text!../config.json'
 	],
@@ -36,47 +38,55 @@ require(
 		AFSK_Demodulator,
 		AFSK_Modulator,
 		APRSPacket,
+		Map,
+		LatLong,
 		ui,
 		config_json
 	){
 
-	var config = JSON.parse(config_json);
+	var config = JSON.parse(config_json),
 
-	// Get Button elements
-	var issButton = document.getElementById('iss'),
+		// Get Button elements
+		issButton = document.getElementById('iss'),
 		listenButton = document.getElementById('listen'),
 		send_button = document.getElementById('send'),
 		download_button = document.getElementById('download-raw'),
 		remote_button = document.getElementById('remote'),
 		settings_button = document.getElementById('settings'),
 		save_settings_button = document.getElementById('save-settings'),
-		map_button = document.getElementById('toggle-map');
+		map_button = document.getElementById('toggle-map'),
+		
+		map_canvas = document.getElementById('map-canvas'),
 
-	var ISSRawData = null,
+		ISSRawData = null,
 		ISSRunning = false,
-		remove_decoder_socket = null;
+		remove_decoder_socket = null,
 
-	var listening = "no";
+		listening = "no",
 
-	// Get packet table
-	var packetTable = document.getElementById('packet-data-table-body');
+		// Get packet table
+		packetTable = document.getElementById('packet-data-table-body'),
 
-	var decoder = null;
+		decoder = null,
 
-	var settings =
-		{
+		map = new Map('tile.openstreetmap.org/zoom/x/y.png', ['a', 'b', 'c'], map_canvas, 5, new LatLong(39, -104)),
 
-			bit_rate: 1200,
+		settings =
+			{
 
-			noise: 0,
-			offset: 0.0925,
+				bit_rate: 1200,
 
-			frequency_0: 1200,
-			frequency_1: 2400,
+				noise: 0,
+				offset: 0.0925,
 
-			output_file_sr: 44100
+				frequency_0: 1200,
+				frequency_1: 2400,
 
-		};
+				output_file_sr: 44100
+
+			};
+
+	
 
 	remote_button.onclick = function(){
 
@@ -146,9 +156,10 @@ require(
 
 		var map_div = document.getElementById('map-div');
 
-		if(map_div.style.display == 'none')
+		if(map_div.style.display == 'none'){
 			map_div.style.display = 'block';
-		else
+			map.render();
+		} else
 			map_div.style.display = 'none';
 
 	};
