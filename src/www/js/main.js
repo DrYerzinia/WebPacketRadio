@@ -535,7 +535,7 @@ require(
 			}
 
 			// Log detailed packet info to console
-			//console.log(packet.info_string());
+			console.log(packet.info_string());
 
 		}
 

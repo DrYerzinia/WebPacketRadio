@@ -82,11 +82,26 @@ define(
 				t.scroll(0, 0, d);
 
 			};
+			this.canvas.ondblclick = function(e){
+				e.preventDefault();
+				if(e.button == 0){
+					t.scroll(0, 0, 1);
+				}
+			};
+			var time_last_right = Date.now();
 			this.canvas.onmousedown = function(e){
-				t.canvas.style.cursor = 'move';
-				t.clicking = true;
-				t.mouse_x = e.pageX;
-				t.mouse_y = e.pageY;
+				e.preventDefault();
+				if(e.button == 0){
+					t.canvas.style.cursor = 'move';
+					t.clicking = true;
+					t.mouse_x = e.pageX;
+					t.mouse_y = e.pageY;
+				} else if(e.button == 2){
+					var now = Date.now();
+					if(now - time_last_right < 300)
+						t.scroll(0, 0, -1);
+					time_last_right = now;
+				}
 			};
 			this.canvas.onmousemove = function(e){
 				if(t.clicking){
@@ -99,10 +114,16 @@ define(
 			if(!window.onmouseup){
 				window.onmouseup = dom.multiple_callback();
 			}
-			dom.add_callback(window.onmouseup, function(e){
-				t.canvas.style.cursor = '';
-				t.clicking = false;
-			});
+			dom.add_callback(
+				window.onmouseup,
+				function(e){
+					if(e.button == 0){
+						e.preventDefault();
+						t.canvas.style.cursor = '';
+						t.clicking = false;
+					}
+				}
+			);
 
 			// Draw inital canvas
 			this.render();
