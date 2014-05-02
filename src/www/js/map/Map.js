@@ -55,6 +55,12 @@ define(
 			 */
 			this.tile_loader = new Tile_Loader(server, subdomains);
 
+			/**
+			 * Renderable map objects with lat longs
+			 * @property objects
+			 */
+			this.objects = {};
+
 			// Check for tile cache DB and if it exists create connection
 
 			// Set up canvas drawing context
@@ -121,6 +127,12 @@ define(
 
 		};
 
+		Map.prototype.add_object = function(obj){
+
+			this.object.push(obj);
+
+		};
+
 		Map.prototype.scroll = function(px, py, d){
 
 			if(d > 0 && this.zoom < 18){
@@ -156,8 +168,61 @@ define(
 
 		};
 
+		/**
+		 * Animator loop, tells the editor that canvas needs to be redrawn because
+		 * something changed.  Only updates at a maximum of 30 FPS, but at least one
+		 * time after being called.
+		 * @function
+		 * @todo which should be enum
+		 * @param {string} which Specifies which views need to be redrawn 
+		 * @param {boolean} self Lets function know if it was called by itself
+		 */
+		Map.prototype.render = function(which, self){
 
-		Map.prototype.render = function(){
+			var t = this;
+
+			if(self == undefined || self == null || !self){
+
+				if(!this.rendering){
+					setTimeout(
+						function(){
+							t.render(which, true);
+						},
+						33
+					);
+				}
+				this.rendering = true;
+
+			} else {
+
+				if(this.rendering){
+					setTimeout(
+						function(){
+							t.render(which, true);
+						},
+						33
+					);
+				}
+				this.rendering = false;
+				this.render_map();
+				this.render_objs();
+			}
+		};
+
+		/*
+		 * Render objects
+		 */
+		Map.prototype.render_objs = function(){
+
+			for(j = 0; j < this.objects.length; j++){
+
+				this.objects[j].render(this.position, this.zoom);
+
+			}
+
+		};
+		
+		Map.prototype.render_map = function(){
 
 			var w = Math.floor(this.canvas.width / 256) + 4,
 				h = Math.floor(this.canvas.height / 256) + 4,
