@@ -7,6 +7,7 @@
  */
 
 /**
+ * Utility functions for converting various map coordinate types
  * @class Location_Conversions
  * @static
  */
@@ -23,17 +24,38 @@ define(
 
 		var Location_Conversions = {};
 
-		Location_Conversions.long2tile = function(lon, zoom){
+		/**
+		 * Converts Longitude coordinate to an X tile position at a give zoom level
+		 * @method long2tile
+		 * @param lon {degree} Longitude degrees
+		 * @param zoom {int} XY map zoom level
+		 * @static
+		 */
+		Location_Conversions.long_to_tile = function(lon, zoom){
 			return (lon + 180) / 360 * Math.pow(2, zoom);
 		};
 	
+		/**
+		 * Converts Latitude coordinate to an Y tile position at a give zoom level
+		 * @method lat_to_tile
+		 * @param lon {degree} Latitude degrees
+		 * @param zoom {int} XY map zoom level
+		 * @static
+		 */
 		Location_Conversions.lat2tile = function(lat, zoom){
 			return (1 - Math.log( Math.tan( lat * Math.PI / 180 ) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom);
 		};
 
+		/**
+		 * Converts Latitude Longitude coordinates to an XY tiles position at a give zoom level
+		 * @method latlong_to_tilexy
+		 * @param latlong {LatLong} Coordinate position
+		 * @param zoom {int} XY map zoom level
+		 * @static
+		 */
 		Location_Conversions.latlong_to_tilexy = function(latlong, zoom){
 
-			return new XY(Location_Conversions.long2tile(latlong.longitude, zoom), Location_Conversions.lat2tile(latlong.latitude, zoom));
+			return new XY(Location_Conversions.long_to_tile(latlong.longitude, zoom), Location_Conversions.lat_to_tile(latlong.latitude, zoom));
 
 		};
 

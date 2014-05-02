@@ -19,6 +19,8 @@ define(function(){
 	/**
 	 * Converts a integer value into a hex string
 	 * @method to_hex_string
+	 * @param {int} val Value to convert to a hex string
+	 * @param {int} len Number of numerals to include in hex string
 	 * @return String Hexadecimal string of val with len numerals
 	 */
 	base.to_hex_string = function(val, len){

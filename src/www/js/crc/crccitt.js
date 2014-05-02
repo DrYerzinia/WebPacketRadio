@@ -17,6 +17,10 @@ define(function(){
 	/**
 	 * Calculates CRC-CITT value of given data
 	 * @method crccitt
+	 * @param {Array} data Raw byte data to calculate crc of
+	 * @param {int} len Number of bytes of the array to calculate crc of
+	 *  useful for data already containing crc.
+	 * @param {int} polynomial 16 bit polynomial to use for crc-citt calculation
 	 * @return CRC value of data using given polynomial
 	 */
 	var crccitt = function(data, len, polynomial){

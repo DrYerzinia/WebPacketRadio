@@ -7,6 +7,8 @@
  */
 
 /**
+ * Static class to manage image assets so we dont create a ton
+ * of instances of the same images
  * @class Image_Loader
  * @static
  */
@@ -19,9 +21,18 @@ define(
 		/**
 		 * Map of images indexed by url
 		 * @property images
+		 * @type Map
+		 * @static
+		 * @private
 		 */
 		Image_Loader.images = {};
 
+		/**
+		 * @method get
+		 * @param {String} url Url of the Image
+		 * @return {Image} Returns image object from url
+		 * @static
+		 */
 		Image_Loader.get = function(url){
 
 			var image = this.images[url];

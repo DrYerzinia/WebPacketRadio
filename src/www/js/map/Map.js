@@ -39,40 +39,65 @@ define(
 			/**
 			 * Current xy position of the map
 			 * @property position
+			 * @type XY
 			 */
 			this.position = Location_Conversions.latlong_to_tilexy(coordinates, zoom);
 			/**
 			 * Current zoom level of the map
 			 * @property zoom
+			 * @type int
 			 */
 			this.zoom = zoom;
 	
 			/**
 			 * Canvas the Map is drawn on to
 			 * @property canvas
+			 * @type Canvas
 			 */
 			this.canvas = canvas;
 
 			/**
 			 * Tile loader to catch tiles and give them to map to be drawn
 			 * @property tile_loader
+			 * @type Tile_Loader
 			 */
 			this.tile_loader = new Tile_Loader(server, subdomains);
 
 			/**
 			 * Renderable map objects with lat longs
 			 * @property objects
+			 * @type Array
 			 */
 			this.objects = [];
 
 			// Check for tile cache DB and if it exists create connection
 
 			// Set up canvas drawing context
+			/**
+			 * Map rendering context
+			 * @property ctx
+			 * @private
+			 */
 			this.ctx = canvas.getContext('2d');
 
+			/**
+			 * Map canvas mouse down indicator
+			 * @property clicking
+			 * @private
+			 */
 			this.clicking = false;
 
+			/**
+			 * Mouse x position for dragging
+			 * @property mouse_x
+			 * @private
+			 */
 			this.mouse_x = 0;
+			/**
+			 * Mouse y position for dragging
+			 * @property mouse_y
+			 * @private
+			 */
 			this.mouse_y = 0;
 
 			// Set up canvas events
@@ -428,7 +453,9 @@ define(
 		/**
 		 * Length in pixels of a tile side
 		 * @property TILE_SIDE_LENGTH
+		 * @type int
 		 * @static
+		 * @final
 		 */
 		Map.TILE_SIDE_LENGTH = 256;
 

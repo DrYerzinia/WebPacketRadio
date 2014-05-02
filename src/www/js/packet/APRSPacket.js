@@ -259,12 +259,14 @@ define(
 	 * AX.25 Normal control field for APRS Packet
 	 * @property STD_CONTROL
 	 * @static
+	 * @final
 	 */
 	APRSPacket.STD_CONTROL = 0x03;
 	/**
 	 * AX.25 Normal PID field for APRS Packet
 	 * @property STD_PID
 	 * @static
+	 * @final
 	 */
 	APRSPacket.STD_PID = 0xF0;
 
@@ -272,6 +274,7 @@ define(
 	 * AX.25 CRC Polynomial
 	 * @property CRC_POLY
 	 * @static
+	 * @final
 	 */
 	APRSPacket.CRC_POLY = 0x8408;
 
@@ -415,6 +418,11 @@ define(
 
 	};
 
+	/**
+	 * Gets the symbol string for the image representing this object
+	 * @method get_symbol
+	 * @return {String} Symbol string of image representing this object
+	 */
 	APRSPacket.prototype.get_symbol = function(){
 
 		if(this.aprs_info != null){
@@ -448,6 +456,12 @@ define(
 
 	};
 
+	/**
+	 * @property PACKET_TYPE
+	 * @type Map
+	 * @static
+	 * @final
+	 */
 	APRSPacket.PACKET_TYPE = {
 		'\'': APRS_MIC_E,		// ' Old MIC-E data
 		'`' : APRS_MIC_E,		// ` Current MIC-E data
@@ -488,6 +502,12 @@ define(
 		// ^ Unused
 	};
 
+	/**
+	 * @property SSID_SYMBOL_TABLE
+	 * @type Array
+	 * @static
+	 * @final
+	 */
 	APRSPacket.SSID_SYMBOL_TABLE =
 		[
 		 	'Ambulance',
@@ -507,6 +527,12 @@ define(
             'Van'
 	 	];
 
+	/**
+	 * @property SYMBOL_TABLE
+	 * @type Map
+	 * @static
+	 * @final
+	 */
 	APRSPacket.SYMBOL_TABLE = {
 		'!': 'Sheriff',
 		'"': 'Reserved',
@@ -604,6 +630,12 @@ define(
 		'~': 'Tilda'
 	};
 
+	/**
+	 * @property ALTERNATE_SYMBOL_TABLE
+	 * @type Map
+	 * @static
+	 * @final
+	 */
 	APRSPacket.ALTERNATE_SYMBOL_TABLE = {
 		'!': 'Emergency',
 		'"': 'Reserved',
