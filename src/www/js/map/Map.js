@@ -79,13 +79,19 @@ define(
 
 				e.preventDefault();
 				d = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-				t.scroll(0, 0, d);
+				var off = dom.offset(t.canvas),
+					x = (e.pageX - off.x) / t.canvas.width,
+					y = (e.pageY - off.y) / t.canvas.height;
+				t.scroll(x, y, d);
 
 			};
 			this.canvas.ondblclick = function(e){
 				e.preventDefault();
 				if(e.button == 0){
-					t.scroll(0, 0, 1);
+					var off = dom.offset(t.canvas),
+						x = (e.pageX - off.x) / t.canvas.width,
+						y = (e.pageY - off.y) / t.canvas.height;
+					t.scroll(x, y, 1);
 				}
 			};
 			var time_last_right = Date.now();
@@ -98,8 +104,12 @@ define(
 					t.mouse_y = e.pageY;
 				} else if(e.button == 2){
 					var now = Date.now();
-					if(now - time_last_right < 300)
-						t.scroll(0, 0, -1);
+					if(now - time_last_right < 300){
+						var off = dom.offset(t.canvas),
+							x = (e.pageX - off.x) / t.canvas.width,
+							y = (e.pageY - off.y) / t.canvas.height;
+						t.scroll(x, y, -1);
+					}
 					time_last_right = now;
 				}
 			};
@@ -160,15 +170,15 @@ define(
 
 			if(d > 0 && this.zoom < 18){
 
-				this.position.x = this.position.x * 2;
-				this.position.y = this.position.y * 2;
+				this.position.x = (this.position.x * 2) + ((px - 0.5) * (this.canvas.width / Map.TILE_SIDE_LENGTH));
+				this.position.y = (this.position.y * 2) + ((py - 0.5) * (this.canvas.height / Map.TILE_SIDE_LENGTH));
 
 				this.zoom++;
 
 			} else if(this.zoom > 0){
-
-				this.position.x = this.position.x / 2;
-				this.position.y = this.position.y / 2;
+				
+				this.position.x = ((this.position.x - ((px - 0.5) * (this.canvas.width / Map.TILE_SIDE_LENGTH))) / 2);
+				this.position.y = ((this.position.y - ((py - 0.5) * (this.canvas.height / Map.TILE_SIDE_LENGTH))) / 2);
 
 				this.zoom--;
 

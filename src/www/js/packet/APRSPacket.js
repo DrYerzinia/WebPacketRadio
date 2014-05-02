@@ -449,13 +449,43 @@ define(
 	};
 
 	APRSPacket.PACKET_TYPE = {
-		'\'': APRS_MIC_E,
-		'`' : APRS_MIC_E,
-		'@' : APRS_Pos_TS,
-		'/' : APRS_Pos_TS,
-		'[' : APRS_Pos_TS,
-		'!' : APRS_Pos_no_TS,
-		'=' : APRS_Pos_no_TS
+		'\'': APRS_MIC_E,		// ' Old MIC-E data
+		'`' : APRS_MIC_E,		// ` Current MIC-E data
+		'@' : APRS_Pos_TS,		// @ Position with timestamp (with APRS messaging)
+		'/' : APRS_Pos_TS,		// / Position with timestamp (no APRS messaging)
+		'[' : APRS_Pos_TS,		// [ Maidenhead Grid Locator (Obsolete)
+		'!' : APRS_Pos_no_TS,	// ! Position without timestamp (no APRS messaging), or Ulitmeter 2000 WX Station
+		'=' : APRS_Pos_no_TS	// = Position without timestamp (with APRS messaging)
+		// : Message
+		// ; Object
+		// < Station Capabilities
+		// > Status
+		// ? Query
+		// T Telemetry
+		// ) Item
+		// * Peet Bros U-II Weather Station
+		// # Peet Bros U-II Weather Station
+		// _ Weather Report (without position)
+		// { User-Defined APRS Packet
+		// } Third-Party Traffic
+		// $ Raw GPS data or Ultimeter 2000
+		// % Agrelo DF Jr / MicroFinder
+		// , Invalid data or test data
+		// & Reserved - Map Feature
+		// . Reserved - Space Weather
+		// + Reserved - Shelter data with time
+		// 0-9 Do not use
+		// a-z Do not use
+		// A-S Do not use
+		// U-Z Do not use
+		// |   Do not use - TNC stream switch
+		// ~   Do not use - TNC stream switch
+		// " Unused
+		// ( Unused
+		// - Unused
+		// \ Unused
+		// ] Unused
+		// ^ Unused
 	};
 
 	APRSPacket.SSID_SYMBOL_TABLE =
