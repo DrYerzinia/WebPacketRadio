@@ -376,8 +376,8 @@ define(
 						for(var i = 1; i < 5 && this.zoom - i >= 0; i++){
 							var i2 = Math.pow(2, i),
 								i2l = Map.TILE_SIDE_LENGTH/i2,
-								tile_above = this.tile_loader.get(Math.floor(l/i2), Math.floor(m/i2), this.zoom - i);
-							if(tile_above.is_loaded){
+								tile_above = this.tile_loader.get(Math.floor(l/i2), Math.floor(m/i2), this.zoom - i, undefined, true);
+							if(tile_above && tile_above.is_loaded){
 								found = true;
 								tile_above.render_section(
 									this.ctx,

@@ -56,12 +56,14 @@ define(
 
 		};
 
-		Tile_Loader.prototype.get = function(x, y, zoom, callback){
+		Tile_Loader.prototype.get = function(x, y, zoom, callback, check_but_dont_load){
 
 			var tile = this.loaded_tiles[zoom+'/'+x+'/'+y];
 
 			if(tile == undefined){
 
+				if(check_but_dont_load) return tile;
+				
 				tile = new Tile();
 				tile.load('http://' + this.next_subdomain() + '.' + this.server, x, y, zoom, callback);
 
