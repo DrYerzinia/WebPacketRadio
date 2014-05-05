@@ -83,12 +83,23 @@ div {
 
 }
 
+.react-input {
+
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+
+}
+
 .react-tab {
 
 	border-color: white;
 	border-style: solid;
 	border-width: 0 1px;
+
 	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 
 	font-weight: bold;
 	color: white;
@@ -111,7 +122,10 @@ div {
 	border-color: white;
 	border-style: solid;
 	border-width: 1px;
+
 	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 	
 	color: white;
 	font-weight: bold;

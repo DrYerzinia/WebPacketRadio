@@ -6,7 +6,7 @@ define(
 			this.self = document.createElement('div');
 
 			this.self.style.padding = '5px';
-			this.self.style.boxSizing = 'border-box';
+			this.self.classList.add('react-input');
 
 			this.display_settings = display_settings;
 			this.type = type;
@@ -34,20 +34,21 @@ define(
 				case 'select':
 					{
 						this.input = document.createElement('select');
-						this.input.style.boxSizing = 'border-box';
+
 						for(var i = 0; i < type_properties.options.length; i++){
 							var op = document.createElement('option');
 							op.value = type_properties.options[i];
 							op.innerHTML = type_properties.options[i];
 							this.input.appendChild(op);
 						}
+
 						this.input.style.width = '100%';
 					}
 					break;
 				case 'text':
 					{
 						this.input = document.createElement('input');
-						this.input.style.boxSizing = 'border-box';
+
 						this.input.style.width = '100%';
 						this.input.type = 'text';
 
@@ -62,7 +63,7 @@ define(
 				case 'text_area':
 					{
 						this.input = document.createElement('textarea');
-						this.input.style.boxSizing = 'border-box';
+
 						this.input.style.width = '100%';
 						this.input.style.height = '100%';
 						this.input.style.resize = 'none';
@@ -75,6 +76,8 @@ define(
 				default:
 					break;
 			}
+
+			this.input.classList.add('react-input');
 
 			this.self.appendChild(this.input);
 
