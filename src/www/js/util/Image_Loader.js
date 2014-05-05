@@ -33,7 +33,7 @@ define(
 		 * @return {Image} Returns image object from url
 		 * @static
 		 */
-		Image_Loader.get = function(url){
+		Image_Loader.get = function(url, cb){
 
 			var image = this.images[url];
 
@@ -45,6 +45,9 @@ define(
 				image.onload = function(){
 
 					image.is_loaded = true;
+
+					if(cb)
+						cb();
 
 				};
 

@@ -100,6 +100,8 @@ define(
 			 */
 			this.mouse_y = 0;
 
+			this.rendering = false;
+
 			// Set up canvas events
 			var t = this;
 
@@ -345,12 +347,14 @@ define(
 
 		/**
 		 * Add's a Map object (i.e. Icon) to be drawn on the map
+		 * and tells map it needs to be redrawn
 		 * @method add_object
 		 * @param {Map_Object} obj Object to add to the map
 		 */
 		Map.prototype.add_object = function(obj){
 
 			this.objects.push(obj);
+			this.render();
 
 		};
 

@@ -22,7 +22,7 @@ define(
 		/**
 		 * @constructor
 		 */
-		var Icon = function(url, coordinates){
+		var Icon = function(url, coordinates, cb){
 
 			/**
 			 * Image that represents this icon
@@ -30,7 +30,7 @@ define(
 			 * @type Image
 			 * @private
 			 */
-			this.image = Image_Loader.get(url);
+			this.image = Image_Loader.get(url, cb);
 			/**
 			 * Coordinates this icon is located at
 			 * @property coordinates

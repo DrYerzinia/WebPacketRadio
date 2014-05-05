@@ -49,8 +49,8 @@ define(
 						sym = packet.get_symbol();
 					if(coord && sym){
 						// put the waypoint on the map and refresh the view
-						packet_interface.map.add_object(new Icon('data/image/aprs_symbols/' + sym + '.gif', coord));
-						packet_interface.map.render();
+						var rend = function(){packet_interface.map.render();};
+						packet_interface.map.add_object(new Icon('data/image/aprs_symbols/' + sym + '.gif', coord, rend));
 					}
 				}
 
