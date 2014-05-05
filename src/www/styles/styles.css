@@ -47,7 +47,30 @@ div {
 .react-table thead td {
 
 	padding: 4px 10px;
+
 	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+
+}
+
+.react-table {
+
+	float: left;
+
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+
+}
+
+.react-page-change {
+
+	float: left;
+
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 
 }
 
@@ -58,7 +81,10 @@ div {
 
 	border-style: solid;
 	border-width: 2px 2px;
+
 	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 	
 	color: white;
 

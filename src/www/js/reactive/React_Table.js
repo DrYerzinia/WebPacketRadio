@@ -8,8 +8,7 @@ define(
 			this.page_changer = document.createElement('div');
 
 			this.page_changer.classList.add('react-page-change');
-			this.page_changer.style.cssFloat = 'left';
-			this.page_changer.style.boxSizing = 'border-box';
+
 			this.page_changer.style.height = '100%';
 			this.page_changer.width = React_Table.PAGE_CHANGER_WIDTH + 'px';
 
@@ -98,9 +97,6 @@ define(
 			}
 
 			this.table.classList.add('react-table');
-
-			this.table.style.boxSizing = 'border-box';
-			this.table.style.cssFloat = 'left';
 
 			this.self = document.createElement('div');
 			this.self.appendChild(this.table);
