@@ -42,7 +42,7 @@ define(
 		 * @param zoom {int} XY map zoom level
 		 * @static
 		 */
-		Location_Conversions.lat2tile = function(lat, zoom){
+		Location_Conversions.lat_to_tile = function(lat, zoom){
 			return (1 - Math.log( Math.tan( lat * Math.PI / 180 ) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom);
 		};
 

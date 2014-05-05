@@ -102,6 +102,129 @@ define(
 
 			// Set up canvas events
 			var t = this;
+
+			// Touch Events
+
+			var copy_touch = function(touch){
+				return {id: touch.identifier, x: touch.pageX, y: touch.pageY};
+			};
+
+			this.touches = [];
+			this.last_tap = Date.now();
+			this.scale_distance_last = 0;
+			this.scale_delta = 0;
+			this.canvas.ontouchstart = function(e){
+
+				e.preventDefault();
+				var tch = e.changedTouches;
+
+				for(var i = 0; i < tch.length; i++){
+					t.touches.push(copy_touch(tch[i]));
+				}
+
+				// If 2 fingers we are zooming in/out
+				if(t.touches.length == 2){
+
+					t.scale_distance_last = Math.sqrt( Math.pow(t.touches[0].x - t.touches[1].x, 2) + Math.pow(t.touches[0].y - t.touches[1].y, 2) );
+					t.scale_delta = 0;
+
+				}
+
+			};
+			this.canvas.ontouchmove = function(e){
+
+				e.preventDefault();
+				var tch = e.changedTouches;
+
+				// If 1 finger we are dragging
+				if(t.touches.length == 1){
+
+					var ot = t.touches[0];
+						nt = copy_touch(tch[0]),
+						dx = ot.x - nt.x,
+						dy = ot.y - nt.y;
+
+					t.drag(-dx, dy);
+					t.render();
+
+				}
+
+				// update the touches
+				for(var i = 0; i < tch.length; i++){
+					for(var j = 0; j < t.touches.length; j++){
+						if(t.touches[j].id == tch[i].identifier){
+							t.touches[j].x = tch[i].pageX;
+							t.touches[j].y = tch[i].pageY;
+							break;
+						}
+					}
+				}
+
+				// If 2 fingers we are zooming in/out
+				if(t.touches.length == 2){
+					var touch_distance = Math.sqrt( Math.pow(t.touches[0].x - t.touches[1].x, 2) + Math.pow(t.touches[0].y - t.touches[1].y, 2) );
+
+					var center = {x: 0, y: 0};
+					center.x = (t.touches[0].x + t.touches[1].x)/2;
+					center.y = (t.touches[0].y + t.touches[1].y)/2;
+
+					var off = dom.offset(t.canvas),
+						px = (center.x - off.x) / t.canvas.width,
+						py = (center.y - off.y) / t.canvas.height;
+
+					// Set partial scale
+					var change = t.scale_distance_last - touch_distance;
+					var scaled = Math.floor(change/128);
+					if(scaled != t.scale_delta){
+
+						if(scaled > t.scale_delta){
+							t._scroll(px, py, -1);
+						} else {
+							t._scroll(px, py, 1);
+						}
+						t.render();
+						t.scale_delta = scaled;
+					}
+				}
+
+			};
+			this.canvas.ontouchend = function(e){
+
+				e.preventDefault();
+				var tch = e.changedTouches;
+
+				// remove the touch
+				for(var i = 0; i < tch.length; i++){
+					for(var j = 0; j < t.touches.length; j++){
+						if(t.touches[j].id == tch[i].identifier){
+							t.touches.splice(j, 1);
+							break;
+						}
+					}
+				}
+
+				// Check for double tap to zoom
+				if(t.touches.length == 0){
+					var now = Date.now();
+					if(now - t.last_tap < 300){
+						var off = dom.offset(t.canvas),
+							x = (tch[0].pageX - off.x) / t.canvas.width,
+							y = (tch[0].pageY - off.y) / t.canvas.height;
+						t._scroll(x, y, 1);
+					}
+					t.last_tap = now;
+				}
+
+			};
+			this.canvas.ontouchcancel = function(e){
+
+				e.preventDefault();
+
+			};
+			this.canvas.ontouchleave = this.canvas.ontouchend;
+
+			// Mouse Events
+
 			// Zooming in/out
 			var wheel = function(e){
 
@@ -136,7 +259,7 @@ define(
 					t.canvas.style.cursor = 'move';
 					t.clicking = true;
 					t.mouse_x = e.pageX;
-					t.mouse_y = e.pageY;
+					t.mouse_y = e.pageY;Date.now();
 
 				}
 
@@ -182,6 +305,15 @@ define(
 			);
 
 			// Draw inital canvas
+			this.render();
+
+		};
+
+		Map.prototype.resize = function(width, height){
+
+			this.canvas.width = width;
+			this.canvas.height = height;
+
 			this.render();
 
 		};
@@ -422,7 +554,7 @@ define(
 							this.ctx.fillRect(draw_x, draw_y, Map.TILE_SIDE_LENGTH, Map.TILE_SIDE_LENGTH);
 							this.ctx.fillStyle = "white";
 							this.ctx.font = "16px Arial";
-							this.ctx.fillText("Loading...", draw_x - (this.ctx.measureText("Loading...").width / 2), draw_y + (Map.TILE_SIDE_LENGTH / 2) + 8);
+							this.ctx.fillText("Loading...", draw_x + (Map.TILE_SIDE_LENGTH / 2) - (this.ctx.measureText("Loading...").width / 2), draw_y + (Map.TILE_SIDE_LENGTH / 2) + 8);
 						}
 					}
 				}
