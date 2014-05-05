@@ -1,7 +1,7 @@
 define(
 	function(){
 
-		var React_Input = function(name, display_settings, type, type_properties){
+		var React_Input = function(name, display_settings, type, def, type_properties){
 
 			this.self = document.createElement('div');
 
@@ -50,6 +50,13 @@ define(
 						this.input.style.boxSizing = 'border-box';
 						this.input.style.width = '100%';
 						this.input.type = 'text';
+
+						this.input.onfocus = React_Input.focus;
+						this.input.onblur = React_Input.blur;
+
+						if(def !== undefined)
+							this.input.value = def;
+
 					}
 					break;
 				case 'text_area':
@@ -59,6 +66,10 @@ define(
 						this.input.style.width = '100%';
 						this.input.style.height = '100%';
 						this.input.style.resize = 'none';
+
+						this.input.onfocus = React_Input.focus;
+						this.input.onblur = React_Input.blur;
+
 					}
 					break;
 				default:
@@ -80,7 +91,13 @@ define(
 			var h = 0;
 
 			switch(this.type){
-				case 'input':
+				case 'text':
+					{
+						h += 30;
+						if(this.display_settings && (this.display_settings.display || this.display_settings.name_space))
+							h += 20;
+						return {width: 150, height: h}
+					}
 				case 'select':
 					{
 						h += 30;
@@ -104,7 +121,20 @@ define(
 			this.self.style.height = height + 'px';
 			
 		};
+
+		React_Input.focus = function(e){
+			// LOCK RESIZING !!!
+			React_Input.is_focused = true;
+		};
+		React_Input.blur = function(e){
+			// UNLOCK RESIZING
+			React_Input.when_blurfocus = Date.now();
+			React_Input.is_focused = false;
+		};
 		
+		React_Input.is_focused = false;
+		React_Input.when_blurfocus = 0;
+
 		return React_Input;
 
 	}

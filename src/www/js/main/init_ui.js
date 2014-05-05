@@ -21,7 +21,8 @@ define(
 	 	'main/iss_sample',
 	 	'main/packet_interface',
 	 	'main/messaging',
-	 	'main/listen'
+	 	'main/listen',
+	 	'main/settings'
 	],
 	function(
 		React_Pane,
@@ -37,7 +38,8 @@ define(
 		iss_sample,
 		packet_interface,
 		messaging,
-		listen
+		listen,
+		settings
 	){
 
 		var init_ui = function(map){
@@ -72,6 +74,18 @@ define(
 				message_sec =  new React_Pane(React_Pane.HORIZONTAL),
 				buttons = new React_Pane(React_Pane.HORIZONTAL),
 				
+				settings_pn = new React_Pane(React_Pane.VERTICAL),
+				noise_off = new React_Pane(React_Pane.HORIZONTAL),
+				freqs = new React_Pane(React_Pane.HORIZONTAL),
+
+				bit_rate_in = new React_Input('Bit Rate',  {display: true, }, 'text', settings.bit_rate),
+				noise_in = new React_Input('Noise Level',  {display: true, }, 'text', settings.noise),
+				offset_in = new React_Input('Offset',  {display: true, }, 'text', settings.offset),
+				freq0_in = new React_Input('Frequency 0',  {display: true, }, 'text', settings.frequency_0),
+				freq1_in = new React_Input('Frequency 1',  {display: true, }, 'text', settings.frequency_1),
+
+				settings_save_btn = new React_Button('Save', settings.save),
+
 				packet_table = new React_Table(
 				 		[
 				 		 	['Time', 65],
@@ -81,9 +95,9 @@ define(
 				 		]
 				 	),
 
-				source_input = new React_Input('Source Address', {display: true, }, 'text'),
-				ssid_input = new React_Input('SSID', {display: false, name_space: true}, 'select', {options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}),
-				dest_input = new React_Input('Destination Address', {display: true, }, 'text'),
+				source_input = new React_Input('Source Address', {display: true}, 'text'),
+				ssid_input = new React_Input('SSID', {display: false, name_space: true}, 'select', '', {options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}),
+				dest_input = new React_Input('Destination Address', {display: true}, 'text'),
 
 				message_input = new React_Input('Message', false, 'text_area'),
 
@@ -107,6 +121,20 @@ define(
 
 			// Set-Up Demodulator
 			listen.init(listen_button);
+
+			// Set-Up Settings
+			settings.init(bit_rate_in, noise_in, offset_in, freq0_in, freq1_in);
+
+			noise_off.add(noise_in);
+			noise_off.add(offset_in);
+			freqs.add(freq0_in);
+			freqs.add(freq1_in);
+
+			settings_pn.add(bit_rate_in);
+			settings_pn.add(noise_off);
+			settings_pn.add(freqs);
+
+			settings_pn.add(settings_save_btn);
 
 			buttons.add(listen_button);
 			buttons.add(iss_button);
@@ -132,14 +160,14 @@ define(
 					[
 					 	new React_Resizable(map, map.canvas),
 					 	controls,
-					 	new React_Settings(),
-					 	packet_table
+					 	packet_table,
+					 	settings_pn
 					],
 					[
 					 	'Map',
 					 	'Controls',
-					 	'Settings',
-					 	'Table'
+					 	'Table',
+					 	'Settings'
 					]
 				)
 			);
@@ -147,12 +175,12 @@ define(
 			// Size display elements
 			main.resize(window.innerWidth, window.innerHeight);
 
-			var rs = function(){
-				main.resize(window.innerWidth, window.innerHeight);
-			};
+			window.onresize = function(e){
+				if(!React_Input.is_focused && React_Input.when_blurfocus + 500 < Date.now()){
+					main.resize(window.innerWidth, window.innerHeight);
+				}
 
-			window.onresize = rs;
-			window.addEventListener("orientationchange", rs, false);
+			};
 
 		};
 
