@@ -38,6 +38,14 @@ define(
 			 */
 			this.coordinates = coordinates;
 
+			this.visible = true;
+
+		};
+
+		Icon.prototype.get_coordinates = function(){
+
+			return this.coordinates;
+
 		};
 
 		/**
@@ -48,7 +56,8 @@ define(
 		 */
 		Icon.prototype.render = function(ctx, x, y){
 
-			ctx.drawImage(this.image, x - (this.image.width / 2), y - (this.image.height / 2));
+			if(this.visible)
+				ctx.drawImage(this.image, x - (this.image.width / 2), y - (this.image.height / 2));
 
 		};
 

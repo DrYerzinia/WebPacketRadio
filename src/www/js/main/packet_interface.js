@@ -1,10 +1,12 @@
 define(
 	[
+	 	'main/Packet_Manager',
 	 	'map/Icon',
 	 	'packet/APRSPacket',
 	 	'util/ui'
 	],
 	function(
+		Packet_Manager,
 		Icon,
 		APRSPacket,
 		ui
@@ -12,11 +14,17 @@ define(
 
 		var packet_interface = {};
 
+		packet_interface.manager = new Packet_Manager();
+
 		packet_interface.init = function(map, table){
 
 			packet_interface.map = map;
 			packet_interface.table = table;
 
+		};
+
+		packet_interface.update_map = function(){
+			packet_interface.map.render();
 		};
 
 		packet_interface.process_packet = function(packet_data){
@@ -43,16 +51,9 @@ define(
 					]
 				);
 
-				// If the packet is mapable put it on the map
-				if(packet.aprs_info){
-					var coord = packet.aprs_info.get_latlong(),
-						sym = packet.get_symbol();
-					if(coord && sym){
-						// put the waypoint on the map and refresh the view
-						var rend = function(){packet_interface.map.render();};
-						packet_interface.map.add_object(new Icon('data/image/aprs_symbols/' + sym + '.gif', coord, rend));
-					}
-				}
+				var new_station = packet_interface.manager.add_packet(packet);
+				if(new_station)
+					packet_interface.map.add_object(new_station, packet_interface.update_map);
 
 				// Log detailed packet info to console
 				console.log(packet.info_string());

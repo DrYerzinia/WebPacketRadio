@@ -52,6 +52,8 @@ define(
 
 		};
 
+		LatLong.NULL = new LatLong(0, 0);
+
 		return LatLong;
 
 	}

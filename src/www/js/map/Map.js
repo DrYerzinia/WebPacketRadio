@@ -569,7 +569,7 @@ define(
 			 */
 			for(j = 0; j < this.objects.length; j++){
 
-				var pos = Location_Conversions.latlong_to_tilexy(this.objects[j].coordinates, this.zoom);
+				var pos = Location_Conversions.latlong_to_tilexy(this.objects[j].get_coordinates(), this.zoom);
 
 				if(
 					pos.x > this.position.x - w/2 &&
