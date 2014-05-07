@@ -121,7 +121,7 @@ define(
 
 				info.time_stamp.setUTCHours(parseFloat(hour));
 				info.time_stamp.setUTCMinutes(parseFloat(minute));
-				info.time_stamp.setUTCSeconds(parseFloat(seconds));
+				info.time_stamp.setUTCSeconds(parseFloat(second));
 
 			}
 				break;

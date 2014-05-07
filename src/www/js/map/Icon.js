@@ -42,6 +42,12 @@ define(
 
 		};
 
+		Icon.prototype.is_visible = function(){
+
+			return this.visible;
+
+		}
+
 		Icon.prototype.get_coordinates = function(){
 
 			return this.coordinates;
@@ -54,7 +60,7 @@ define(
 		 * @param {int} x X Pixel position to draw image centered at
 		 * @param {int} y Y Pixel position to draw image centered at
 		 */
-		Icon.prototype.render = function(ctx, x, y){
+		Icon.prototype.render = function(ctx, x, y, zoom){
 
 			if(this.visible)
 				ctx.drawImage(this.image, x - (this.image.width / 2), y - (this.image.height / 2));

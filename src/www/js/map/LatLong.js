@@ -34,6 +34,14 @@ define(
 
 		};
 
+		LatLong.prototype.equals = function(coord){
+
+			if(this.latitude == coord.latitude && this.longitude == coord.longitude)
+				return true;
+			return false;
+
+		};
+
 		/**
 		 * Shifts the lat long by a specified number of degrees
 		 * @method shift

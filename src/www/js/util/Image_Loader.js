@@ -40,6 +40,8 @@ define(
 			if(image == undefined){
 
 				image = new Image();
+				this.images[url] = image;
+
 				image.is_loaded = false;
 
 				image.onload = function(){

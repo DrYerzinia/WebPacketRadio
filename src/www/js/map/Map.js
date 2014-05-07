@@ -100,7 +100,12 @@ define(
 			 */
 			this.mouse_y = 0;
 
+			this.mouse_down_x = 0;
+			this.mouse_down_y = 0;
+
 			this.rendering = false;
+
+			this.time_last_right = Date.now();
 
 			// Set up canvas events
 			var t = this;
@@ -244,49 +249,15 @@ define(
 			} else this.canvas.onmousewheel = wheel;
 			// Zooming in
 			this.canvas.ondblclick = function(e){
-				e.preventDefault();
-				if(e.button == 0){
-					var off = dom.offset(t.canvas),
-						x = (e.pageX - off.x) / t.canvas.width,
-						y = (e.pageY - off.y) / t.canvas.height;
-					t._scroll(x, y, 1);
-				}
+				t._dbl_click(e);
 			};
-			var time_last_right = Date.now();
 			this.canvas.onmousedown = function(e){
-				e.preventDefault();
-
-				// Start map drag
-				if(e.button == 0){
-					t.canvas.style.cursor = 'move';
-					t.clicking = true;
-					t.mouse_x = e.pageX;
-					t.mouse_y = e.pageY;Date.now();
-
-				}
-
-				// Zoom out on right dbl click
-				else if(e.button == 2){
-
-					var now = Date.now();
-					if(now - time_last_right < 300){
-						var off = dom.offset(t.canvas),
-							x = (e.pageX - off.x) / t.canvas.width,
-							y = (e.pageY - off.y) / t.canvas.height;
-						t._scroll(x, y, -1);
-					}
-					time_last_right = now;
-				}
+				t._mouse_down(e);
 			};
 
 			// Drag map if Left Mouse Button down
 			this.canvas.onmousemove = function(e){
-				if(t.clicking){
-					t.drag(e.pageX - t.mouse_x, t.mouse_y - e.pageY);
-					t.render();
-					t.mouse_x = e.pageX;
-					t.mouse_y = e.pageY;
-				}
+				t._mouse_move(e);
 			};
 
 			// Add multiple callback to mouse up if its not there
@@ -298,16 +269,136 @@ define(
 			dom.add_callback(
 				window.onmouseup,
 				function(e){
-					if(e.button == 0){
-						e.preventDefault();
-						t.canvas.style.cursor = '';
-						t.clicking = false;
-					}
+					t._mouse_up(e);
 				}
 			);
 
 			// Draw inital canvas
 			this.render();
+
+		};
+
+		Map.prototype._dbl_click = function(e){
+
+			e.preventDefault();
+
+			if(e.button == 0){
+
+				var off = dom.offset(this.canvas),
+					x = (e.pageX - off.x) / this.canvas.width,
+					y = (e.pageY - off.y) / this.canvas.height;
+
+				this._scroll(x, y, 1);
+
+			}
+
+		}
+
+		Map.prototype._mouse_down = function(e){
+
+			e.preventDefault();
+
+			// Start map drag
+			if(e.button == 0){
+
+				this.canvas.style.cursor = 'move';
+				this.clicking = true;
+				this.mouse_x = e.pageX;
+				this.mouse_y = e.pageY;
+				this.mouse_down_x = e.pageX;
+				this.mouse_down_y = e.pageY;
+
+			}
+
+			// Zoom out on right dbl click
+			else if(e.button == 2){
+
+				var now = Date.now();
+				if(now - this.time_last_right < 300){
+					var off = dom.offset(t.canvas),
+						x = (e.pageX - off.x) / this.canvas.width,
+						y = (e.pageY - off.y) / this.canvas.height;
+					this._scroll(x, y, -1);
+				}
+				this.time_last_right = now;
+			}
+
+		};
+
+		Map.prototype._mouse_move = function(e){
+
+			if(this.clicking){
+
+				this._drag(e.pageX - this.mouse_x, this.mouse_y - e.pageY);
+				this.render();
+
+				this.mouse_x = e.pageX;
+				this.mouse_y = e.pageY;
+
+			} else {
+
+				var off = dom.offset(this.canvas),
+					x = this.position.x + (((e.pageX - off.x) - (this.canvas.width / 2)) / Map.TILE_SIDE_LENGTH),
+					y = this.position.y + (((e.pageY - off.y) - (this.canvas.height / 2)) / Map.TILE_SIDE_LENGTH),
+					h = null;
+
+				for(var i = 0; i < this.objects.length; i++){
+
+					if(this.objects[i].is_visible()){
+
+						var h = this.objects[i].over(x, y, this.zoom);
+
+						if(h){
+							this.canvas.style.cursor = 'pointer';
+							break;
+						}
+							
+					}
+
+				}
+
+				if(!h)
+					this.canvas.style.cursor = '';
+
+			}
+
+		};
+
+		Map.prototype._mouse_up = function(e){
+
+			if(e.button == 0){
+
+				e.preventDefault();
+
+				if(this.clicking && this.mouse_down_x == e.pageX && this.mouse_down_y == e.pageY){
+
+					var off = dom.offset(this.canvas),
+						x = this.position.x + (((e.pageX - off.x) - (this.canvas.width / 2)) / Map.TILE_SIDE_LENGTH),
+						y = this.position.y + (((e.pageY - off.y) - (this.canvas.height / 2)) / Map.TILE_SIDE_LENGTH),
+						obj = null;
+
+					// check to see if we are Clicking a station
+					for(var i = 0; i < this.objects.length; i++){
+						if(this.objects[i].is_visible()){
+
+							if(this.objects[i].over(x, y, this.zoom)){
+								obj = this.objects[i];
+								break;
+							}
+
+						}
+					}
+
+					if(obj){
+						console.log(obj.callsign);
+					}
+
+				}
+
+				this.canvas.style.cursor = '';
+				this.clicking = false;
+
+			}
 
 		};
 
@@ -403,7 +494,7 @@ define(
 		 * @param {int} dx distance in pixels the mouse was dragged on the x axis
 		 * @param {int} dy distance in pixels the mouse was dragged on the y axis
 		 */
-		Map.prototype.drag = function(dx, dy){
+		Map.prototype._drag = function(dx, dy){
 
 			var z = this.get_side_tiles();
 
@@ -571,16 +662,7 @@ define(
 
 				var pos = Location_Conversions.latlong_to_tilexy(this.objects[j].get_coordinates(), this.zoom);
 
-				if(
-					pos.x > this.position.x - w/2 &&
-					pos.x < this.position.x + w/2 &&
-					pos.y > this.position.y - h/2 &&
-					pos.y < this.position.y + h/2
-				){
-
-					this.objects[j].render(this.ctx, this.canvas.width/2 + (pos.x - this.position.x)*Map.TILE_SIDE_LENGTH, this.canvas.height/2 + (pos.y - this.position.y)*Map.TILE_SIDE_LENGTH);
-
-				}
+				this.objects[j].render(this.ctx, this.canvas.width/2 + (pos.x - this.position.x)*Map.TILE_SIDE_LENGTH, this.canvas.height/2 + (pos.y - this.position.y)*Map.TILE_SIDE_LENGTH, this.zoom);
 
 			}
 

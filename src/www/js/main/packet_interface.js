@@ -51,9 +51,9 @@ define(
 					]
 				);
 
-				var new_station = packet_interface.manager.add_packet(packet);
+				var new_station = packet_interface.manager.add_packet(packet, packet_interface.update_map);
 				if(new_station)
-					packet_interface.map.add_object(new_station, packet_interface.update_map);
+					packet_interface.map.add_object(new_station);
 
 				// Log detailed packet info to console
 				console.log(packet.info_string());
