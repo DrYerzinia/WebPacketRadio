@@ -60,10 +60,29 @@ define(
 		 * @param {int} x X Pixel position to draw image centered at
 		 * @param {int} y Y Pixel position to draw image centered at
 		 */
-		Icon.prototype.render = function(ctx, x, y, zoom){
+		Icon.prototype.render = function(ctx, x, y, zoom, rot){
 
-			if(this.visible)
-				ctx.drawImage(this.image, x - (this.image.width / 2), y - (this.image.height / 2));
+			if(this.visible){
+
+				if(!rot)
+					rot = Math.PI / 2;
+
+				ctx.save();
+
+				ctx.translate(x, y);
+				// Mirror and keep icons upright
+				if(rot >= Math.PI){
+					rot = (rot - (Math.PI * 3 / 2)) * -1;
+					ctx.scale(-1, 1);
+				} else {
+					rot -= Math.PI / 2;
+				}
+				ctx.rotate(rot);
+				ctx.drawImage(this.image, - (this.image.width / 2), - (this.image.height / 2));
+
+				ctx.restore();
+
+			}
 
 		};
 

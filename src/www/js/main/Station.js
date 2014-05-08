@@ -190,7 +190,11 @@ define(
 				}
 
 				// Draw Icon
-				this.icon.render(ctx, x, y);
+				var rot = Math.PI / 2;
+				if(this.packets[this.packets.length - 1].aprs_info && this.packets[this.packets.length - 1].aprs_info.heading){
+					rot = this.packets[this.packets.length - 1].aprs_info.heading * Math.PI / 180;
+				}
+				this.icon.render(ctx, x, y, zoom, rot);
 
 			}
 
