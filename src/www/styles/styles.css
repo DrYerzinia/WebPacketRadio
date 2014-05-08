@@ -185,6 +185,19 @@ div {
 	width: 150px;
 }
 
+.station-info div div {
+	font-size: 16px !important;
+
+	vertical-align: middle;
+
+	height: 20px;
+	line-height: 20px;
+}
+
+.station-info :nth-child(2) {
+	font-size: 12px;
+}
+
 #ui_toaster {
 
 	position: absolute;

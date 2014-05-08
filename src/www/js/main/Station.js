@@ -80,11 +80,11 @@ define(
 				img.src = this.icon.image.src;
 				img.style.cssFloat = 'left';
 
-				title.innerHTML = this.callsign;
+				title.innerHTML = this.callsign + '-' + this.ssid;
 
 				if(this.packets[this.packets.length - 1].aprs_info){
 					if(this.packets[this.packets.length - 1].aprs_info.info_string){
-						info.innerHTML = this.packets[this.packets.length - 1].aprs_info.info_string();
+						info.innerHTML = this.packets[this.packets.length - 1].aprs_info.info_string().replace(/\n/g, '<br />');
 					}
 				}
 

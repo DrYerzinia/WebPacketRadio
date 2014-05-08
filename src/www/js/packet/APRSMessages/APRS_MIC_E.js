@@ -12,10 +12,12 @@
 
 define(
 	[
-	 	'map/LatLong'
+	 	'map/LatLong',
+	 	'util/Unit'
 	],
 	function(
-		LatLong
+		LatLong,
+		Unit
 	){
 
 		var APRS_MIC_E = function(packet){
@@ -176,8 +178,54 @@ define(
 			this.symbol_table = String.fromCharCode(packet.message_data[8]);
 			this.symbol_code = String.fromCharCode(packet.message_data[7]);
 
+			// Find Telemetry
+
+			// Find Grid Locator /G
+			var j = -1;
+			
+			if(packet.message_data[16] == 47 && packet.message_data[16] == 71){
+				j = 18;
+			} else if(packet.message_data[17] == 47 && packet.message_data[17] == 71){
+				j = 19;
+			}
+
+			if(j != -1){
+				// Check for space for message and if its missing print warning
+				if(packet.message_data.length > j - 1 && packet.message_data[j - 1] == 32)
+					console.log('Warning: Status Text should begin with Space after grid locator!');
+
+				// Parse Grid Locator
+				console.log('parse loc');
+			}
+
+			// Find Altitude Indicator } if we dident find Grid Locator
+			else {
+
+				if(packet.message_data[12] == 125){
+					j = 13;
+				} else if(packet.message_data[13] == 125){
+					j = 14;
+				}
+
+				// Parse Altitude
+				if(j != -1){
+					this.altitude = 
+						(
+						 (packet.message_data[j - 4] - 33) * 8281 + // 8281 is 91^2, Base 91 encoding shifed by 33
+						 (packet.message_data[j - 3] - 33) * 91 +	// to be printable characters
+						 (packet.message_data[j - 2] - 33)
+						- 10000);	// Altitude is based 10000 feet below sealevel
+				}
+
+			}
+
 			this.status = "";
-			for(var i = 10; i < packet.message_data.length; i++){
+ 
+			var i = 10;
+			if(j != -1)
+				i = j;
+
+			for(; i < packet.message_data.length; i++){
 				this.status += String.fromCharCode(packet.message_data[i]);
 			}
 
@@ -185,7 +233,18 @@ define(
 
 		APRS_MIC_E.prototype.info_string = function(){
 
-			return this.status;
+			var str = '';
+
+			str += Math.round(Unit.convert(this.speed, Unit.KNOTS, Unit.MPH)) + ' ' + Unit.shorthand[Unit.MPH] + ' ' + this.heading + '&deg;\n';
+
+			if(this.altitude){
+				str += 'Altitude: ' + Math.round(Unit.convert(this.altitude, Unit.METERS, Unit.FEET)) + ' ' + Unit.shorthand[Unit.FEET] + '\n';
+			}
+			if(this.status){
+				str += 'Status: ' + this.status + '\n';
+			}
+
+			return str;
 
 		};
 
