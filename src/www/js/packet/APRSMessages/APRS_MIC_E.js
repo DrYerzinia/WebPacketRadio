@@ -176,6 +176,17 @@ define(
 			this.symbol_table = String.fromCharCode(packet.message_data[8]);
 			this.symbol_code = String.fromCharCode(packet.message_data[7]);
 
+			this.status = "";
+			for(var i = 10; i < packet.message_data.length; i++){
+				this.status += String.fromCharCode(packet.message_data[i]);
+			}
+
+		};
+
+		APRS_MIC_E.prototype.info_string = function(){
+
+			return this.status;
+
 		};
 
 		APRS_MIC_E.prototype.get_latlong = function(){

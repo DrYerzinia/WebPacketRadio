@@ -158,7 +158,7 @@ define(
 			main.add(
 				new React_Tabs(
 					[
-					 	new React_Resizable(map, map.canvas),
+					 	new React_Resizable(map, map.self),
 					 	controls,
 					 	packet_table,
 					 	settings_pn

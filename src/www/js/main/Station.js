@@ -67,6 +67,42 @@ define(
 
 		};
 
+		Station.prototype.click = function(map){
+
+			if(this.icon){
+				
+				var d = document.createElement('div'),
+					head = document.createElement('div'),
+					title = document.createElement('div'),
+					info = document.createElement('div');
+					img = document.createElement('img');
+
+				img.src = this.icon.image.src;
+				img.style.cssFloat = 'left';
+
+				title.innerHTML = this.callsign;
+
+				if(this.packets[this.packets.length - 1].aprs_info){
+					if(this.packets[this.packets.length - 1].aprs_info.info_string){
+						info.innerHTML = this.packets[this.packets.length - 1].aprs_info.info_string();
+					}
+				}
+
+				head.appendChild(img);
+				head.appendChild(title);
+
+				d.appendChild(head);
+				d.appendChild(info);
+
+				d.classList.add('station-info');
+
+				map.clear_messages();
+				map.add_message_box(d, this.icon.coordinates);
+
+			}
+
+		};
+
 		Station.prototype.over = function(x, y, zoom){
 
 			var pos = Location_Conversions.latlong_to_tilexy(this.icon.coordinates, zoom);

@@ -48,13 +48,17 @@ define(
 			 * @type int
 			 */
 			this.zoom = zoom;
-	
+
 			/**
 			 * Canvas the Map is drawn on to
 			 * @property canvas
 			 * @type Canvas
 			 */
 			this.canvas = canvas;
+
+			this.self = document.createElement('div');
+			this.self.style.position = 'relative';
+			this.self.appendChild(canvas);
 
 			/**
 			 * Tile loader to catch tiles and give them to map to be drawn
@@ -69,6 +73,8 @@ define(
 			 * @type Array
 			 */
 			this.objects = [];
+
+			this.message_boxes = [];
 
 			// Check for tile cache DB and if it exists create connection
 
@@ -151,8 +157,7 @@ define(
 						dx = ot.x - nt.x,
 						dy = ot.y - nt.y;
 
-					t.drag(-dx, dy);
-					t.render();
+					t._drag(-dx, dy);
 
 				}
 
@@ -189,7 +194,6 @@ define(
 						} else {
 							t._scroll(px, py, 1);
 						}
-						t.render();
 						t.scale_delta = scaled;
 					}
 				}
@@ -330,7 +334,6 @@ define(
 			if(this.clicking){
 
 				this._drag(e.pageX - this.mouse_x, this.mouse_y - e.pageY);
-				this.render();
 
 				this.mouse_x = e.pageX;
 				this.mouse_y = e.pageY;
@@ -390,7 +393,7 @@ define(
 					}
 
 					if(obj){
-						console.log(obj.callsign);
+						obj.click(this);
 					}
 
 				}
@@ -403,6 +406,9 @@ define(
 		};
 
 		Map.prototype.resize = function(width, height){
+
+			this.self.style.width = width + 'px';
+			this.self.style.height = height + 'px';
 
 			this.canvas.width = width;
 			this.canvas.height = height;
@@ -433,6 +439,71 @@ define(
 			}
 
 			return z;
+
+		};
+
+		Map.prototype.remove_message_box = function(mb){
+
+			for(var i = 0; i < this.message_boxes.length; i++){
+				if(this.message_boxes[i] === mb){
+					this.self.removeChild(this.message_boxes[i].div);
+					this.message_boxes.splice(i, 1);
+					break;
+				}
+			}
+
+		}
+
+		Map.prototype.clear_messages = function(){
+
+			for(var i = 0; i < this.message_boxes.length; i++){
+				this.self.removeChild(this.message_boxes[i].div);
+				this.message_boxes.splice(i, 1);
+			}
+
+		};
+
+		Map.prototype.add_message_box = function(content, coordinates){
+
+			var d = document.createElement('div');
+				message_box =
+				{
+					div: d,
+					coordinates: coordinates
+				};
+
+			var x = document.createElement('div');
+			x.innerHTML = 'x';
+			x.style.cursor = 'pointer';
+			x.style.position = 'absolute';
+			x.style.top = '0px';
+			x.style.right = '5px';
+			x.style.width = '10px';
+			var t = this;
+			x.onclick = function(){
+				t.remove_message_box(message_box);
+			};
+
+			d.appendChild(content);
+			d.appendChild(x);
+
+			d.classList.add('map-message-box');
+			d.style.position = 'absolute';
+			d.style.top = '0px';
+			d.style.left = '0px';
+
+			this.self.appendChild(d);
+
+			var pos = Location_Conversions.latlong_to_tilexy(coordinates, this.zoom),
+				x = this.canvas.width/2 + (pos.x - this.position.x)*Map.TILE_SIDE_LENGTH,
+				y = this.canvas.height/2 + (pos.y - this.position.y)*Map.TILE_SIDE_LENGTH;
+
+			d.style.top = y + 'px';
+			d.style.left = x + 'px';
+
+			this.message_boxes.push(message_box);
+
+			return message_box;
 
 		};
 
@@ -481,9 +552,10 @@ define(
 				this.zoom = 0;
 			else if(this.zoom > 18)
 				this.zoom = 18;
-				
 
 			this.render();
+
+			this._update_message_box_pos();
 
 		};
 
@@ -512,6 +584,26 @@ define(
 				this.position.y = ((this.position.y + 1) % z) + z - 1;
 			} else if(this.position.y > z){
 				this.position.y = this.position.y % z;
+			}
+
+			this.render();
+
+			this._update_message_box_pos();
+
+		};
+
+		Map.prototype._update_message_box_pos = function(){
+
+			// Move message boxes
+			for(var i = 0; i < this.message_boxes.length; i++){
+
+				var pos = Location_Conversions.latlong_to_tilexy(this.message_boxes[i].coordinates, this.zoom),
+					x = this.canvas.width/2 + (pos.x - this.position.x)*Map.TILE_SIDE_LENGTH,
+					y = this.canvas.height/2 + (pos.y - this.position.y)*Map.TILE_SIDE_LENGTH;
+
+				this.message_boxes[i].div.style.top = y + 'px';
+				this.message_boxes[i].div.style.left = x + 'px';
+
 			}
 
 		};
@@ -561,6 +653,8 @@ define(
 		 * @method do_render
 		 */
 		Map.prototype.do_render = function(){
+
+			this.ctx.lineJoin = 'round';
 
 			var w = Math.floor(this.canvas.width / Map.TILE_SIDE_LENGTH) + 4,
 				h = Math.floor(this.canvas.height / Map.TILE_SIDE_LENGTH) + 4,
