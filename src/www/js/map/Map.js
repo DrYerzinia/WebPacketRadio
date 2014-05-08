@@ -20,7 +20,8 @@ define(
 	 	'map/Location_Conversions',
 	 	'map/LatLong',
 	 	'map/XY',
-	 	'util/dom'
+	 	'util/dom',
+	 	'util/touch/Touch'
 	],
 	function(
 		Tile,
@@ -28,7 +29,8 @@ define(
 		Location_Conversions,
 		LatLong,
 		XY,
-		dom
+		dom,
+		Touch
 	){
 
 		/**
@@ -118,119 +120,22 @@ define(
 
 			// Touch Events
 
-			var copy_touch = function(touch){
-				return {id: touch.identifier, x: touch.pageX, y: touch.pageY};
-			};
-
 			this.touches = [];
 			this.last_tap = Date.now();
 			this.scale_distance_last = 0;
 			this.scale_delta = 0;
+
 			this.canvas.ontouchstart = function(e){
-
-				e.preventDefault();
-				var tch = e.changedTouches;
-
-				for(var i = 0; i < tch.length; i++){
-					t.touches.push(copy_touch(tch[i]));
-				}
-
-				// If 2 fingers we are zooming in/out
-				if(t.touches.length == 2){
-
-					t.scale_distance_last = Math.sqrt( Math.pow(t.touches[0].x - t.touches[1].x, 2) + Math.pow(t.touches[0].y - t.touches[1].y, 2) );
-					t.scale_delta = 0;
-
-				}
-
+				t._touch_start(e);
 			};
 			this.canvas.ontouchmove = function(e){
-
-				e.preventDefault();
-				var tch = e.changedTouches;
-
-				// If 1 finger we are dragging
-				if(t.touches.length == 1){
-
-					var ot = t.touches[0];
-						nt = copy_touch(tch[0]),
-						dx = ot.x - nt.x,
-						dy = ot.y - nt.y;
-
-					t._drag(-dx, dy);
-
-				}
-
-				// update the touches
-				for(var i = 0; i < tch.length; i++){
-					for(var j = 0; j < t.touches.length; j++){
-						if(t.touches[j].id == tch[i].identifier){
-							t.touches[j].x = tch[i].pageX;
-							t.touches[j].y = tch[i].pageY;
-							break;
-						}
-					}
-				}
-
-				// If 2 fingers we are zooming in/out
-				if(t.touches.length == 2){
-					var touch_distance = Math.sqrt( Math.pow(t.touches[0].x - t.touches[1].x, 2) + Math.pow(t.touches[0].y - t.touches[1].y, 2) );
-
-					var center = {x: 0, y: 0};
-					center.x = (t.touches[0].x + t.touches[1].x)/2;
-					center.y = (t.touches[0].y + t.touches[1].y)/2;
-
-					var off = dom.offset(t.canvas),
-						px = (center.x - off.x) / t.canvas.width,
-						py = (center.y - off.y) / t.canvas.height;
-
-					// Set partial scale
-					var change = t.scale_distance_last - touch_distance;
-					var scaled = Math.floor(change/128);
-					if(scaled != t.scale_delta){
-
-						if(scaled > t.scale_delta){
-							t._scroll(px, py, -1);
-						} else {
-							t._scroll(px, py, 1);
-						}
-						t.scale_delta = scaled;
-					}
-				}
-
+				t._touch_move(e);
 			};
 			this.canvas.ontouchend = function(e){
-
-				e.preventDefault();
-				var tch = e.changedTouches;
-
-				// remove the touch
-				for(var i = 0; i < tch.length; i++){
-					for(var j = 0; j < t.touches.length; j++){
-						if(t.touches[j].id == tch[i].identifier){
-							t.touches.splice(j, 1);
-							break;
-						}
-					}
-				}
-
-				// Check for double tap to zoom
-				if(t.touches.length == 0){
-					var now = Date.now();
-					if(now - t.last_tap < 300){
-						var off = dom.offset(t.canvas),
-							x = (tch[0].pageX - off.x) / t.canvas.width,
-							y = (tch[0].pageY - off.y) / t.canvas.height;
-						t._scroll(x, y, 1);
-					}
-					t.last_tap = now;
-				}
-
+				t._touch_end(e);
 			};
 			this.canvas.ontouchcancel = function(e){
-
 				e.preventDefault();
-
 			};
 			this.canvas.ontouchleave = this.canvas.ontouchend;
 
@@ -238,14 +143,7 @@ define(
 
 			// Zooming in/out
 			var wheel = function(e){
-
-				e.preventDefault();
-				d = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-				var off = dom.offset(t.canvas),
-					x = (e.pageX - off.x) / t.canvas.width,
-					y = (e.pageY - off.y) / t.canvas.height;
-				t._scroll(x, y, d);
-
+				t._mouse_wheel(e);
 			};
 			if(window.addEventListener){
 				this.canvas.addEventListener("mousewheel", wheel, false);
@@ -279,6 +177,155 @@ define(
 
 			// Draw inital canvas
 			this.render();
+
+		};
+
+		Map.prototype._touch_start = function(e){
+
+			e.preventDefault();
+			var tch = e.changedTouches;
+
+			for(var i = 0; i < tch.length; i++){
+				this.touches.push(Touch.from_touch(tch[i]));
+			}
+
+			if(this.touches.length == 1){
+
+				this.mouse_down_x = this.touches[0].x;
+				this.mouse_down_y = this.touches[0].y;
+
+				this.touch_clicking = true;
+
+			}
+
+			// If 2 fingers we are zooming in/out
+			else if(this.touches.length == 2){
+
+				this.scale_distance_last = Math.sqrt( Math.pow(this.touches[0].x - this.touches[1].x, 2) + Math.pow(this.touches[0].y - this.touches[1].y, 2) );
+				this.scale_delta = 0;
+
+				this.touch_clicking = false;
+
+			}
+
+		};
+
+		Map.prototype._touch_move = function(e){
+
+
+			e.preventDefault();
+
+			var tch = e.changedTouches;
+
+			// If 1 finger we are dragging
+			if(this.touches.length == 1){
+
+				var ot = this.touches[0];
+					nt = Touch.from_touch(tch[0]),
+					dx = ot.x - nt.x,
+					dy = ot.y - nt.y;
+
+				if(
+					this.mouse_down_x > nt.x + 10 ||
+					this.mouse_down_x < nt.x - 10 ||
+					this.mouse_down_y > nt.y + 10 ||
+					this.mouse_down_y < nt.y - 10
+				){
+
+					this.touch_clicking = false;
+
+				}
+
+				this._drag(-dx, dy);
+
+			}
+
+			// update the touches
+			for(var i = 0; i < tch.length; i++){
+				for(var j = 0; j < this.touches.length; j++){
+					if(this.touches[j].id == tch[i].identifier){
+						this.touches[j].x = tch[i].pageX;
+						this.touches[j].y = tch[i].pageY;
+						break;
+					}
+				}
+			}
+
+			// If 2 fingers we are zooming in/out
+			if(this.touches.length == 2){
+				var touch_distance = Math.sqrt( Math.pow(this.touches[0].x - this.touches[1].x, 2) + Math.pow(this.touches[0].y - this.touches[1].y, 2) );
+
+				var center = {x: 0, y: 0};
+				center.x = (this.touches[0].x + this.touches[1].x)/2;
+				center.y = (this.touches[0].y + this.touches[1].y)/2;
+
+				var off = dom.offset(this.canvas),
+					px = (center.x - off.x) / this.canvas.width,
+					py = (center.y - off.y) / this.canvas.height;
+
+				// Set partial scale
+				var change = this.scale_distance_last - touch_distance;
+				var scaled = Math.floor(change/128);
+				if(scaled != this.scale_delta){
+
+					if(scaled > this.scale_delta){
+						this._scroll(px, py, -1);
+					} else {
+						this._scroll(px, py, 1);
+					}
+					this.scale_delta = scaled;
+				}
+			}
+
+		};
+
+		Map.prototype._touch_end = function(e){
+
+			e.preventDefault();
+
+			var tch = e.changedTouches;
+
+			// remove the touch
+			for(var i = 0; i < tch.length; i++){
+				for(var j = 0; j < this.touches.length; j++){
+					if(this.touches[j].id == tch[i].identifier){
+						this.touches.splice(j, 1);
+							break;
+					}
+				}
+			}
+
+			// Check for double tap to zoom
+			if(this.touches.length == 0){
+
+				if(this.touch_clicking){
+
+					this._object_click(tch[0].pageX, tch[0].pageY);
+
+				}
+
+				var now = Date.now();
+				if(now - this.last_tap < 300){
+					var off = dom.offset(this.canvas),
+						x = (tch[0].pageX - off.x) / this.canvas.width,
+						y = (tch[0].pageY - off.y) / this.canvas.height;
+					this._scroll(x, y, 1);
+				}
+				this.last_tap = now;
+
+			}
+
+		};
+
+		Map.prototype._mouse_wheel = function(e){
+
+			e.preventDefault();
+
+			d = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+			var off = dom.offset(this.canvas),
+				x = (e.pageX - off.x) / this.canvas.width,
+				y = (e.pageY - off.y) / this.canvas.height;
+			this._scroll(x, y, d);
 
 		};
 
@@ -375,32 +422,38 @@ define(
 
 				if(this.clicking && this.mouse_down_x == e.pageX && this.mouse_down_y == e.pageY){
 
-					var off = dom.offset(this.canvas),
-						x = this.position.x + (((e.pageX - off.x) - (this.canvas.width / 2)) / Map.TILE_SIDE_LENGTH),
-						y = this.position.y + (((e.pageY - off.y) - (this.canvas.height / 2)) / Map.TILE_SIDE_LENGTH),
-						obj = null;
-
-					// check to see if we are Clicking a station
-					for(var i = 0; i < this.objects.length; i++){
-						if(this.objects[i].is_visible()){
-
-							if(this.objects[i].over(x, y, this.zoom)){
-								obj = this.objects[i];
-								break;
-							}
-
-						}
-					}
-
-					if(obj){
-						obj.click(this);
-					}
+					this._object_click(e.pageX, e.pageY);
 
 				}
 
 				this.canvas.style.cursor = '';
 				this.clicking = false;
 
+			}
+
+		};
+
+		Map.prototype._object_click = function(mx, my){
+
+			var off = dom.offset(this.canvas),
+				x = this.position.x + (((mx - off.x) - (this.canvas.width / 2)) / Map.TILE_SIDE_LENGTH),
+				y = this.position.y + (((my - off.y) - (this.canvas.height / 2)) / Map.TILE_SIDE_LENGTH),
+				obj = null;
+
+			// check to see if we are Clicking a station
+			for(var i = 0; i < this.objects.length; i++){
+				if(this.objects[i].is_visible()){
+
+					if(this.objects[i].over(x, y, this.zoom)){
+						obj = this.objects[i];
+						break;
+					}
+
+				}
+			}
+
+			if(obj){
+				obj.click(this);
 			}
 
 		};
@@ -555,8 +608,6 @@ define(
 
 			this.render();
 
-			this._update_message_box_pos();
-
 		};
 
 		/**
@@ -587,8 +638,6 @@ define(
 			}
 
 			this.render();
-
-			this._update_message_box_pos();
 
 		};
 
@@ -642,7 +691,7 @@ define(
 					);
 				}
 				this.rendering = false;
-				this.do_render();
+				this._do_render();
 			}
 		};
 
@@ -651,8 +700,9 @@ define(
 		 * TODO: draw upper tile streched if missing data or draw black if that
 		 * is also not loaded
 		 * @method do_render
+		 * @private
 		 */
-		Map.prototype.do_render = function(){
+		Map.prototype._do_render = function(){
 
 			this.ctx.lineJoin = 'round';
 
@@ -759,6 +809,9 @@ define(
 				this.objects[j].render(this.ctx, this.canvas.width/2 + (pos.x - this.position.x)*Map.TILE_SIDE_LENGTH, this.canvas.height/2 + (pos.y - this.position.y)*Map.TILE_SIDE_LENGTH, this.zoom);
 
 			}
+
+			// Move message boxes to correct locations
+			this._update_message_box_pos();
 
 		};
 
