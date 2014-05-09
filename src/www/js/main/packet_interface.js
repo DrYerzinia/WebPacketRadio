@@ -1,11 +1,13 @@
 define(
 	[
+	 	'main/Station',
 	 	'main/Packet_Manager',
 	 	'map/Icon',
 	 	'packet/APRSPacket',
 	 	'util/ui'
 	],
 	function(
+		Station,
 		Packet_Manager,
 		Icon,
 		APRSPacket,
@@ -61,6 +63,95 @@ define(
 			}
 
 		};
+
+		Station.UI_Build_Popup = function(station){
+
+			var d = document.createElement('div'),
+				head = document.createElement('div'),
+				title = document.createElement('div'),
+				info = document.createElement('div'),
+				filter = document.createElement('div'),
+				hide = document.createElement('div'),
+				more = document.createElement('div'),
+				img = station.image.get_image_element();
+
+			img.style.cssFloat = 'left';
+	
+			title.innerHTML = station.callsign + '-' + station.ssid;
+	
+			if(station.packets[station.packets.length - 1].aprs_info){
+				if(station.packets[station.packets.length - 1].aprs_info.info_string){
+					info.innerHTML = station.packets[station.packets.length - 1].aprs_info.info_string().replace(/\n/g, '<br />');
+				}
+			}
+	
+			head.appendChild(img);
+			head.appendChild(title);
+	
+			hide.innerHTML = 'Hide';
+			hide.classList.add('message-button');
+	
+			filter.innerHTML = 'Filter';
+			filter.classList.add('message-button');
+	
+			more.innerHTML = 'More';
+			more.classList.add('message-button');
+	
+			d.appendChild(head);
+			d.appendChild(info);
+			d.appendChild(hide);
+			d.appendChild(filter);
+			d.appendChild(more);
+	
+			d.classList.add('station-info');
+	
+			packet_interface.map.clear_messages();
+	
+			var mb = packet_interface.map.add_message_box(d, station.coordinates);
+	
+			// Hide the selected station
+			hide.onclick = function(e){
+	
+				station.visible = false;
+				packet_interface.map.remove_message_box(mb);
+
+				// TODO: Hide in Table
+
+				packet_interface.map.render();
+	
+			};
+	
+			// Filter all stations but the selected station
+			filter.onclick = function(e){
+
+				var stations = packet_interface.manager.stations;
+
+				for(var key in stations){
+					if(stations.hasOwnProperty(key)){
+						if(stations[key] != station){
+
+							// TODO: Filter in Table
+
+							stations[key].visible = false;
+
+						}
+					}
+				}
+
+				packet_interface.map.render();
+
+			};
+
+			// TODO
+			// Cover the map with a menu with more options
+			// View raw packets option
+			more.onclick = function(e){
+
+				//
+
+			};
+
+		}
 
 		return packet_interface;
 

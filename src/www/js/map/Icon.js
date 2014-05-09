@@ -13,7 +13,7 @@
 
 define(
 	[
-	 	'util/Image_Loader'
+	 	'util/graphics/Image_Loader'
 	],
 	function(
 		Image_Loader
@@ -22,23 +22,28 @@ define(
 		/**
 		 * @constructor
 		 */
-		var Icon = function(url, coordinates, cb){
+		var Icon = function(image, coordinates, cb){
 
-			/**
-			 * Image that represents this icon
-			 * @property Image
-			 * @type Image
-			 * @private
-			 */
-			this.image = Image_Loader.get(url, cb);
-			/**
-			 * Coordinates this icon is located at
-			 * @property coordinates
-			 * @type LatLong
-			 */
-			this.coordinates = coordinates;
+			if(image){
+	
+				/**
+				 * Image that represents this icon
+				 * @property Image
+				 * @type Image
+				 * @private
+				 */
+				this.image = image;
+	
+				/**
+				 * Coordinates this icon is located at
+				 * @property coordinates
+				 * @type LatLong
+				 */
+				this.coordinates = coordinates;
+	
+				this.visible = true;
 
-			this.visible = true;
+			}
 
 		};
 
@@ -78,7 +83,7 @@ define(
 					rot -= Math.PI / 2;
 				}
 				ctx.rotate(rot);
-				ctx.drawImage(this.image, - (this.image.width / 2), - (this.image.height / 2));
+				this.image.render(ctx,  - (this.image.get_width() / 2), - (this.image.get_height() / 2));
 
 				ctx.restore();
 

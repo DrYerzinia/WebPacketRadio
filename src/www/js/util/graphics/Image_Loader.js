@@ -14,7 +14,12 @@
  */
 
 define(
-	function(){
+	[
+	 	'util/graphics/Img'
+	],
+	function(
+		Img
+	){
 
 		var Image_Loader = {};
 
@@ -39,21 +44,9 @@ define(
 
 			if(image == undefined){
 
-				image = new Image();
+				image = new Img();
+				image.load(url, cb);
 				this.images[url] = image;
-
-				image.is_loaded = false;
-
-				image.onload = function(){
-
-					image.is_loaded = true;
-
-					if(cb)
-						cb();
-
-				};
-
-				image.src = url;
 
 			}
 

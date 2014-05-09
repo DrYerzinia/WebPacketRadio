@@ -1,11 +1,13 @@
 define(
 	[
+	 	'main/Symbol_Sprite_Sheet',
 	 	'map/Location_Conversions',
 	 	'map/LatLong',
 	 	'map/Icon',
 	 	'map/Map'
 	],
 	function(
+		Symbol_Sprite_Sheet,
 		Location_Conversions,
 		LatLong,
 		Icon,
@@ -20,16 +22,20 @@ define(
 			this.packets = [];
 			this.coordinate_list = [];
 
-			this.icon = null;
-
 			this.trail_color = trail_color;
+
+			this.visible = false;
 
 		};
 
+		Station.prototype = new Icon();
+		Station.prototype.constructor = Station;
+		Station.superClass = Icon;
+
 		Station.prototype.get_coordinates = function(){
 
-			if(this.icon !== null)
-				return this.icon.get_coordinates();
+			if(this.coordinates)
+				return this.coordinates;
 			else 
 				return LatLong.NULL;
 
@@ -47,11 +53,11 @@ define(
 
 				if(coord && sym){
 
-					if(this.icon){
+					if(this.coordinates){
 						// Update the coordinates and symbol
-						if(!this.icon.coordinates.equals(coord)){
+						if(!this.coordinates.equals(coord)){
 							this.coordinate_list.push(coord);
-							this.icon.coordinates = coord;
+							this.coordinates = coord;
 							cb();
 
 						}
@@ -59,7 +65,7 @@ define(
 					} else {
 						// put the waypoint on the map and refresh the view
 						this.coordinate_list.push(coord);
-						this.icon = new Icon('data/image/aprs_symbols/' + sym + '.gif', coord, cb);
+						Icon.call(this, Symbol_Sprite_Sheet.get_sprite(sym+'.gif'), coord, cb);
 					}
 
 				}
@@ -69,35 +75,9 @@ define(
 
 		Station.prototype.click = function(map){
 
-			if(this.icon){
-				
-				var d = document.createElement('div'),
-					head = document.createElement('div'),
-					title = document.createElement('div'),
-					info = document.createElement('div');
-					img = document.createElement('img');
+			if(this.visible && Station.UI_Build_Popup){
 
-				img.src = this.icon.image.src;
-				img.style.cssFloat = 'left';
-
-				title.innerHTML = this.callsign + '-' + this.ssid;
-
-				if(this.packets[this.packets.length - 1].aprs_info){
-					if(this.packets[this.packets.length - 1].aprs_info.info_string){
-						info.innerHTML = this.packets[this.packets.length - 1].aprs_info.info_string().replace(/\n/g, '<br />');
-					}
-				}
-
-				head.appendChild(img);
-				head.appendChild(title);
-
-				d.appendChild(head);
-				d.appendChild(info);
-
-				d.classList.add('station-info');
-
-				map.clear_messages();
-				map.add_message_box(d, this.icon.coordinates);
+				Station.UI_Build_Popup(this);
 
 			}
 
@@ -105,12 +85,12 @@ define(
 
 		Station.prototype.over = function(x, y, zoom){
 
-			var pos = Location_Conversions.latlong_to_tilexy(this.icon.coordinates, zoom);
+			var pos = Location_Conversions.latlong_to_tilexy(this.coordinates, zoom);
 
-			if(this.icon){
+			if(this.image){
 
-				var offx = (this.icon.image.width / 2) / Map.TILE_SIDE_LENGTH,
-					offy = (this.icon.image.height / 2) / Map.TILE_SIDE_LENGTH;
+				var offx = (this.image.get_width() / 2) / Map.TILE_SIDE_LENGTH,
+					offy = (this.image.get_height() / 2) / Map.TILE_SIDE_LENGTH;
 
 				if(
 					x > pos.x - offx &&
@@ -129,20 +109,11 @@ define(
 
 		};
 
-		Station.prototype.is_visible = function(){
-
-			if(this.icon)
-				return this.icon.is_visible();
-
-			return false;
-
-		};
-
 		Station.prototype.render = function(ctx, x, y, zoom){
 
-			if(this.icon){
+			if(this.visible){
 
-				var pos = Location_Conversions.latlong_to_tilexy(this.icon.coordinates, zoom),
+				var pos = Location_Conversions.latlong_to_tilexy(this.coordinates, zoom),
 					last = pos,
 					lx = x,
 					ly = y;
@@ -194,7 +165,8 @@ define(
 				if(this.packets[this.packets.length - 1].aprs_info && this.packets[this.packets.length - 1].aprs_info.heading){
 					rot = this.packets[this.packets.length - 1].aprs_info.heading * Math.PI / 180;
 				}
-				this.icon.render(ctx, x, y, zoom, rot);
+
+				Station.superClass.prototype.render.call(this, ctx, x, y, zoom, rot);
 
 			}
 

@@ -181,6 +181,41 @@ div {
 
 }
 
+.message-button {
+
+	color: white;
+	font-size: 12px;
+
+	float: left;
+
+	border: 1px white solid;
+
+	background: black;
+
+	text-align: center;
+	vertical-align: middle;
+
+	box-sizing: border-box;
+
+	width: 33%;
+
+	height: 22px;
+	line-height: 16px;
+
+	padding: 3px 0;
+	margin-top: 3px;
+
+	cursor: pointer;
+
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+}
+
 .station-info {
 	width: 150px;
 }

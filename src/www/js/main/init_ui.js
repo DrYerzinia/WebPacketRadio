@@ -53,6 +53,9 @@ define(
 				new React_Title("Web Packet Radio", 30, 600)
 			);
 
+			// Controls
+			// TODO: Center on me
+			// TODO: Measure?
 			// React Vert Pane
 				// React Horiz Pane
 					// Source Address (Reactive Input)
@@ -64,10 +67,26 @@ define(
 					// React Vert Pane
 						// Send (React Button)
 						// DL (React Button)
+						// TODO: Gen Packet
+						// TODO: UnHide
 				// React Horiz Pane
 					// Listen (React Button)
 					// ISS (React Button)
 					// Remote Decode (React Button)
+
+			// Settings
+				// TODO Button List
+					// Decoder Settings
+					// Map Settings
+						// Activate Map Tile Cache downloader
+						// Clear Tile Cache / Show size
+						// Render PGH
+					// Mode
+						// Activate DIGI Mode
+						// APRS Fowarding Settings
+							// Fowarding on
+							// Fowarding site
+					// GPS on/off
 
 			var controls =  new React_Pane(React_Pane.VERTICAL),
 				address_bar =  new React_Pane(React_Pane.HORIZONTAL),
@@ -78,11 +97,11 @@ define(
 				noise_off = new React_Pane(React_Pane.HORIZONTAL),
 				freqs = new React_Pane(React_Pane.HORIZONTAL),
 
-				bit_rate_in = new React_Input('Bit Rate',  {display: true, }, 'text', settings.bit_rate),
-				noise_in = new React_Input('Noise Level',  {display: true, }, 'text', settings.noise),
-				offset_in = new React_Input('Offset',  {display: true, }, 'text', settings.offset),
-				freq0_in = new React_Input('Frequency 0',  {display: true, }, 'text', settings.frequency_0),
-				freq1_in = new React_Input('Frequency 1',  {display: true, }, 'text', settings.frequency_1),
+				bit_rate_in = new React_Input('Bit Rate',  {display: true}, 'text', settings.bit_rate),
+				noise_in = new React_Input('Noise Level',  {display: true}, 'text', settings.noise),
+				offset_in = new React_Input('Offset',  {display: true}, 'text', settings.offset),
+				freq0_in = new React_Input('Frequency 0',  {display: true}, 'text', settings.frequency_0),
+				freq1_in = new React_Input('Frequency 1',  {display: true}, 'text', settings.frequency_1),
 
 				settings_save_btn = new React_Button('Save', settings.save),
 

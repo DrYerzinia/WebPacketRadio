@@ -141,6 +141,16 @@ define(
 
 			// Mouse Events
 
+			// Allow right click in chrome
+			this.canvas.oncontextmenu = function(e){
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				return false;
+
+			};
+
 			// Zooming in/out
 			var wheel = function(e){
 				t._mouse_wheel(e);
@@ -366,7 +376,7 @@ define(
 
 				var now = Date.now();
 				if(now - this.time_last_right < 300){
-					var off = dom.offset(t.canvas),
+					var off = dom.offset(this.canvas),
 						x = (e.pageX - off.x) / this.canvas.width,
 						y = (e.pageY - off.y) / this.canvas.height;
 					this._scroll(x, y, -1);
@@ -569,6 +579,19 @@ define(
 		Map.prototype.add_object = function(obj){
 
 			this.objects.push(obj);
+			this.render();
+
+		};
+
+		Map.prototype.remove_object = function(obj){
+
+			for(var i = 0; i < this.objects.length; i++){
+
+				if(this.objects[i] == obj){
+					this.objects.splice(i, 1);
+				}
+
+			}
 			this.render();
 
 		};

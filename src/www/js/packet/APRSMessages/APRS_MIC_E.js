@@ -233,9 +233,15 @@ define(
 
 		APRS_MIC_E.prototype.info_string = function(){
 
-			var str = '';
+			var str = '',
+				speed = Math.round(Unit.convert(this.speed, Unit.KNOTS, Unit.MPH));
 
-			str += Math.round(Unit.convert(this.speed, Unit.KNOTS, Unit.MPH)) + ' ' + Unit.shorthand[Unit.MPH] + ' ' + this.heading + '&deg;\n';
+			if(speed != 0)
+				str += Math.round(Unit.convert(speed, Unit.KNOTS, Unit.MPH)) + ' ' + Unit.shorthand[Unit.MPH] + ' ';
+			if(this.heading != 0)
+				str += this.heading + '&deg;';
+			if(speed != 0 || this.heading != 0)
+				str += '\n';
 
 			if(this.altitude){
 				str += 'Altitude: ' + Math.round(Unit.convert(this.altitude, Unit.METERS, Unit.FEET)) + ' ' + Unit.shorthand[Unit.FEET] + '\n';
