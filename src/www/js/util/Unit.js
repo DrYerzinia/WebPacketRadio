@@ -27,7 +27,7 @@ define(
 					{
 						type: 'distance',
 						shorthand: 'ft',
-						conversion: 0.3048
+						conversion: 3.28084
 					},
 				'meters':
 					{
@@ -39,7 +39,7 @@ define(
 					{
 						type: 'speed',
 						shorthand: 'MPH',
-						conversion: 0.868976
+						conversion: 1.15077945
 					},
 				'knots':
 					{
