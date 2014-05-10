@@ -1,59 +1,74 @@
+/**
+ * @author	Michael Marques <dryerzinia@gmail.com>
+ */
+
+/**
+ * @module Util
+ */
+
 define(
 	function(){
 
+		/**
+		 * Functions for unit conversions
+		 * @class Unit
+		 */
 		var Unit = {};
 
-		Unit.FEET = 0;
-		Unit.METERS = 1;
-		Unit.MPH = 2;
-		Unit.KNOTS = 3;
+		Unit.units =
+			{
+				'feet':
+					{
+						type: 'distance',
+						shorthand: 'ft',
+						conversion: 0.3048
+					},
+				'meters':
+					{
+						type: 'distance',
+						shorthand: 'm',
+						conversion: 1
+					},
+				'MPH':
+					{
+						type: 'speed',
+						shorthand: 'MPH',
+						conversion: 0.868976
+					},
+				'knots':
+					{
+						type: 'speed',
+						shorthand: 'knots',
+						conversion: 1
+					}
+			}
 
-		Unit.altitude = Unit.FEET;
-		Unit.distance = Unit.FEET;
-		Unit.speed = Unit.MPH;
+
+		Unit.defaults =
+			{
+				'altitude': 'feet',
+				'distance': 'feet',
+				'speed': 'MPH'
+			}
 
 		Unit.convert = function(value, from, to){
 
-			return Unit.converters[from](value, to);
+			// TODO thorw error if types are different
+			return value / Unit.units[from].conversion * Unit.units[to].conversion;
 
 		};
 
-		Unit.shorthand = Array(4);
+		Unit.convert_default = function(value, from, type){
 
-		Unit.shorthand[Unit.FEET] = 'ft';
-		Unit.shorthand[Unit.METERS] = 'm';
-		Unit.shorthand[Unit.MPH] = 'MPH';
-		Unit.shorthand[Unit.KNOTS] = 'Knots';
+			return Unit.convert(value, from, Unit.defaults[type]);
 
-		Unit.converters = Array(4);
+		};
 
-		Unit.converters[Unit.FEET] = function(value, to){
-			switch(to){
-				case Unit.METERS:
-					return value * 0.3048;
-			}
-		}
+		Unit.default_shorthand = function(type){
 
-		Unit.converters[Unit.METERS] = function(value, to){
-			switch(to){
-				case Unit.FEET:
-					return value * 3.28084;
-			}
-		}
+			return Unit.units[Unit.defaults[type]].shorthand;
 
-		Unit.converters[Unit.MPH] = function(value, to){
-			switch(to){
-				case Unit.KNOTS:
-					return value * 0.868976;
-			}
-		}
-
-		Unit.converters[Unit.KNOTS] = function(value, to){
-			switch(to){
-				case Unit.MPH:
-					return value * 1.15078;
-			}
-		}
+		};
 
 		return Unit;
 

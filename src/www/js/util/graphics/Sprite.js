@@ -25,7 +25,6 @@ define(
 			elem.style.height = this.frame.h + 'px';
 
 			elem.style.background = 'url(' + this.image.src + ') -' + this.frame.x + 'px -' + this.frame.y + 'px';
-			console.log('url(' + this.image.src + ') -' + this.frame.x + 'px -' + this.frame.y + 'px');
 
 			return elem;
 

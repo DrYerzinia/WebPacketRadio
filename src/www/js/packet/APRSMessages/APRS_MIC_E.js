@@ -234,17 +234,17 @@ define(
 		APRS_MIC_E.prototype.info_string = function(){
 
 			var str = '',
-				speed = Math.round(Unit.convert(this.speed, Unit.KNOTS, Unit.MPH));
+				speed = Math.round(Unit.convert_default(this.speed, 'knots', 'speed'));
 
 			if(speed != 0)
-				str += Math.round(Unit.convert(speed, Unit.KNOTS, Unit.MPH)) + ' ' + Unit.shorthand[Unit.MPH] + ' ';
+				str += Math.round(Unit.convert_default(speed, 'knots', 'speed')) + ' ' + Unit.default_shorthand('speed') + ' ';
 			if(this.heading != 0)
 				str += this.heading + '&deg;';
 			if(speed != 0 || this.heading != 0)
 				str += '\n';
 
 			if(this.altitude){
-				str += 'Altitude: ' + Math.round(Unit.convert(this.altitude, Unit.METERS, Unit.FEET)) + ' ' + Unit.shorthand[Unit.FEET] + '\n';
+				str += 'Altitude: ' + Math.round(Unit.convert_default(this.altitude, 'meters', 'altitude')) + ' ' + Unit.default_shorthand('altitude') + '\n';
 			}
 			if(this.status){
 				str += 'Status: ' + this.status + '\n';

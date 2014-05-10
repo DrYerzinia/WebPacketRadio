@@ -3,7 +3,7 @@
  */
 
 /**
- * @module util
+ * @module Util
  */
 
 define(
