@@ -34,6 +34,12 @@ define(
 
 		};
 
+		/**
+		 * Checks if coordinates are the same as this objects coordinates
+		 * @method shift
+		 * @param {LatLong} coord Coordinates to compare
+		 * @return {boolean} If the coordinates are equal or not
+		 */
 		LatLong.prototype.equals = function(coord){
 
 			if(this.latitude == coord.latitude && this.longitude == coord.longitude)
@@ -60,6 +66,12 @@ define(
 
 		};
 
+		/**
+		 * A 0, 0 lat long for returning when there is no position to return
+		 * @property NULL
+		 * @type LatLong
+		 * @static
+		 */
 		LatLong.NULL = new LatLong(0, 0);
 
 		return LatLong;

@@ -40,19 +40,34 @@ define(
 				 * @type LatLong
 				 */
 				this.coordinates = coordinates;
-	
+
+				/**
+				 * Indicates if the icon should be rendered or not
+				 * @property visible
+				 * @type boolean
+				 */
 				this.visible = true;
 
 			}
 
 		};
 
+		/**
+		 * Tells if the icon is visible or not
+		 * @method is_visible
+		 * @return {boolean} Visibility of the Icon
+		 */
 		Icon.prototype.is_visible = function(){
 
 			return this.visible;
 
 		}
 
+		/**
+		 * Gets the coordinates of the Icon
+		 * @method get_coordinates
+		 * @return {LatLong} The coordinates the Icon is displayed at
+		 */
 		Icon.prototype.get_coordinates = function(){
 
 			return this.coordinates;
@@ -60,6 +75,7 @@ define(
 		};
 
 		/**
+		 * Renders the Icon to the screen
 		 * @method render
 		 * @param {2DContext} ctx Rendering context to draw the icon in
 		 * @param {int} x X Pixel position to draw image centered at

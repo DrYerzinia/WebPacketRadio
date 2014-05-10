@@ -58,6 +58,11 @@ define(
 			 */
 			this.canvas = canvas;
 
+			/**
+			 * The div that the map is contained to
+			 * @property self
+			 * @type DOMElement
+			 */
 			this.self = document.createElement('div');
 			this.self.style.position = 'relative';
 			this.self.appendChild(canvas);
@@ -76,6 +81,11 @@ define(
 			 */
 			this.objects = [];
 
+			/**
+			 * List of message box pop ups displayed on the map
+			 * @property message_boxes
+			 * @type Array
+			 */
 			this.message_boxes = [];
 
 			// Check for tile cache DB and if it exists create connection
@@ -85,12 +95,14 @@ define(
 			 * Map rendering context
 			 * @property ctx
 			 * @private
+			 * @type 2DContext
 			 */
 			this.ctx = canvas.getContext('2d');
 
 			/**
 			 * Map canvas mouse down indicator
 			 * @property clicking
+			 * @type boolean
 			 * @private
 			 */
 			this.clicking = false;
@@ -98,6 +110,7 @@ define(
 			/**
 			 * Mouse x position for dragging
 			 * @property mouse_x
+			 * @type int
 			 * @private
 			 */
 			this.mouse_x = 0;
@@ -108,11 +121,36 @@ define(
 			 */
 			this.mouse_y = 0;
 
+			/**
+			 * X coordinate the mouse was clicked down at
+			 * @property mouse_down_x
+			 * @type int
+			 * @private
+			 */
 			this.mouse_down_x = 0;
+			/**
+			 * Y coordinate the mouse was clicked down at
+			 * @property mouse_down_y
+			 * @type int
+			 * @private
+			 */
 			this.mouse_down_y = 0;
 
+			/**
+			 * Keeps track of if render was called so it doesn't set the timeout again
+			 * @property boolean
+			 * @type boolean
+			 * @private
+			 */
 			this.rendering = false;
 
+			/**
+			 * Last time right mouse button was clicked to detect double clicks
+			 * for zoom outs
+			 * @property time_last_right
+			 * @type int
+			 * @private
+			 */
 			this.time_last_right = Date.now();
 
 			// Set up canvas events
@@ -120,9 +158,35 @@ define(
 
 			// Touch Events
 
+			/**
+			 * Keeps track of touches on the map canvas for zooming and dragging
+			 * @property touches
+			 * @type Array
+			 * @private
+			 */
 			this.touches = [];
+			/**
+			 * Keeps track of time of last tap to know if less than 300 ms have
+			 * passed between taps to zoom in
+			 * @property last_tap
+			 * @type int
+			 * @private
+			 */
 			this.last_tap = Date.now();
+			/**
+			 * Distance of the two touches when they where both first
+			 * detected
+			 * @property scale_distance_last
+			 * @type int
+			 * @private
+			 */
 			this.scale_distance_last = 0;
+			/**
+			 * Amount of change in the zoom level
+			 * @property scale_delta
+			 * @type int
+			 * @private
+			 */
 			this.scale_delta = 0;
 
 			this.canvas.ontouchstart = function(e){
@@ -190,6 +254,12 @@ define(
 
 		};
 
+		/**
+		 * Called when a finger touches the screen
+		 * @method _touch_start
+		 * @param {e} TouchEvent
+		 * @private
+		 */
 		Map.prototype._touch_start = function(e){
 
 			e.preventDefault();
@@ -220,6 +290,12 @@ define(
 
 		};
 
+		/**
+		 * Called when a finger moves on the screen
+		 * @method _touch_move
+		 * @param {e} TouchEvent
+		 * @private
+		 */
 		Map.prototype._touch_move = function(e){
 
 
@@ -289,6 +365,12 @@ define(
 
 		};
 
+		/**
+		 * Called when a finger leaves the screen
+		 * @method _touch_end
+		 * @param {e} TouchEvent
+		 * @private
+		 */
 		Map.prototype._touch_end = function(e){
 
 			e.preventDefault();
@@ -327,6 +409,12 @@ define(
 
 		};
 
+		/**
+		 * Zoom in and out with scroll
+		 * @method _mouse_wheel
+		 * @param {e} MouseEvent
+		 * @private
+		 */
 		Map.prototype._mouse_wheel = function(e){
 
 			e.preventDefault();
@@ -339,6 +427,12 @@ define(
 
 		};
 
+		/**
+		 * Zoom on double click
+		 * @method _dbl_click
+		 * @param {e} MouseEvent
+		 * @private
+		 */
 		Map.prototype._dbl_click = function(e){
 
 			e.preventDefault();
@@ -355,6 +449,12 @@ define(
 
 		}
 
+		/**
+		 * Drag start
+		 * @method _mouse_down
+		 * @param {e} MouseEvent
+		 * @private
+		 */
 		Map.prototype._mouse_down = function(e){
 
 			e.preventDefault();
@@ -386,6 +486,12 @@ define(
 
 		};
 
+		/**
+		 * Dragging
+		 * @method _mouse_move
+		 * @param {e} MouseEvent
+		 * @private
+		 */
 		Map.prototype._mouse_move = function(e){
 
 			if(this.clicking){
@@ -424,6 +530,12 @@ define(
 
 		};
 
+		/**
+		 * End dragging
+		 * @method _mouse_up
+		 * @param {e} MouseEvent
+		 * @private
+		 */
 		Map.prototype._mouse_up = function(e){
 
 			if(e.button == 0){
@@ -443,6 +555,14 @@ define(
 
 		};
 
+		/**
+		 * If a click was detected, mouse down up, touch down up,
+		 * calls click on that object
+		 * @method _object_click
+		 * @param {int} mx X location the mouse was clicked on the browser
+		 * @param {int} my Y location the mouse was clicked on the browser
+		 * @private
+		 */
 		Map.prototype._object_click = function(mx, my){
 
 			var off = dom.offset(this.canvas),
@@ -468,6 +588,12 @@ define(
 
 		};
 
+		/**
+		 * Resizes the canvas and redraws it
+		 * @method resize
+		 * @param {int} width New width
+		 * @param {int} height New height
+		 */
 		Map.prototype.resize = function(width, height){
 
 			this.self.style.width = width + 'px';
@@ -505,6 +631,11 @@ define(
 
 		};
 
+		/**
+		 * Remove the box from the map
+		 * @method remove_message_box
+		 * @param {Message_Box} mb
+		 */
 		Map.prototype.remove_message_box = function(mb){
 
 			for(var i = 0; i < this.message_boxes.length; i++){
@@ -517,6 +648,10 @@ define(
 
 		}
 
+		/**
+		 * Removes all message boxes from the screen
+		 * @method clear_messages
+		 */
 		Map.prototype.clear_messages = function(){
 
 			for(var i = 0; i < this.message_boxes.length; i++){
@@ -526,6 +661,12 @@ define(
 
 		};
 
+		/**
+		 * Add a message box to the map
+		 * @method add_message_box
+		 * @param {DOMElement} content Element to put in the message box
+		 * @param {LatLong} coordinates The coordinates the message box is for
+		 */
 		Map.prototype.add_message_box = function(content, coordinates){
 
 			var d = document.createElement('div');
@@ -583,6 +724,11 @@ define(
 
 		};
 
+		/**
+		 * Removes an object from the map
+		 * @method remove_object
+		 * @param {Icon} obj Object to remove
+		 */
 		Map.prototype.remove_object = function(obj){
 
 			for(var i = 0; i < this.objects.length; i++){
@@ -664,6 +810,11 @@ define(
 
 		};
 
+		/**
+		 * Updates the positon of the message boxes on the screen
+		 * @method _update_message_box_pos
+		 * @private
+		 */
 		Map.prototype._update_message_box_pos = function(){
 
 			// Move message boxes
