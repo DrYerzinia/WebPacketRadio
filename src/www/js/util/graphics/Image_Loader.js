@@ -35,7 +35,7 @@ define(
 		/**
 		 * @method get
 		 * @param {String} url Url of the Image
-		 * @return {Image} Returns image object from url
+		 * @return {Img} Returns image object from url
 		 * @static
 		 */
 		Image_Loader.get = function(url, cb){
