@@ -25,10 +25,10 @@ define(
 
 		messaging.generate = function(){
 
-			var message = messaging.source.get_value(),
-			source_address = messaging.ssid.get_value(),
-			source_ssid = parseFloat(messaging.destination.get_value()),
-			destination_address = messaging.message.get_value();
+			var message = messaging.message.get_value(),
+			source_address = messaging.source.get_value(),
+			source_ssid = parseFloat(messaging.ssid.get_value()),
+			destination_address = messaging.destination.get_value();
 
 			var message_data = [];
 			for(var i = 0; i < message.length; i++)
