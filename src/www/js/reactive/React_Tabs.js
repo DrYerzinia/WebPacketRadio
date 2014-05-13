@@ -1,7 +1,22 @@
+/**
+ * @author	Michael Marques <dryerzinia@gmail.com>
+ */
+
+/**
+ * @module Reactive
+ */
+
+/**
+ * A reactive layout for displaying tabbed panes
+ * @class React_Tabs
+ */
 
 define(
 	function(){
 
+		/**
+		 * @constructor
+		 */
 		var React_Tabs = function(tabs, tab_names, tab_icons){
 
 			this.tabs = tabs;

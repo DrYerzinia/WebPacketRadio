@@ -194,13 +194,6 @@ define(
 			// Size display elements
 			main.resize(window.innerWidth, window.innerHeight);
 
-			window.onresize = function(e){
-				if(!React_Input.is_focused && React_Input.when_blurfocus + 500 < Date.now()){
-					main.resize(window.innerWidth, window.innerHeight);
-				}
-
-			};
-
 		};
 
 		return init_ui;

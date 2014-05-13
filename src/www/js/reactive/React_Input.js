@@ -1,6 +1,22 @@
+/**
+ * @author	Michael Marques <dryerzinia@gmail.com>
+ */
+
+/**
+ * @module Reactive
+ */
+
+/**
+ * Inputs for reactive layouts
+ * @class React_Input
+ */
+
 define(
 	function(){
 
+		/**
+		 * @constructor
+		 */
 		var React_Input = function(name, display_settings, type, def, type_properties){
 
 			this.self = document.createElement('div');

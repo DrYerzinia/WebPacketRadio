@@ -1,8 +1,29 @@
+/**
+ * @author	Michael Marques <dryerzinia@gmail.com>
+ */
+
+/**
+ * @module Reactive
+ */
+
+/**
+ * Table for reactive layouts
+ * @class React_Table
+ */
+
 define(
 	function(){
 
+		/**
+		 * @constructor
+		 */
 		var React_Table = function(head){
 
+			/**
+			 * Current position of the table
+			 * -1 indicates the begining of the table and the most recently
+			 * added rows are the highest numbered
+			 */
 			this.current_position = -1;
 
 			this.page_changer = document.createElement('div');
@@ -22,62 +43,10 @@ define(
 
 			var t = this;
 			this.page_up.onclick = function(e){
-
-				var pos = t.current_position;
-				if(pos != -1){
-
-					// Clear rows
-					while(t.tbody.rows.length > 0)
-						t.tbody.deleteRow(0);
-
-					// While there is room and current position is not at end
-					while(t.self.offsetHeight >= t.table.offsetHeight){
-
-						t.current_position++;
-
-						if(t.current_position >= t.table_data.length){
-							break;
-						}
-						
-						var row = t.tbody.insertRow(0);
-						for(var i = 0; i < t.table_data[t.current_position].length; i++){
-
-							var cell = row.insertCell(i);
-							cell.innerHTML = t.table_data[t.current_position][i];
-
-						}
-
-					}
-					if(t.current_position >= t.table_data.length){
-						t.current_position = -1;
-					} else {
-						t.tbody.deleteRow(0);
-						t.current_position--;
-					}
-
-					t.resize(t.current_width, t.current_height);
-
-				}
-
+				t._page_up();
 			};
 			this.page_dn.onclick = function(e){
-
-				var pos = t.current_position;
-				if(pos == -1)
-					pos = t.table_data.length - 1;
-
-				var loc = pos - t.tbody.rows.length + 1;
-
-				if(loc > 0){
-
-					while(t.tbody.rows.length > 0)
-						t.tbody.deleteRow(t.tbody.rows.length - 1);
-
-					t.current_position = loc - 1;
-					t.resize(t.current_width, t.current_height);
-
-				}
-
+				t._page_down();
 			};
 
 			this.page_changer.appendChild(this.page_up);
@@ -106,6 +75,81 @@ define(
 
 		};
 
+		/**
+		 * Scrolls the page up
+		 * @method _page_up
+		 * @private
+		 */
+		React_Table.prototype._page_up = function(){
+
+			var pos = this.current_position;
+			if(pos != -1){
+
+				// Clear rows
+				while(this.tbody.rows.length > 0)
+					this.tbody.deleteRow(0);
+
+				// While there is room and current position is not at end
+				while(this.self.offsetHeight >= this.table.offsetHeight){
+
+					this.current_position++;
+
+					if(this.current_position >= this.table_data.length){
+						break;
+					}
+					
+					var row = this.tbody.insertRow(0);
+					for(var i = 0; i < this.table_data[this.current_position].length; i++){
+
+						var cell = row.insertCell(i);
+						cell.innerHTML = this.table_data[this.current_position][i];
+
+					}
+
+				}
+				if(this.current_position >= this.table_data.length){
+					this.current_position = -1;
+				} else {
+					this.tbody.deleteRow(0);
+					this.current_position--;
+				}
+
+				this.resize(this.current_width, this.current_height);
+
+			}
+
+		};
+
+		/**
+		 * Scrolls the page down
+		 * @method _page_down
+		 * @private
+		 */
+		React_Table.prototype._page_down = function(){
+
+			var pos = this.current_position;
+			if(pos == -1)
+				pos = this.table_data.length - 1;
+
+			var loc = pos - this.tbody.rows.length + 1;
+
+			if(loc > 0){
+
+				while(this.tbody.rows.length > 0)
+					this.tbody.deleteRow(this.tbody.rows.length - 1);
+
+				this.current_position = loc - 1;
+				this.resize(this.current_width, this.current_height);
+
+			}
+
+		};
+
+		/**
+		 * Add's data to the table
+		 * @method append_data
+		 * @param {Dictionary} data Data to add to table
+		 */
 		React_Table.prototype.append_data = function(data){
 
 			this.table_data.push(data);
@@ -128,6 +172,12 @@ define(
 
 		};
 
+		/**
+		 * Updates tables size
+		 * @method resize
+		 * @param {int} width Width in pixels
+		 * @param {int} height Height in pixels
+		 */
 		React_Table.prototype.resize = function(width, height){
 
 			this.current_width = width;
@@ -187,7 +237,19 @@ define(
 
 		};
 
+		/**
+		 * Single line row height
+		 * @property ROW_HEIGHT
+		 * @static
+		 * @type int
+		 */
 		React_Table.ROW_HEIGHT = 20;
+		/**
+		 * Width of the Page Changer
+		 * @property PAGE_CHANGER_WIDTH
+		 * @static
+		 * @type int
+		 */
 		React_Table.PAGE_CHANGER_WIDTH = 30;
 
 		return React_Table;
