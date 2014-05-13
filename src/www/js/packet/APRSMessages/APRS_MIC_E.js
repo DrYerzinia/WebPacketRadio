@@ -37,105 +37,6 @@ define(
 			var long_minutes = packet.message_data[2];
 			var long_hundreths_of_minutes = packet.message_data[3];
 
-			var message_a = 0;
-			var message_b = 0;
-			var message_c = 0;
-
-			if(long_degrees >= 0x41 && long_degrees <= 0x4B)
-				message_a = 2;
-			else if(long_degrees >= 0x50)
-				message_a = 1;
-
-			if(long_minutes >= 0x41 && long_minutes <= 0x4B)
-				message_b = 2;
-			else if(long_minutes >= 0x50)
-				message_b = 1;
-
-			if(long_hundreths_of_minutes >= 0x41 && long_hundreths_of_minutes <= 0x4B)
-				message_c = 2;
-			else if(long_hundreths_of_minutes >= 0x50)
-				message_c = 1;
-
-			var message_type = 0;
-
-			var message_c = (message_a == 1 || message_b == 1 || message_c == 1);
-			var message_s = (message_a == 2 || message_b == 2 || message_c == 2);
-
-			if(message_c && message_s)
-
-				message_type = 0;
-
-			else {
-
-				if(message_a != 0){
-
-					if(message_b != 0){
-
-						if(message_c != 0) message_type = 1;
-						else message_type = 2;
-
-					} else {
-
-						if(message_c != 0) this.MIC_E_message_type = 3;
-						else message_type = 4;
-
-					}
-
-				} else {
-
-					if(message_b != 0){
-
-						if(message_c != 0) this.MIC_E_message_type = 5;
-						else message_type = 6;
-
-					} else {
-
-						if(message_c != 0) this.MIC_E_message_type = 7;
-						else message_type = 8;
-
-					}
-
-				}
-
-			}
-			switch(message_type){
-				case 0:
-					this.MIC_E_message_type = "Unknown";
-					break;
-				case 1:
-					if(message_s) this.MIC_E_message_type = "Off Duty";
-					else this.MIC_E_message_type = "C0";
-					break;
-				case 2:
-					if(message_s) this.MIC_E_message_type = "En Route";
-					else this.MIC_E_message_type = "C1";
-					break;
-				case 3:
-					if(message_s) this.MIC_E_message_type = "In Service";
-					else this.MIC_E_message_type = "C2";
-					break;
-				case 4:
-					if(message_s) this.MIC_E_message_type = "Returning";
-					else this.MIC_E_message_type = "C3";
-					break;
-				case 5:
-					if(message_s) this.MIC_E_message_type = "Committed";
-					else this.MIC_E_message_type = "C4";
-					break;
-				case 6:
-					if(message_s) this.MIC_E_message_type = "Special";
-					else this.MIC_E_message_type = "C5";
-					break;
-				case 7:
-					if(message_s) this.MIC_E_message_type = "Priority";
-					else this.MIC_E_message_type = "C6";
-					break;
-				case 8:
-					// Consider some kind of messaging callback to notify user
-					this.MIC_E_message_type = "Emergency";
-					break;
-			}
-
 			var long = long_degrees - 28;
 			long += long_offset;
 			if(long >= 180 && long <= 189) long -= 80;
@@ -159,6 +60,108 @@ define(
 			var lat = parseFloat(lats.substring(0, 2)) + parseFloat(lats.substring(2, 4))/60 + parseFloat(lats.substring(4, 6))/6000;
 			if((packet.data[3]>>1) < 0x50)
 				lat *= -1;
+
+			var dest_0 = (packet.data[0] >> 1) & 0x7F;
+			var dest_1 = (packet.data[1] >> 1) & 0x7F;
+			var dest_2 = (packet.data[2] >> 1) & 0x7F;
+
+			var message_a = 0;
+			var message_b = 0;
+			var message_c = 0;
+
+			if(dest_0 >= 0x41 && dest_0 <= 0x4B)
+				message_a = 1;
+			else if(dest_0 >= 0x50)
+				message_a = 2;
+
+			if(dest_1 >= 0x41 && dest_1 <= 0x4B)
+				message_b = 1;
+			else if(dest_1 >= 0x50)
+				message_b = 2;
+
+			if(dest_2 >= 0x41 && dest_2 <= 0x4B)
+				message_c = 1;
+			else if(dest_2 >= 0x50)
+				message_c = 2;
+
+			var message_type = 0;
+
+			var message_cust = (message_a == 1 || message_b == 1 || message_c == 1);
+			var message_stan = (message_a == 2 || message_b == 2 || message_c == 2);
+
+			if(message_cust && message_stan)
+				message_type = 0;
+
+			else {
+
+				if(message_a != 0){
+
+					if(message_b != 0){
+
+						if(message_c != 0) message_type = 1;
+						else message_type = 2;
+
+					} else {
+
+						if(message_c != 0) message_type = 3;
+						else message_type = 4;
+
+					}
+
+				} else {
+
+					if(message_b != 0){
+
+						if(message_c != 0) message_type = 5;
+						else message_type = 6;
+
+					} else {
+
+						if(message_c != 0) message_type = 7;
+						else message_type = 8;
+
+					}
+
+				}
+
+			}
+			switch(message_type){
+				case 0:
+					this.MIC_E_message_type = "Unknown";
+					break;
+				case 1:
+					if(message_stan) this.MIC_E_message_type = "Off Duty";
+					else this.MIC_E_message_type = "C0";
+					break;
+				case 2:
+					if(message_stan) this.MIC_E_message_type = "En Route";
+					else this.MIC_E_message_type = "C1";
+					break;
+				case 3:
+					if(message_stan) this.MIC_E_message_type = "In Service";
+					else this.MIC_E_message_type = "C2";
+					break;
+				case 4:
+					if(message_stan) this.MIC_E_message_type = "Returning";
+					else this.MIC_E_message_type = "C3";
+					break;
+				case 5:
+					if(message_stan) this.MIC_E_message_type = "Committed";
+					else this.MIC_E_message_type = "C4";
+					break;
+				case 6:
+					if(message_stan) this.MIC_E_message_type = "Special";
+					else this.MIC_E_message_type = "C5";
+					break;
+				case 7:
+					if(message_stan) this.MIC_E_message_type = "Priority";
+					else this.MIC_E_message_type = "C6";
+					break;
+				case 8:
+					// Consider some kind of messaging callback to notify user
+					this.MIC_E_message_type = "Emergency";
+					break;
+			}
 
 			this.coordinates = new LatLong(lat, long);
 
@@ -249,6 +252,7 @@ define(
 			if(this.status){
 				str += 'Status: ' + this.status + '\n';
 			}
+			str += 'Mic-E: ' + this.MIC_E_message_type + '\n';
 
 			return str;
 
