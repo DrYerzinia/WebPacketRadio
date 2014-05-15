@@ -19,11 +19,62 @@ define(
 		LatLong
 	){
 		
-		var APRS_Parser = {}
+		var APRS_Parser = {};
 
-		APRS_Parser.parse_alt_in_stat = function(status_in){
+		APRS_Parser.update_extensions = function(info, status){
 
-			var altitude,
+			status.status = info.status;
+
+			if(info.altitude !== undefined){
+				status.altitude = info.altitude;
+				status.altitude_unit = 'feet';
+			}
+
+			if(info.power !== undefined)
+				status.power = info.power;
+
+			if(info.haat !== undefined)
+				status.haat = info.haat;
+
+			if(info.gain !== undefined)
+				status.gain = info.gain;
+
+			if(info.directivity !== undefined)
+				status.directivity = info.directivity;
+
+		};
+
+		APRS_Parser.parse_extensions = function(info, packet, i){
+
+			info.status = '';
+			for(; i < packet.message_data.length; i++){
+				info.status += String.fromCharCode(packet.message_data[i]);
+			}
+
+			APRS_Parser.parse_PHG(info, info.status);
+			APRS_Parser.parse_alt_in_stat(info, info.status);
+
+		};
+
+		APRS_Parser.parse_PHG = function(info, status_in){
+
+			var phg = status_in.indexOf('PHG');
+			if(phg != -1){
+
+				info.power = Math.pow(status_in.charCodeAt(phg + 3) - 0x30, 2);
+				info.haat = Math.pow(2, status_in.charCodeAt(phg + 4) - 0x30) * 10;
+				info.gain = status_in.charCodeAt(phg + 5) - 0x30;
+				info.directivity = (status_in.charCodeAt(phg + 6) - 0x30) * 45;
+
+				info.status = info.status.substring(phg + 7, info.status.length);
+
+			};
+
+		};
+
+		APRS_Parser.parse_alt_in_stat = function(info, status_in){
+
+			var altitude = undefined,
 				status = status_in;
 
 			var alt = status_in.indexOf('/A=');
@@ -32,12 +83,13 @@ define(
 				altitude = parseFloat(status.substring(alt + 3, alt + 9));
 
 				status = status_in.substring(0, alt);
-				if(status_in.length > alt+10)
-					status += status_in.substring(alt + 10, status_in.length - 1);
+				if(status_in.length > alt + 9)
+					status += status_in.substring(alt + 9, status_in.length);
 
 			}
 
-			return {'status': status, 'altitude': altitude};
+			info.status = status;
+			info.altitude = altitude;
 
 		};
 
@@ -84,6 +136,8 @@ define(
 				long *= -1;
 
 			info.coordinates = new LatLong(lat, long);
+
+			return i;
 
 		};
 

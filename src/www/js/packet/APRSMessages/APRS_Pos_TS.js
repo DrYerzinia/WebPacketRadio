@@ -29,7 +29,7 @@ define(
 			i++;
 			i = APRS_Parser.parse_lat_lon(this, packet, i);
 
-		}
+		};
 
 		APRS_Pos_TS.prototype.update_status = function(status){
 		};

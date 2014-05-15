@@ -8,15 +8,18 @@ define(
 
 		var APRS_Status = function(packet){
 
-			this.status = '';
-			for(var i = 1; i < packet.message_data.length; i++){
-				this.status += String.fromCharCode(packet.message_data[i]);
+			var i = 1;
+
+			i = APRS_Parser.parse_time_stamp(this, packet, i);
+
+			if(isNaN(this.time_stamp)){
+				this.time_stamp = undefined;
+				i = 1;
+			} else {
+				i++; 
 			}
 
-			var stat_alt = APRS_Parser.parse_alt_in_stat(this.status);
-
-			this.status = stat_alt.status;
-			this.altitude = stat_alt.altitude;
+			APRS_Parser.parse_extensions(this, packet, i);
 
 			// TODO Timestamp, ERP, Maidenhead
 
@@ -24,12 +27,7 @@ define(
 
 		APRS_Status.prototype.update_status = function(status){
 
-			status.status = this.status;
-
-			if(this.altitude){
-				status.altitude = this.altitude;
-				status.altitude_unit = 'feet';
-			}
+			APRS_Parser.update_extensions(this, status);
 
 		};
 

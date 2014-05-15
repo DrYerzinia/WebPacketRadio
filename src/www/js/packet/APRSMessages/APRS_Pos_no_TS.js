@@ -25,12 +25,17 @@ define(
 			var i = 1;
 
 			i = APRS_Parser.parse_lat_lon(this, packet, i);
+			i++;
 
-			// Search for APRS Extentions here
+			// Search for APRS Extensions here
+			APRS_Parser.parse_extensions(this, packet, i);
 
-		}
+		};
 
 		APRS_Pos_no_TS.prototype.update_status = function(status){
+
+			APRS_Parser.update_extensions(this, status);
+
 		};
 
 		return APRS_Pos_no_TS;

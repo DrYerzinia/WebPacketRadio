@@ -17,27 +17,55 @@ define(
 			var str = '',
 				hs = Station_Status.heading_speed_string(this.heading, this.speed, this.speed_unit),
 				wind = Station_Status.wind_string(this.wind_direction, this.wind_speed, this.wind_speed_unit, this.gust_speed, this.gust_speed_unit),
-				rain = Station_Status.rain_string(this.rain_hour, this.rain_hour_unit, this.rain_24hour, this.rain_24hour_unit, this.rain_midnight, this.rain_midnight_unit);
+				rain = Station_Status.rain_string(this.rain_hour, this.rain_hour_unit, this.rain_24hour, this.rain_24hour_unit, this.rain_midnight, this.rain_midnight_unit),
+				phg = Station_Status.phg_string(this.power, this.haat, this.gain, this.directivity);
 
 			if(hs.length != 0)
 				str += hs + '\n';
 
 			if(this.altitude)
 				str += Station_Status.alt_string(this.altitude, this.altitude_unit) + '\n';
-			if(this.status){
+
+			if(this.status)
 				str += Station_Status.status_string(this.status) + '\n';
-			}
-			if(this.mic_e){
+
+			if(this.mic_e)
 				str += Station_Status.mic_e_string(this.mic_e) + '\n';
-			}
-			if(this.temperature){
+
+			if(this.temperature)
 				str += 'Temperature: ' + this.temperature + '&deg;\n';
-			}
-			if(wind.length != 0){
+
+			if(wind.length != 0)
 				str += 'Wind: ' + wind + '\n';
-			}
-			if(rain.length != 0){
+
+			if(rain.length != 0)
 				str += 'Rain: ' + rain + '\n';
+
+			if(phg.length != 0)
+				str += phg + '\n';
+
+			return str;
+
+		};
+
+		Station_Status.phg_string = function(p, h, g, d){
+
+			var str = '';
+
+			if(p !== undefined)
+				str += p + 'W ';
+
+			if(h !== undefined)
+				str += h + 'ft HAAT ';
+
+			if(g !== undefined)
+				str += g + ' dBi gain ';
+
+			if(d !== undefined){
+				if(d == 0)
+					str += 'omni';
+				else
+					str += d + '&deg;';
 			}
 
 			return str;
@@ -52,7 +80,7 @@ define(
 				str += wind_dir + '&deg; ';
 
 			if(wind_speed !== undefined)
-				str += wind_speed + ' ' + Unit.default_shorthand('speed') + ' '
+				str += wind_speed + ' ' + Unit.default_shorthand('speed') + ' ';
 
 			if(gust_speed !== undefined)
 				str += 'Gust ' + gust_speed + ' ' + Unit.default_shorthand('speed');
