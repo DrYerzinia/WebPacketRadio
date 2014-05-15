@@ -21,5 +21,5 @@ cp ../src/www/data/image/aprs_symbols/symbols.json ../release/data/image/aprs_sy
 
 node /opt/r.js -o build.js
 
-yuicompressor -o ../release/styles/styles.css ../src/www/styles/styles.css
+node /opt/r.js -o cssIn=../src/www/styles/styles.css out=../release/styles/styles.css
 
