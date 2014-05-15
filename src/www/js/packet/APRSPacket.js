@@ -14,7 +14,7 @@
 define(
 	[
 	 	'crc/crccitt',
-	 	'math/base',
+	 	'math/math',
 	 	'packet/APRSMessages/APRS_MIC_E',
 	 	'packet/APRSMessages/APRS_Pos_TS',
 	 	'packet/APRSMessages/APRS_Pos_no_TS',
@@ -23,7 +23,7 @@ define(
 	],
 	function(
 		crccitt,
-		base,
+		math,
 		APRS_MIC_E,
 		APRS_Pos_TS,
 		APRS_Pos_no_TS,
@@ -405,7 +405,7 @@ define(
 	
 				if(i < this.data.length){
 	
-					info += " " + base.to_hex_string(this.data[i], 2);
+					info += " " + math.to_hex_string(this.data[i], 2);
 		 			i++;
 	
 				}
@@ -416,7 +416,7 @@ define(
 	
 		}
 	
-		info += "\nFCS: " + base.to_hex_string(this.fcs, 4) + "\n";
+		info += "\nFCS: " + math.to_hex_string(this.fcs, 4) + "\n";
 	
 		return info;
 

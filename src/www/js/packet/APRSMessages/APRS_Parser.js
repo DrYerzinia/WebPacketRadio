@@ -13,10 +13,12 @@
 
 define(
 	[
-	 	'map/LatLong'
+	 	'map/LatLong',
+	 	'math/math'
 	],
 	function(
-		LatLong
+		LatLong,
+		math
 	){
 		
 		var APRS_Parser = {};
@@ -41,6 +43,45 @@ define(
 
 			if(info.directivity !== undefined)
 				status.directivity = info.directivity;
+
+		};
+
+		APRS_Parser.update_WX = function(info, status){
+
+			if(info.wind_direction !== undefined){
+				status.wind_direction = info.wind_direction;
+			}
+			if(info.wind_speed !== undefined){
+				status.wind_speed = info.wind_speed;
+				status.wind_speed_unit = 'MPH';
+			}
+			if(info.gust_speed !== undefined){
+				status.gust_speed = info.gust_speed;
+				status.gust_speed_unit = 'MPH';
+			}
+			if(info.temperature !== undefined){
+				status.temperature = info.temperature;
+				status.temperature_unit = 'fahrenheit';
+			}
+			if(info.rain_hour !== undefined){
+				status.rain_hour = info.rain_hour;
+				status.rain_hour_unit = 'hundreths_of_inch';
+			}
+			if(info.rain_24hour !== undefined){
+				status.rain_24hour = info.rain_24hour;
+				status.rain_24hour_unit = 'hundreths_of_inch';
+			}
+			if(info.rain_midnight !== undefined){
+				status.rain_midnight = info.rain_midnight;
+				status.rain_midnight_unit = 'hundreths_of_inch';
+			}
+			if(info.humidity !== undefined){
+				status.humidity = info.humidity;
+			}
+			if(info.barometric_pressure !== undefined){
+				status.barometric_pressure = info.barometric_pressure;
+				status.barometric_pressure_unit = 'mBars/tenths_hPascal';
+			}
 
 		};
 
@@ -90,6 +131,103 @@ define(
 
 			info.status = status;
 			info.altitude = altitude;
+
+		};
+
+		APRS_Parser.parse_wind = function(info, packet, i){
+
+			info.wind_direction = math.parse_int(packet.message_data, i, 3);
+			i += 4;
+			info.wind_speed = math.parse_int(packet.message_data, i, 3);
+			i += 3;
+
+			return i;
+
+		};
+
+		APRS_Parser.parse_WX = function(info, packet, i){
+
+			var finished = false;
+
+			while(!finished){
+
+				var type = String.fromCharCode(packet.message_data[i]);
+
+				if((packet.message_data[i+1] < 0x30 && packet.message_data[i+1] != 0x2E) || packet.message_data[i+1] > 0x39){
+	
+					this.status = "";
+					while(i < packet.message_data.length){
+						info.status += String.fromCharCode(packet.message_data[i]);
+						i++;
+					}
+					break;
+	
+				}
+
+				i++;
+
+				switch(type){
+					case 'c':
+						if(packet.message_data[i] != 0x2E)
+							info.wind_direction = math.parse_int(packet.message_data, i, 3);
+						i += 3;
+						break;
+					case 's':
+						if(packet.message_data[i] != 0x2E)
+							info.wind_speed = math.parse_int(packet.message_data, i, 3);
+						i += 3;
+						break;
+					case 'g':
+						if(packet.message_data[i] != 0x2E)
+							info.gust_speed = math.parse_int(packet.message_data, i, 3);
+						i += 3;
+						break;
+					case 't':
+						if(packet.message_data[i] != 0x2E){
+							if(packet.message_data[i] == 0x2D){
+								info.temperature = -math.parse_int(packet.message_data, i + 1, 2);
+							}
+							else
+								info.temperature = math.parse_int(packet.message_data, i, 3);
+						}
+						i += 3;
+						break;
+					case 'r':
+						if(packet.message_data[i] != 0x2E)
+							info.rain_hour = math.parse_int(packet.message_data, i, 3);
+						i += 3;
+						break;
+					case 'p':
+						if(packet.message_data[i] != 0x2E)
+							info.rain_24hour = math.parse_int(packet.message_data, i, 3);
+						i += 3;
+						break;
+					case 'P':
+						if(packet.message_data[i] != 0x2E)
+							info.rain_midnight = math.parse_int(packet.message_data, i, 3);
+						i += 3;
+						break;
+					case 'h':
+						if(packet.message_data[i] != 0x2E){
+							info.humidity = math.parse_int(packet.message_data, i, 2);
+							if(info.humidity == 0)
+								info.humidity = 100; 
+						}
+						i += 2;
+						break;
+					case 'b':
+						if(packet.message_data[i+1] != 0x2E)
+							info.barometric_pressure = math.parse_int(packet.message_data, i, 5);
+						i += 5;
+						break;
+					default:
+						finished = info;
+						break;
+				}
+	
+			}
+
+			return i;
 
 		};
 

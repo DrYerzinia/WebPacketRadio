@@ -29,9 +29,18 @@ define(
 			i++;
 			i = APRS_Parser.parse_lat_lon(this, packet, i);
 
+			i++;
+			i = APRS_Parser.parse_wind(this, packet, i);
+
+			console.log(String.fromCharCode(packet.message_data[i]));
+			i = APRS_Parser.parse_WX(this, packet, i);
+
 		};
 
 		APRS_Pos_TS.prototype.update_status = function(status){
+
+			APRS_Parser.update_WX(this, status);
+
 		};
 
 		return APRS_Pos_TS;
