@@ -73,7 +73,16 @@ define(
 		 */
 		Unit.convert = function(value, from, to){
 
-			// TODO thorw error if types are different
+			if(from == to) return value;
+
+			if(Unit.units[from] === undefined)
+				throw 'Invalid Unit: ' + from + ' is not a unit!';
+			if(Unit.units[to] == undefined)
+				throw 'Invalid Unit: ' + to + ' is not a unit!';
+
+			if(Unit.units[from].type != Unit.units[to].type)
+				throw 'Type Mismatch: ' + from + ' is type ' + Unit.units[from].type + ' != ' + to + ' is type ' + Unit.units[to].type + '!';
+
 			return value / Unit.units[from].conversion * Unit.units[to].conversion;
 
 		};

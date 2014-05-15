@@ -21,6 +21,26 @@ define(
 		
 		var APRS_Parser = {}
 
+		APRS_Parser.parse_alt_in_stat = function(status_in){
+
+			var altitude,
+				status = status_in;
+
+			var alt = status_in.indexOf('/A=');
+			if(alt != -1){
+
+				altitude = parseFloat(status.substring(alt + 3, alt + 9));
+
+				status = status_in.substring(0, alt);
+				if(status_in.length > alt+10)
+					status += status_in.substring(alt + 10, status_in.length - 1);
+
+			}
+
+			return {'status': status, 'altitude': altitude};
+
+		};
+
 		APRS_Parser.parse_lat_lon = function(info, packet, i){
 
 			var latDeg = "";

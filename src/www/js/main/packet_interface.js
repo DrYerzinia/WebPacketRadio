@@ -4,6 +4,7 @@ define(
 	 	'main/Packet_Manager',
 	 	'map/Icon',
 	 	'packet/APRSPacket',
+	 	'util/config',
 	 	'util/ui'
 	],
 	function(
@@ -11,6 +12,7 @@ define(
 		Packet_Manager,
 		Icon,
 		APRSPacket,
+		config,
 		ui
 	){
 
@@ -58,7 +60,8 @@ define(
 					packet_interface.map.add_object(new_station);
 
 				// Log detailed packet info to console
-				console.log(packet.info_string());
+				if(config.log_packets)
+					console.log(packet.info_string());
 
 			}
 
@@ -79,12 +82,8 @@ define(
 	
 			title.innerHTML = station.callsign + '-' + station.ssid;
 	
-			if(station.packets[station.packets.length - 1].aprs_info){
-				if(station.packets[station.packets.length - 1].aprs_info.info_string){
-					info.innerHTML = station.packets[station.packets.length - 1].aprs_info.info_string().replace(/\n/g, '<br />');
-				}
-			}
-	
+			info.innerHTML = station.info_string().replace(/\n/g, '<br />');
+
 			head.appendChild(img);
 			head.appendChild(title);
 	

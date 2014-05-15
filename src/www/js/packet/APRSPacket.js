@@ -17,14 +17,18 @@ define(
 	 	'math/base',
 	 	'packet/APRSMessages/APRS_MIC_E',
 	 	'packet/APRSMessages/APRS_Pos_TS',
-	 	'packet/APRSMessages/APRS_Pos_no_TS'
+	 	'packet/APRSMessages/APRS_Pos_no_TS',
+	 	'packet/APRSMessages/APRS_Status',
+	 	'packet/APRSMessages/APRS_no_Pos_WX'
 	],
 	function(
 		crccitt,
 		base,
 		APRS_MIC_E,
 		APRS_Pos_TS,
-		APRS_Pos_no_TS
+		APRS_Pos_no_TS,
+		APRS_Status,
+		APRS_no_Pos_WX
 	){
 
 	/**
@@ -465,21 +469,21 @@ define(
 	APRSPacket.PACKET_TYPE = {
 		'\'': APRS_MIC_E,		// ' Old MIC-E data
 		'`' : APRS_MIC_E,		// ` Current MIC-E data
+		// [ Maidenhead Grid Locator (Obsolete)
 		'@' : APRS_Pos_TS,		// @ Position with timestamp (with APRS messaging)
 		'/' : APRS_Pos_TS,		// / Position with timestamp (no APRS messaging)
-		'[' : APRS_Pos_TS,		// [ Maidenhead Grid Locator (Obsolete)
 		'!' : APRS_Pos_no_TS,	// ! Position without timestamp (no APRS messaging), or Ulitmeter 2000 WX Station
-		'=' : APRS_Pos_no_TS	// = Position without timestamp (with APRS messaging)
+		'=' : APRS_Pos_no_TS,	// = Position without timestamp (with APRS messaging)
 		// : Message
 		// ; Object
 		// < Station Capabilities
-		// > Status
+		'>' : APRS_Status,		// > Status
 		// ? Query
 		// T Telemetry
 		// ) Item
 		// * Peet Bros U-II Weather Station
 		// # Peet Bros U-II Weather Station
-		// _ Weather Report (without position)
+		'_': APRS_no_Pos_WX		// _ Weather Report (without position)
 		// { User-Defined APRS Packet
 		// } Third-Party Traffic
 		// $ Raw GPS data or Ultimeter 2000

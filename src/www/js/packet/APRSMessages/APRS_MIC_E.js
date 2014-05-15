@@ -12,12 +12,12 @@
 
 define(
 	[
-	 	'map/LatLong',
-	 	'util/Unit'
+	 	'main/Station_Status',
+	 	'map/LatLong'
 	],
 	function(
-		LatLong,
-		Unit
+		Station_Status,
+		LatLong
 	){
 
 		var APRS_MIC_E = function(packet){
@@ -234,33 +234,19 @@ define(
 
 		};
 
-		APRS_MIC_E.prototype.info_string = function(){
+		APRS_MIC_E.prototype.update_status = function(status){
 
-			var str = '',
-				speed = Math.round(Unit.convert_default(this.speed, 'knots', 'speed'));
+			status.altitude = this.altitude;
+			status.altitude_unit = 'meters';
 
-			if(speed != 0)
-				str += Math.round(Unit.convert_default(speed, 'knots', 'speed')) + ' ' + Unit.default_shorthand('speed') + ' ';
-			if(this.heading != 0)
-				str += this.heading + '&deg;';
-			if(speed != 0 || this.heading != 0)
-				str += '\n';
+			status.speed = this.speed;
+			status.speed_unit = 'knots';
 
-			if(this.altitude){
-				str += 'Altitude: ' + Math.round(Unit.convert_default(this.altitude, 'meters', 'altitude')) + ' ' + Unit.default_shorthand('altitude') + '\n';
-			}
-			if(this.status){
-				str += 'Status: ' + this.status + '\n';
-			}
-			str += 'Mic-E: ' + this.MIC_E_message_type + '\n';
+			status.heading = this.heading;
 
-			return str;
+			status.status = this.status;
 
-		};
-
-		APRS_MIC_E.prototype.get_latlong = function(){
-
-			return this.coordinates;
+			status.mic_e = this.MIC_E_message_type;
 
 		};
 

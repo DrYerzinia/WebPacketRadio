@@ -1,4 +1,6 @@
 {
-	"remote_decoder_host":"self",
-	"remote_decoder_port":8080
+	"remote_decoder_host": "self",
+	"remote_decoder_port": 8080,
+
+	"log_packets": false
 }

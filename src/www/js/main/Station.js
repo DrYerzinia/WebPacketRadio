@@ -1,6 +1,7 @@
 define(
 	[
 	 	'main/Symbol_Sprite_Sheet',
+	 	'main/Station_Status',
 	 	'map/Location_Conversions',
 	 	'map/LatLong',
 	 	'map/Icon',
@@ -8,6 +9,7 @@ define(
 	],
 	function(
 		Symbol_Sprite_Sheet,
+		Station_Status,
 		Location_Conversions,
 		LatLong,
 		Icon,
@@ -25,6 +27,11 @@ define(
 			this.trail_color = trail_color;
 
 			this.visible = false;
+
+			/**
+			 * Information about this station received in packets
+			 */
+			this.status = new Station_Status();
 
 		};
 
@@ -48,7 +55,10 @@ define(
 			// If the packet is mapable put it on the map
 			if(packet.aprs_info){
 
-				var coord = packet.aprs_info.get_latlong(),
+				// Update Station status object
+				packet.aprs_info.update_status(this.status);
+
+				var coord = packet.aprs_info.coordinates,
 					sym = packet.get_symbol();
 
 				if(coord && sym){
@@ -70,6 +80,12 @@ define(
 
 				}
 			}
+
+		};
+
+		Station.prototype.info_string = function(){
+
+			return this.status.info_string();
 
 		};
 

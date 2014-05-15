@@ -30,10 +30,7 @@ define(
 
 		}
 
-		APRS_Pos_no_TS.prototype.get_latlong = function(){
-
-			return this.coordinates;
-
+		APRS_Pos_no_TS.prototype.update_status = function(status){
 		};
 
 		return APRS_Pos_no_TS;

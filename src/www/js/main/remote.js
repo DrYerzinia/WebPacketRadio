@@ -55,8 +55,9 @@ define(
 
 				// Log messages from the server
 				remote.decoder_socket.onmessage = function (e) {
+
 					if(e.data instanceof Blob){
-				
+
 						var blobReader = new FileReader();
 						blobReader.onloadend = function(){
 							var data = new Uint8Array(blobReader.result);
@@ -68,6 +69,7 @@ define(
 						blobReader.readAsArrayBuffer(e.data);
 
 					}
+
 				};
 
 				if(remote.button)
