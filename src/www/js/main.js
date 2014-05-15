@@ -31,7 +31,7 @@ require(
 		init_ui
 	){
 
-		var map_canvas, map, cont;
+		var map_canvas, map;
 
 		map_canvas = document.createElement('canvas');
 

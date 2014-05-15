@@ -1,10 +1,9 @@
-
 @font-face {
 
 	font-family: 'Ubuntu';
 	font-style: normal;
-	font-weight: 400;
-	src: local('Ubuntu'), url(../data/font/Ubuntu.woff) format('woff');
+	font-weight: 500;
+	src: local('Ubuntu Medium'), local('Ubuntu-Medium'), url(../data/font/Ubuntu.woff) format('woff');
 
 }
 	
@@ -196,6 +195,8 @@ div {
 	vertical-align: middle;
 
 	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 
 	width: 33%;
 
