@@ -85,7 +85,40 @@ define(
 			this.self.appendChild(this.table);
 			this.self.appendChild(this.page_changer);
 
+			this.filter = {
+				list: [],
+				flt: function(value){
+
+					var white_list = false;
+					
+					for(var i = 0; i < this.list.length; i++){
+
+						if(this.list[i].type == 'w')
+							white_list = true;
+
+						if(this.list[i].value == value[this.list[i].column]){
+							if(this.list[i].type == '-')
+								return false;
+							else if(this.list[i].type == 'w')
+								return true;
+						}
+					}
+					if(white_list) return false;
+					return true;
+				}
+			};
+
+			this.all_data = [];
 			this.table_data = [];
+
+		};
+
+		React_Table.prototype.update_filter = function(){
+
+			this.table_data = this.all_data.filter(this.filter.flt, this.filter);
+
+			this.current_position = this.table_data.length - 1;
+			this._page_up();
 
 		};
 
@@ -178,21 +211,27 @@ define(
 		 */
 		React_Table.prototype.append_data = function(data){
 
-			this.table_data.push(data);
+			this.all_data.push(data);
 
-			if(this.current_position == -1){
+			if(this.filter.flt.call(this.filter, data)){
 
-				var row = this.tbody.insertRow(0);
-
-				for(var i = 0; i < data.length; i++){
-					var cell = row.insertCell(i);
-					cell.innerHTML = data[i];
-					this._add_cell_callback(i, cell);
-				}
-
-				// If table is full remove the last row
-				if(this.self.offsetHeight < this.table.offsetHeight){
-					this.tbody.deleteRow(this.tbody.rows.length-1);
+				this.table_data.push(data);
+	
+				if(this.current_position == -1){
+	
+					var row = this.tbody.insertRow(0);
+	
+					for(var i = 0; i < data.length; i++){
+						var cell = row.insertCell(i);
+						cell.innerHTML = data[i];
+						this._add_cell_callback(i, cell);
+					}
+	
+					// If table is full remove the last row
+					if(this.self.offsetHeight < this.table.offsetHeight){
+						this.tbody.deleteRow(this.tbody.rows.length-1);
+					}
+	
 				}
 
 			}

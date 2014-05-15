@@ -64,16 +64,16 @@ define(
 				status.temperature_unit = 'fahrenheit';
 			}
 			if(info.rain_hour !== undefined){
-				status.rain_hour = info.rain_hour;
-				status.rain_hour_unit = 'hundreths_of_inch';
+				status.rain_hour = info.rain_hour / 100;
+				status.rain_hour_unit = 'inch';
 			}
 			if(info.rain_24hour !== undefined){
-				status.rain_24hour = info.rain_24hour;
-				status.rain_24hour_unit = 'hundreths_of_inch';
+				status.rain_24hour = info.rain_24hour / 100;
+				status.rain_24hour_unit = 'inch';
 			}
 			if(info.rain_midnight !== undefined){
-				status.rain_midnight = info.rain_midnight;
-				status.rain_midnight_unit = 'hundreths_of_inch';
+				status.rain_midnight = info.rain_midnight / 100;
+				status.rain_midnight_unit = 'inch';
 			}
 			if(info.humidity !== undefined){
 				status.humidity = info.humidity;

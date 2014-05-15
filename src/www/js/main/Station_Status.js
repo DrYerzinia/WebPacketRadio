@@ -33,7 +33,7 @@ define(
 				str += Station_Status.mic_e_string(this.mic_e) + '\n';
 
 			if(this.temperature)
-				str += 'Temperature: ' + this.temperature + '&deg;\n';
+				str += 'Temperature: ' + Math.round(Unit.convert_default(this.temperature, this.temperature_unit, 'temperature')) + ' &deg;' + Unit.default_shorthand('temperature') + '\n';
 
 			if(wind.length != 0)
 				str += 'Wind: ' + wind + '\n';
@@ -94,13 +94,13 @@ define(
 			var str = '';
 
 			if(rain_hour !== undefined)
-				str += '1h ' + rain_hour + ' ';
+				str += '1H ' + rain_hour + Unit.default_shorthand('rain') + ' ';
 
 			if(rain_24hour !== undefined)
-				str += '24h ' + rain_24hour + ' ';
+				str += '24H ' + rain_24hour + Unit.default_shorthand('rain') + ' ';
 
 			if(rain_midnight !== undefined)
-				str += 'Since Midnight ' + rain_midnight;
+				str += 'Midnight ' + rain_midnight + Unit.default_shorthand('rain');
 
 			return str;
 

@@ -14,7 +14,7 @@ define(
 
 		Packet_Manager.prototype.add_packet = function(packet, cb){
 
-			var station = this.stations[packet.source_address + '-' + packet.source_ssid]
+			var station = this.stations[packet.source_address + '-' + packet.source_ssid];
 
 			if(station === undefined){
 

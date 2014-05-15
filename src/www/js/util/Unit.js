@@ -46,8 +46,20 @@ define(
 						type: 'speed',
 						shorthand: 'knots',
 						conversion: 1
+					},
+				'fahrenheit':
+					{
+						type: 'temperature',
+						shorthand: 'F',
+						conversion: 1
+					},
+				'inch':
+					{
+						type: 'distance',
+						shorthand: '"',
+						conversion: 39.3701
 					}
-			}
+			};
 
 
 		/**
@@ -59,8 +71,10 @@ define(
 			{
 				'altitude': 'feet',
 				'distance': 'feet',
-				'speed': 'MPH'
-			}
+				'speed': 'MPH',
+				'temperature': 'fahrenheit',
+				'rain': 'inch'
+			};
 
 		/**
 		 * Converts from one unit of measure to another

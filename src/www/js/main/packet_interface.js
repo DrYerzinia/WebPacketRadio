@@ -119,6 +119,8 @@ define(
 				// TODO: Hide in Table
 
 				packet_interface.map.render();
+				packet_interface.table.filter.list.push({type: '-', column: 1, value: station.callsign + '-' + station.ssid});
+				packet_interface.table.update_filter();
 	
 			};
 	
@@ -140,6 +142,10 @@ define(
 				}
 
 				packet_interface.map.render();
+
+				packet_interface.map.render();
+				packet_interface.table.filter.list.push({type: 'w', column: 1, value: station.callsign + '-' + station.ssid});
+				packet_interface.table.update_filter();
 
 			};
 
