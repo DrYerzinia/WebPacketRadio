@@ -27,6 +27,12 @@ define(function(){
 		return ("0000" + val.toString(16).toUpperCase()).substr(-len);
 	};
 
+	math.zero = function(len, val){
+
+		return (Array(len+2).join('0') + val).slice(-len);
+
+	};
+
 	math.parse_int = function(array, start, length){
 
 		var val = 0,

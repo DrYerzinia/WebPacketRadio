@@ -15,6 +15,15 @@ define(
 	function(){
 
 		/**
+		 * Width of the Page Changer
+		 * @property PAGE_CHANGER_WIDTH
+		 * @static
+		 * @private
+		 * @type int
+		 */
+		var PAGE_CHANGER_WIDTH = 30;
+
+		/**
 		 * @constructor
 		 */
 		var React_Table = function(head){
@@ -31,15 +40,15 @@ define(
 			this.page_changer.classList.add('react-page-change');
 
 			this.page_changer.style.height = '100%';
-			this.page_changer.width = React_Table.PAGE_CHANGER_WIDTH + 'px';
+			this.page_changer.width = PAGE_CHANGER_WIDTH + 'px';
 
 			this.page_up = document.createElement('div');
 			this.page_dn = document.createElement('div');
 
 			this.page_up.innerHTML = '&#x25B2;';
 			this.page_dn.innerHTML = '&#x25BC;';
-			this.page_up.style.width = React_Table.PAGE_CHANGER_WIDTH + 'px';
-			this.page_dn.style.width = React_Table.PAGE_CHANGER_WIDTH + 'px';
+			this.page_up.style.width = PAGE_CHANGER_WIDTH + 'px';
+			this.page_dn.style.width = PAGE_CHANGER_WIDTH + 'px';
 
 			var t = this;
 			this.page_up.onclick = function(e){
@@ -60,18 +69,34 @@ define(
 			this.tbody = this.table.createTBody();
 
 			for(var i = 0; i < head.length; i++){
+
 				var cell = row.insertCell(i);
 				cell.innerHTML = head[i][0];
-				cell.style.width = head[i][1] + 'px';
+				if(head[i][1] !== 'fill')
+					cell.style.width = head[i][1] + 'px';
+
 			}
+
+			this.head = head;
 
 			this.table.classList.add('react-table');
 
 			this.self = document.createElement('div');
 			this.self.appendChild(this.table);
-			this.self.appendChild(this.page_changer)
+			this.self.appendChild(this.page_changer);
 
 			this.table_data = [];
+
+		};
+
+		React_Table.prototype._add_cell_callback = function(idx, cell){
+
+			var t = this;
+			if(this.head[idx][2] !== undefined){
+				cell.onclick = function(){
+					t.head[idx][2](cell.innerHTML);
+				};
+			}
 
 		};
 
@@ -103,6 +128,7 @@ define(
 
 						var cell = row.insertCell(i);
 						cell.innerHTML = this.table_data[this.current_position][i];
+						this._add_cell_callback(i, cell);
 
 					}
 
@@ -161,6 +187,7 @@ define(
 				for(var i = 0; i < data.length; i++){
 					var cell = row.insertCell(i);
 					cell.innerHTML = data[i];
+					this._add_cell_callback(i, cell);
 				}
 
 				// If table is full remove the last row
@@ -186,7 +213,7 @@ define(
 			this.self.style.width = width + 'px';
 			this.self.style.height = height + 'px';
 
-			this.table.style.width = (width - React_Table.PAGE_CHANGER_WIDTH) + 'px';
+			this.table.style.width = (width - PAGE_CHANGER_WIDTH) + 'px';
 
 			this.page_changer.style.height = height + 'px';
 
@@ -225,6 +252,7 @@ define(
 
 						var cell = row.insertCell(i);
 						cell.innerHTML = this.table_data[loc][i];
+						this._add_cell_callback(i, cell);
 
 					}
 	
@@ -244,13 +272,6 @@ define(
 		 * @type int
 		 */
 		React_Table.ROW_HEIGHT = 20;
-		/**
-		 * Width of the Page Changer
-		 * @property PAGE_CHANGER_WIDTH
-		 * @static
-		 * @type int
-		 */
-		React_Table.PAGE_CHANGER_WIDTH = 30;
 
 		return React_Table;
 

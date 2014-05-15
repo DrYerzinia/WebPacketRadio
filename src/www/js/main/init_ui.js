@@ -108,9 +108,16 @@ define(
 				packet_table = new React_Table(
 				 		[
 				 		 	['Time', 65],
-				 		 	['Source', 85],
+				 		 	['Source', 85,
+				 		 	 	function(val){
+
+				 		 			var coord = packet_interface.manager.stations[val].coordinates;
+				 		 			packet_interface.map.center_at(coord);
+
+				 		 		}
+				 		 	],
 				 		 	['Dest', 85],
-				 		 	['Data', 'Fill']
+				 		 	['Data', 'fill']
 				 		]
 				 	),
 

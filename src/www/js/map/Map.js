@@ -447,7 +447,7 @@ define(
 
 			}
 
-		}
+		};
 
 		/**
 		 * Drag start
@@ -585,6 +585,13 @@ define(
 			if(obj){
 				obj.click(this);
 			}
+
+		};
+
+		Map.prototype.center_at = function(coord){
+
+			this.position = Location_Conversions.latlong_to_tilexy(coord, this.zoom);
+			this.render();
 
 		};
 

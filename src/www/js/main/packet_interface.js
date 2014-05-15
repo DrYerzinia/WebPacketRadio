@@ -3,6 +3,7 @@ define(
 	 	'main/Station',
 	 	'main/Packet_Manager',
 	 	'map/Icon',
+	 	'math/math',
 	 	'packet/APRSPacket',
 	 	'util/config',
 	 	'util/ui'
@@ -11,6 +12,7 @@ define(
 		Station,
 		Packet_Manager,
 		Icon,
+		math,
 		APRSPacket,
 		config,
 		ui
@@ -48,7 +50,7 @@ define(
 				// Add info to the log
 				packet_interface.table.append_data(
 					[
-					 	now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds(),
+					 	math.zero(2, now.getHours()) + ':' + math.zero(2, now.getMinutes()) + ':' + math.zero(2, now.getSeconds()),
 					 	packet.source_address + "-" + packet.source_ssid,
 					 	packet.destination_address + "-" + packet.destination_ssid,
 					 	packet.to_string()

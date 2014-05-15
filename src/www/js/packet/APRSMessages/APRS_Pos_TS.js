@@ -32,7 +32,6 @@ define(
 			i++;
 			i = APRS_Parser.parse_wind(this, packet, i);
 
-			console.log(String.fromCharCode(packet.message_data[i]));
 			i = APRS_Parser.parse_WX(this, packet, i);
 
 		};
