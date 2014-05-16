@@ -27,6 +27,13 @@ define(
 			i = APRS_Parser.parse_lat_lon(this, packet, i);
 			i++;
 
+			if(this.symbol_code === '_'){
+
+				i = APRS_Parser.parse_wind(this, packet, i);
+				i = APRS_Parser.parse_WX(this, packet, i);
+
+			}
+
 			// Search for APRS Extensions here
 			APRS_Parser.parse_extensions(this, packet, i);
 
@@ -34,6 +41,7 @@ define(
 
 		APRS_Pos_no_TS.prototype.update_status = function(status){
 
+			APRS_Parser.update_WX(this, status);
 			APRS_Parser.update_extensions(this, status);
 
 		};

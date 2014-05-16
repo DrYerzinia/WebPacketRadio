@@ -20,6 +20,7 @@ define(
 	 	'packet/APRSMessages/APRS_Pos_TS',
 	 	'packet/APRSMessages/APRS_Pos_no_TS',
 	 	'packet/APRSMessages/APRS_Status',
+	 	'packet/APRSMessages/APRS_beacon_stat',
 	 	'packet/APRSMessages/APRS_no_Pos_WX'
 	],
 	function(
@@ -30,6 +31,7 @@ define(
 		APRS_Pos_TS,
 		APRS_Pos_no_TS,
 		APRS_Status,
+		APRS_beacon_stat,
 		APRS_no_Pos_WX
 	){
 
@@ -110,11 +112,12 @@ define(
 		if(APRS_message_type)
 			packet.aprs_info = new APRS_message_type(packet);
 
-		else {
-			// Check if desination is beacon and if it is parse as status
-			packet.aprs_info = null;
-		}
+		// Check if desination is beacon and if it is parse as status		
+		else if(packet.destination_address == 'BEACON' && packet.destination_ssid == 0)
+				packet.aprs_info = new APRS_beacon_stat(packet);
 
+		else
+			packet.aprs_info = null;
 
 		packet.fcs = (data[data.length-1] << 8) + data[data.length-2];
 

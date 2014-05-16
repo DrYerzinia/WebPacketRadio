@@ -27,7 +27,13 @@ define(
 
 		APRS_Parser.update_extensions = function(info, status){
 
-			status.status = info.status;
+			if(info.status_official){
+				status.status = info.status;
+				status.status_official = info.status_official;
+			}
+
+			if(!status.status_official && info.status)
+				status.status = info.status;
 
 			if(info.altitude !== undefined){
 				status.altitude = info.altitude;
@@ -53,9 +59,6 @@ define(
 				status.speed = info.speed;
 				status.speed_unit = info.speed_unit;
 			}
-
-			if(info.status)
-				status.status = info.status;
 
 		};
 
@@ -181,26 +184,9 @@ define(
 
 			var finished = false;
 
-			while(!finished){
+			while(!finished && i < packet.message_data.length){
 
 				var type = String.fromCharCode(packet.message_data[i]);
-
-				if((packet.message_data[i+1] < 0x30 && packet.message_data[i+1] != 0x2E) || packet.message_data[i+1] > 0x39){
-	
-					info.software_type = String.fromCharCode(packet.message_data[i++]);
-
-					info.WX_unit = '';
-					var start = i;
-					while(i < packet.message_data.length && i < start + 4 && string.is_printable(packet.message_data[i])){
-
-						info.WX_unit += String.fromCharCode(packet.message_data[i]);
-						i++;
-
-					}
-
-					break;
-	
-				}
 
 				i++;
 
@@ -259,7 +245,18 @@ define(
 						i += 5;
 						break;
 					default:
-						finished = true;
+
+						info.software_type = String.fromCharCode(packet.message_data[i++]);
+
+						info.WX_unit = '';
+						var start = i;
+						while(i < packet.message_data.length && i < start + 4 && string.is_printable(packet.message_data[i])){
+
+							info.WX_unit += String.fromCharCode(packet.message_data[i]);
+							i++;
+
+						}
+
 						break;
 				}
 	

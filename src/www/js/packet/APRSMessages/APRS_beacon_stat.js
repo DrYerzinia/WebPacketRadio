@@ -6,17 +6,15 @@ define(
 		APRS_Parser
 	){
 
-		var APRS_Status = function(packet){
+		var APRS_beacon_stat = function(packet){
 
-			var i = 1;
-
-			this.status_official = true;
+			var i = 0;
 
 			i = APRS_Parser.parse_time_stamp(this, packet, i);
 
 			if(isNaN(this.time_stamp)){
 				this.time_stamp = undefined;
-				i = 1;
+				i = 0;
 			} else {
 				i++; 
 			}
@@ -27,13 +25,13 @@ define(
 
 		};
 
-		APRS_Status.prototype.update_status = function(status){
+		APRS_beacon_stat.prototype.update_status = function(status){
 
 			APRS_Parser.update_extensions(this, status);
 
 		};
 
-		return APRS_Status;
+		return APRS_beacon_stat;
 
 	}
 );

@@ -38,6 +38,11 @@ define(
 					name_plate.style.height = '20px';
 					this.self.appendChild(name_plate);
 
+					if(properties.display_settings.position){
+						if(properties.display_settings.position == 'right')
+							name_plate.style.cssFloat = 'left';
+					}
+					
 				} else if(properties.display_settings.name_space){
 
 					var name_plate = document.createElement('div');
@@ -61,6 +66,13 @@ define(
 
 						this.input.style.width = '100%';
 					}
+					break;
+				case 'checkbox':
+
+					this.input = document.createElement('input');
+
+					this.input.type = 'checkbox';
+
 					break;
 				case 'text':
 					{
@@ -95,6 +107,9 @@ define(
 			}
 
 			this.input.classList.add('react-input');
+
+			if(properties.display_settings.position && properties.display_settings.position == 'right')
+				this.input.style.cssFloat = 'right';
 
 			this.self.appendChild(this.input);
 
