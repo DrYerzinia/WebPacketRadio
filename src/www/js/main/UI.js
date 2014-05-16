@@ -104,11 +104,11 @@ define(
 				noise_off = new React_Pane(React_Pane.HORIZONTAL),
 				freqs = new React_Pane(React_Pane.HORIZONTAL),
 
-				bit_rate_in = new React_Input('Bit Rate',  {display: true}, 'text', settings.bit_rate),
-				noise_in = new React_Input('Noise Level',  {display: true}, 'text', settings.noise),
-				offset_in = new React_Input('Offset',  {display: true}, 'text', settings.offset),
-				freq0_in = new React_Input('Frequency 0',  {display: true}, 'text', settings.frequency_0),
-				freq1_in = new React_Input('Frequency 1',  {display: true}, 'text', settings.frequency_1),
+				bit_rate_in = new React_Input('Bit Rate',  {display_settings: {display: true}, type: 'text', def: settings.bit_rate}),
+				noise_in = new React_Input('Noise Level',  {display_settings: {display: true}, type: 'text', def: settings.noise, size_override: {width: 'fill'}}),
+				offset_in = new React_Input('Offset',  {display_settings: {display: true}, type: 'text', def: settings.offset, size_override: {width: 'fill'}}),
+				freq0_in = new React_Input('Frequency 0',  {display_settings: {display: true}, type: 'text', def: settings.frequency_0, size_override: {width: 'fill'}}),
+				freq1_in = new React_Input('Frequency 1',  {display_settings: {display: true}, type: 'text', def: settings.frequency_1, size_override: {width: 'fill'}}),
 
 				filler = new React_Pane(React_Pane.VERTICAL, {width: 'fill', height: 'fill'}),
 
@@ -130,16 +130,16 @@ define(
 				 		]
 				 	),
 
-				source_input = new React_Input('Source Address', {display: true}, 'text'),
-				ssid_input = new React_Input('SSID', {display: false, name_space: true}, 'select', '', {options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}),
-				dest_input = new React_Input('Destination Address', {display: true}, 'text'),
+				source_input = new React_Input('Source Address', {display_settings: {display: true}, type: 'text'}),
+				ssid_input = new React_Input('SSID', {display_settings: {display: false, name_space: true}, type: 'select', def: '', type_properties: {options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}}),
+				dest_input = new React_Input('Destination Address', {display_settings: {display: true}, type: 'text'}),
 
 				decoder_btn = new React_Button('Decoder', function(){settings_page.change_to(1);});
 				map_btn = new React_Button('Map', function(){settings_page.change_to(2);}),
 				mode_btn = new React_Button('Mode', function(){settings_page.change_to(3);}),
 				beacon_btn = new React_Button('Beacon', function(){settings_page.change_to(4);}),
 
-				message_input = new React_Input('Message', false, 'text_area'),
+				message_input = new React_Input('Message', {display_settings: false, type: 'text_area'}),
 
 				message_bts = new React_Pane(React_Pane.VERTICAL, {width: 100}),
 

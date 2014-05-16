@@ -17,27 +17,28 @@ define(
 		/**
 		 * @constructor
 		 */
-		var React_Input = function(name, display_settings, type, def, type_properties){
+		var React_Input = function(name, properties){
 
 			this.self = document.createElement('div');
 
 			this.self.style.padding = '5px';
 			this.self.classList.add('react-input');
 
-			this.display_settings = display_settings;
-			this.type = type;
+			this.properties = properties;
+			this.display_settings = properties.display_settings;
+			this.type = properties.type;
 
 			this.input = null;
 
-			if(display_settings){
-				if(display_settings.display){
+			if(properties.display_settings){
+				if(properties.display_settings.display){
 
 					var name_plate = document.createElement('div');
 					name_plate.innerHTML = name;
 					name_plate.style.height = '20px';
 					this.self.appendChild(name_plate);
 
-				} else if(display_settings.name_space){
+				} else if(properties.display_settings.name_space){
 
 					var name_plate = document.createElement('div');
 					name_plate.style.height = '20px';
@@ -46,15 +47,15 @@ define(
 				}
 			}
 
-			switch(type){
+			switch(properties.type){
 				case 'select':
 					{
 						this.input = document.createElement('select');
 
-						for(var i = 0; i < type_properties.options.length; i++){
+						for(var i = 0; i < properties.type_properties.options.length; i++){
 							var op = document.createElement('option');
-							op.value = type_properties.options[i];
-							op.innerHTML = type_properties.options[i];
+							op.value = properties.type_properties.options[i];
+							op.innerHTML = properties.type_properties.options[i];
 							this.input.appendChild(op);
 						}
 
@@ -71,8 +72,8 @@ define(
 						this.input.onfocus = React_Input.focus;
 						this.input.onblur = React_Input.blur;
 
-						if(def !== undefined)
-							this.input.value = def;
+						if(properties.def !== undefined)
+							this.input.value = properties.def;
 
 					}
 					break;
@@ -113,30 +114,35 @@ define(
 
 		React_Input.prototype.requested_size = function(width, height){
 
-			var h = 0;
+			var h = 30, w = 150;
 
 			switch(this.type){
 				case 'text':
-					{
-						h += 30;
-						if(this.display_settings && (this.display_settings.display || this.display_settings.name_space))
-							h += 20;
-						return {width: 150, height: h}
-					}
+					if(this.display_settings && (this.display_settings.display || this.display_settings.name_space))
+						h += 20;
+					w = 150;
+					break;
 				case 'select':
-					{
-						h += 30;
-						if(this.display_settings && (this.display_settings.display || this.display_settings.name_space))
-								h += 20;
-						return {width: 50, height: h};
-					}
+					if(this.display_settings && (this.display_settings.display || this.display_settings.name_space))
+							h += 20;
+					w = 50;
+					break;
 				case 'text_area':
-					return {width: 'fill', height: 'fill'};
+					w = 'fill';
+					h = 'fill';
+					break;
 				default:
 					break;
 			}
 
-			return {width: 150, height: 30};
+			if(this.properties.size_override){
+				if(this.properties.size_override.width)
+					w = this.properties.size_override.width;
+				if(this.properties.size_override.height)
+					h = this.properties.size_override.height;
+			}
+
+			return {width: w, height: h};
 
 		};
 
