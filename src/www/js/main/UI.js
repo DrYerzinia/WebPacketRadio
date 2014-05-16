@@ -130,14 +130,14 @@ define(
 				 		]
 				 	),
 
-				source_input = new React_Input('Source Address', {display_settings: {display: true}, type: 'text'}),
+				source_input = new React_Input('Source', {display_settings: {display: true}, type: 'text', size_override: {width: 120}}),
 				ssid_input = new React_Input('SSID', {display_settings: {display: false, name_space: true}, type: 'select', def: '', type_properties: {options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}}),
-				dest_input = new React_Input('Destination Address', {display_settings: {display: true}, type: 'text'}),
+				dest_input = new React_Input('Destination', {display_settings: {display: true}, type: 'text', size_override: {width: 120}}),
 
 				decoder_btn = new React_Button('Decoder', function(){settings_page.change_to(1);});
-				map_btn = new React_Button('Map', function(){settings_page.change_to(2);}),
-				mode_btn = new React_Button('Mode', function(){settings_page.change_to(3);}),
-				beacon_btn = new React_Button('Beacon', function(){settings_page.change_to(4);}),
+				map_btn = new React_Button('Map', function(){/*settings_page.change_to(2);*/}),
+				mode_btn = new React_Button('Mode', function(){/*settings_page.change_to(3);*/}),
+				beacon_btn = new React_Button('Beacon', function(){/*settings_page.change_to(4);*/}),
 
 				message_input = new React_Input('Message', {display_settings: false, type: 'text_area'}),
 

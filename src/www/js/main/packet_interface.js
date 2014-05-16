@@ -85,6 +85,7 @@ define(
 				}
 			}
 
+			packet_interface.map.render();
 
 		};
 
