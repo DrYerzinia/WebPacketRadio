@@ -9,6 +9,7 @@
 define(
 	[
 	 	'reactive/React_Pane',
+	 	'reactive/React_Paged',
 	 	'reactive/React_Title',
 	 	'reactive/React_Tabs',
 	 	'reactive/React_Resizable',
@@ -26,6 +27,7 @@ define(
 	],
 	function(
 		React_Pane,
+		React_Paged,
 		React_Title,
 		React_Tabs,
 		React_Resizable,
@@ -42,14 +44,16 @@ define(
 		settings
 	){
 
-		var init_ui = function(map){
+		var UI = {};
+
+		UI.init = function(map){
 
 			// Create root Reactive Pane
-			var main = new React_Pane(React_Pane.VERTICAL);
-			main.make_root();
+			UI.main = new React_Pane(React_Pane.VERTICAL);
+			UI.main.make_root();
 
 			// Add Title to it
-			main.add(
+			UI.main.add(
 				new React_Title("Web Packet Radio", 30, 600)
 			);
 
@@ -93,8 +97,10 @@ define(
 				addr_mess =  new React_Pane(React_Pane.VERTICAL),
 				mess_addr_bts = new React_Pane(React_Pane.HORIZONTAL);
 				buttons = new React_Pane(React_Pane.HORIZONTAL),
-				
-				settings_pn = new React_Pane(React_Pane.VERTICAL),
+
+				settings_page = new React_Paged(),
+				settings_btns = new React_Pane(React_Pane.VERTICAL),
+				decoder_set_pn = new React_Pane(React_Pane.VERTICAL),
 				noise_off = new React_Pane(React_Pane.HORIZONTAL),
 				freqs = new React_Pane(React_Pane.HORIZONTAL),
 
@@ -104,7 +110,9 @@ define(
 				freq0_in = new React_Input('Frequency 0',  {display: true}, 'text', settings.frequency_0),
 				freq1_in = new React_Input('Frequency 1',  {display: true}, 'text', settings.frequency_1),
 
-				settings_save_btn = new React_Button('Save', settings.save),
+				filler = new React_Pane(React_Pane.VERTICAL, {width: 'fill', height: 'fill'}),
+
+				settings_save_btn = new React_Button('Save', function(){settings.save();settings_page.change_to(0);}),
 
 				packet_table = new React_Table(
 				 		[
@@ -126,12 +134,20 @@ define(
 				ssid_input = new React_Input('SSID', {display: false, name_space: true}, 'select', '', {options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}),
 				dest_input = new React_Input('Destination Address', {display: true}, 'text'),
 
+				decoder_btn = new React_Button('Decoder', function(){settings_page.change_to(1);});
+				map_btn = new React_Button('Map', function(){settings_page.change_to(2);}),
+				mode_btn = new React_Button('Mode', function(){settings_page.change_to(3);}),
+				beacon_btn = new React_Button('Beacon', function(){settings_page.change_to(4);}),
+
 				message_input = new React_Input('Message', false, 'text_area'),
 
-				message_bts = new React_Pane(React_Pane.VERTICAL, {width: 120}),
+				message_bts = new React_Pane(React_Pane.VERTICAL, {width: 100}),
 
 				send_button = new React_Button('Send', messaging.send),
 				dl_button = new React_Button('Download', messaging.download),
+				loc_button = new React_Button('GPS', messaging.location),
+				flt_button = new React_Button('Filter'),
+				show_button = new React_Button('Show', packet_interface.clear_filters),
 
 				listen_button = new React_Button('Listen', listen.start_stop),
 				iss_button = new React_Button('ISS', iss_sample.start),
@@ -157,11 +173,19 @@ define(
 			freqs.add(freq0_in);
 			freqs.add(freq1_in);
 
-			settings_pn.add(bit_rate_in);
-			settings_pn.add(noise_off);
-			settings_pn.add(freqs);
+			settings_btns.add(decoder_btn);
+			settings_btns.add(map_btn);
+			settings_btns.add(mode_btn);
+			settings_btns.add(beacon_btn);
 
-			settings_pn.add(settings_save_btn);
+			decoder_set_pn.add(bit_rate_in);
+			decoder_set_pn.add(noise_off);
+			decoder_set_pn.add(freqs);
+			decoder_set_pn.add(filler);
+			decoder_set_pn.add(settings_save_btn);
+
+			settings_page.add(settings_btns);
+			settings_page.add(decoder_set_pn);
 
 			buttons.add(listen_button);
 			buttons.add(iss_button);
@@ -172,6 +196,9 @@ define(
 			address_bar.add(dest_input);
 
 			message_bts.add(send_button);
+			message_bts.add(loc_button);
+			message_bts.add(flt_button);
+			message_bts.add(show_button);
 			message_bts.add(dl_button);
 
 			addr_mess.add(address_bar);
@@ -184,13 +211,13 @@ define(
 			controls.add(buttons);
 
 			// Add Reactive Tabs
-			main.add(
+			UI.main.add(
 				new React_Tabs(
 					[
 					 	new React_Resizable(map, map.self),
 					 	controls,
 					 	packet_table,
-					 	settings_pn
+					 	settings_page
 					],
 					[
 					 	'Map',
@@ -202,11 +229,11 @@ define(
 			);
 
 			// Size display elements
-			main.resize(window.innerWidth, window.innerHeight);
+			UI.main.resize(window.innerWidth, window.innerHeight);
 
 		};
 
-		return init_ui;
+		return UI;
 
 	}
 );

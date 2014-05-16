@@ -72,6 +72,22 @@ define(
 
 		};
 
+		packet_interface.clear_filters = function(){
+
+			packet_interface.table.filter.list.length = 0;
+			packet_interface.table.update_filter();
+
+			var stations = packet_interface.manager.stations;
+
+			for(var key in stations){
+				if(stations.hasOwnProperty(key)){
+					stations[key].visible = true;
+				}
+			}
+
+
+		};
+
 		Station.UI_Build_Popup = function(station){
 
 			var d = document.createElement('div'),

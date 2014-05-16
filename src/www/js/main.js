@@ -23,12 +23,12 @@ require(
 	[
 	 	'map/Map',
 	 	'map/LatLong',
-	 	'main/init_ui'
+	 	'main/UI'
 	],
 	function(
 		Map,
 		LatLong,
-		init_ui
+		UI
 	){
 
 		var map_canvas, map;
@@ -40,7 +40,7 @@ require(
 
 		map = new Map('tile.openstreetmap.org/zoom/x/y.png', ['a', 'b', 'c'], map_canvas, 5, new LatLong(39, -104));
 
-		init_ui(map);
+		UI.init(map);
 
 	}
 );

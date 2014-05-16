@@ -55,7 +55,7 @@ define(
 			}
 
 			if(info.status)
-				status.status = info.status
+				status.status = info.status;
 
 		};
 

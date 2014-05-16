@@ -2,14 +2,18 @@ define(
 	[
 	 	'main/settings',
 	 	'util/audio',
+	 	'util/Location',
 	 	'packet/AFSK_Modulator',
-	 	'packet/APRSPacket'
+	 	'packet/APRSPacket',
+	 	'packet/APRSMessages/APRS_Pos_TS'
 	],
 	function(
 		settings,
 		audio,
+		Location,
 		AFSK_Modulator,
-		APRSPacket
+		APRSPacket,
+		APRS_Pos_TS
 	){
 
 		var messaging = {};
@@ -20,6 +24,18 @@ define(
 			messaging.ssid = ssid;
 			messaging.destination = destination;
 			messaging.message = message;
+
+		};
+
+		messaging.location = function(){
+
+			Location.get_location(
+				function(position){
+
+					messaging.message.set_value(APRS_Pos_TS.generate_message_text(position.coords));
+
+				}
+			);
 
 		};
 

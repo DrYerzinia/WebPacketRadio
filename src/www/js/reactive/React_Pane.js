@@ -119,7 +119,9 @@ define(
 		React_Pane.prototype.requested_size = function(width, height){
 
 			var h = 0,
-				w = 0;
+				w = 0,
+				total_w = 0,
+				w_list = [];
 
 			for(var i = 0; i < this.children.length; i++){
 
@@ -142,8 +144,11 @@ define(
 					} else {
 						if(this.orientation == React_Pane.VERTICAL)
 							w = Math.max(w, size.width);
-						else
+						else {
 							w += size.height;
+							w_list.push(size.width);
+							total_w += size.width;
+						}
 
 					}
 
@@ -156,6 +161,10 @@ define(
 					h = this.size_override.height;
 				if(this.size_override.width)
 					w = this.size_override.width;
+			}
+
+			if(total_w > width){
+				h += h;
 			}
 
 			if(this.orientation == React_Pane.VERTICAL)
@@ -229,10 +238,13 @@ define(
 
 					this.children[i].self.style.cssFloat = 'left';
 
+					if(size.height == 'fill')
+						size.height = height;
+
 					if(size.width == 'fill')
-						this.children[i].resize(sub_size, height);
+						this.children[i].resize(sub_size, size.height);
 					else
-						this.children[i].resize(size.width, height);
+						this.children[i].resize(size.width, size.height);
 
 				}
 

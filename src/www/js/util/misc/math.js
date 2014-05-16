@@ -33,6 +33,12 @@ define(function(){
 
 	};
 
+	math.point = function(len, val){
+
+		return ('.' + Math.floor(val * Math.pow(10, len)) + Array(len+2).join('0')).slice(0, len + 1);
+
+	};
+
 	math.parse_int = function(array, start, length){
 
 		var val = 0,

@@ -105,6 +105,12 @@ define(
 
 		};
 
+		React_Input.prototype.set_value = function(value){
+
+			this.input.value = value;
+
+		};
+
 		React_Input.prototype.requested_size = function(width, height){
 
 			var h = 0;

@@ -12,10 +12,12 @@
 
 define(
 	[
-	 	'packet/APRSMessages/APRS_Parser'
+	 	'packet/APRSMessages/APRS_Parser',
+	 	'util/misc/math'
     ],
 	function(
-		APRS_Parser
+		APRS_Parser,
+		math
 	){
 		
 		var APRS_Pos_TS = function(packet){
@@ -38,7 +40,6 @@ define(
 
 			}
 
-			// TODO parse extensions / status
 			APRS_Parser.parse_extensions(this, packet, i);
 
 		};
@@ -47,6 +48,58 @@ define(
 
 			APRS_Parser.update_WX(this, status);
 			APRS_Parser.update_extensions(this, status);
+
+		};
+
+		APRS_Pos_TS.generate_message_text = function(coords, symbol_table, symbol){
+
+			var str = '@',
+				now = new Date();
+
+			// Create Timestamp
+			str += math.zero(2, now.getUTCDay()) + math.zero(2, now.getUTCHours()) + math.zero(2, now.getUTCMinutes()) + 'z';
+
+			// Latitude
+			var deg = Math.floor(Math.abs(coords.latitude)),
+				min = (Math.abs(coords.latitude) - deg) * 60,
+				min_dec = min - Math.floor(min);
+			min = Math.floor(min);
+
+			str +=
+				math.zero(2, deg) + 
+				math.zero(2, min) +
+				math.point(2, min_dec);
+
+			if(coords.latitude < 0)
+				str += 'S';
+			else
+				str += 'N';
+
+			// Symbol Table
+			str += '/';
+
+			// Longitude
+			deg = Math.floor(Math.abs(coords.longitude));
+			min = (Math.abs(coords.longitude) - deg) * 60;
+			min_dev = min - Math.floor(min);
+			min = Math.floor(min);
+
+			str +=
+				math.zero(3, deg) + 
+				math.zero(2, min) +
+				math.point(2, min_dec);
+
+			if(coords.longitude < 0)
+				str += 'W';
+			else
+				str += 'E';
+
+			// Symbol
+			str += '_';
+
+			//
+
+			return str;
 
 		};
 
