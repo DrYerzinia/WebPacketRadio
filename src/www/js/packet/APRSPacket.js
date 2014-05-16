@@ -14,7 +14,8 @@
 define(
 	[
 	 	'crc/crccitt',
-	 	'math/math',
+	 	'util/misc/math',
+	 	'util/misc/string',
 	 	'packet/APRSMessages/APRS_MIC_E',
 	 	'packet/APRSMessages/APRS_Pos_TS',
 	 	'packet/APRSMessages/APRS_Pos_no_TS',
@@ -24,6 +25,7 @@ define(
 	function(
 		crccitt,
 		math,
+		string,
 		APRS_MIC_E,
 		APRS_Pos_TS,
 		APRS_Pos_no_TS,
@@ -107,8 +109,12 @@ define(
 
 		if(APRS_message_type)
 			packet.aprs_info = new APRS_message_type(packet);
-		else
+
+		else {
+			// Check if desination is beacon and if it is parse as status
 			packet.aprs_info = null;
+		}
+
 
 		packet.fcs = (data[data.length-1] << 8) + data[data.length-2];
 
@@ -331,21 +337,6 @@ define(
 		//
 	};
 
-	/*
-	 * Internal function to check if a function is printable
-	 */
-	function printable(val){
-
-		c = String.fromCharCode(val);
-
-		// Is char a printable character
-		if(val >= 32 && val <= 128)
-			return c;
-
-		return '.';
-
-	}
-
 	/**
 	 * Creates a Human readable string of the AX.25 message section
 	 * @method to_string
@@ -357,7 +348,7 @@ define(
 			i;
 
 		for(i = 0; i < this.message_data.length; i++)
-			packet_str += printable(this.message_data[i]);
+			packet_str += string.make_printable(this.message_data[i]);
 
 		return packet_str;
 
@@ -388,7 +379,7 @@ define(
 	
 				if(i < this.data.length){
 	
-					info += printable(this.data[i]);
+					info += string.make_printable(this.data[i]);
 	
 				} else
 					info += " ";

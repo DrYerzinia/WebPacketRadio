@@ -14,11 +14,13 @@
 define(
 	[
 	 	'map/LatLong',
-	 	'math/math'
+	 	'util/misc/math',
+	 	'util/misc/string'
 	],
 	function(
 		LatLong,
-		math
+		math,
+		string
 	){
 		
 		var APRS_Parser = {};
@@ -43,6 +45,17 @@ define(
 
 			if(info.directivity !== undefined)
 				status.directivity = info.directivity;
+
+			if(info.heading !== undefined)
+				status.heading = info.heading;
+
+			if(info.speed !== undefined){
+				status.speed = info.speed;
+				status.speed_unit = info.speed_unit;
+			}
+
+			if(info.status)
+				status.status = info.status
 
 		};
 
@@ -92,8 +105,27 @@ define(
 				info.status += String.fromCharCode(packet.message_data[i]);
 			}
 
+			APRS_Parser.parse_course_speed(info, info.status);
 			APRS_Parser.parse_PHG(info, info.status);
 			APRS_Parser.parse_alt_in_stat(info, info.status);
+
+		};
+
+		APRS_Parser.parse_course_speed = function(info, status_in){
+
+			var m = status_in.match(/[0-9][0-9][0-9]\/[0-9][0-9][0-9]/);
+
+			if(m !== null){
+
+				var idx = status_in.indexOf(m[0]);
+
+				info.heading = parseFloat(status_in.substring(idx, idx + 3));
+				info.speed = parseFloat(status_in.substring(idx + 4, idx + 7));
+				info.speed_unit = 'MPH'; // TODO this needs confirmation
+
+				info.status = status_in.substring(0, idx) + status_in.substring(idx + 7, status_in.length);
+
+			}
 
 		};
 
@@ -155,11 +187,17 @@ define(
 
 				if((packet.message_data[i+1] < 0x30 && packet.message_data[i+1] != 0x2E) || packet.message_data[i+1] > 0x39){
 	
-					this.status = "";
-					while(i < packet.message_data.length){
-						info.status += String.fromCharCode(packet.message_data[i]);
+					info.software_type = String.fromCharCode(packet.message_data[i++]);
+
+					info.WX_unit = '';
+					var start = i;
+					while(i < packet.message_data.length && i < start + 4 && string.is_printable(packet.message_data[i])){
+
+						info.WX_unit += String.fromCharCode(packet.message_data[i]);
 						i++;
+
 					}
+
 					break;
 	
 				}
@@ -221,7 +259,7 @@ define(
 						i += 5;
 						break;
 					default:
-						finished = info;
+						finished = true;
 						break;
 				}
 	

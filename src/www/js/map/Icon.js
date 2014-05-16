@@ -46,7 +46,7 @@ define(
 				 * @property visible
 				 * @type boolean
 				 */
-				this.visible = true;
+				//this.visible;
 
 			}
 

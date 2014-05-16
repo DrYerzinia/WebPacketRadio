@@ -90,7 +90,8 @@ define(
 
 			var controls =  new React_Pane(React_Pane.VERTICAL),
 				address_bar =  new React_Pane(React_Pane.HORIZONTAL),
-				message_sec =  new React_Pane(React_Pane.HORIZONTAL),
+				addr_mess =  new React_Pane(React_Pane.VERTICAL),
+				mess_addr_bts = new React_Pane(React_Pane.HORIZONTAL);
 				buttons = new React_Pane(React_Pane.HORIZONTAL),
 				
 				settings_pn = new React_Pane(React_Pane.VERTICAL),
@@ -107,7 +108,7 @@ define(
 
 				packet_table = new React_Table(
 				 		[
-				 		 	['Time', 65],
+				 		 	['Time', 70],
 				 		 	['Source', 85,
 				 		 	 	function(val){
 
@@ -173,11 +174,13 @@ define(
 			message_bts.add(send_button);
 			message_bts.add(dl_button);
 
-			message_sec.add(message_input);
-			message_sec.add(message_bts);
+			addr_mess.add(address_bar);
+			addr_mess.add(message_input);
 
-			controls.add(address_bar);
-			controls.add(message_sec);
+			mess_addr_bts.add(addr_mess);
+			mess_addr_bts.add(message_bts);
+
+			controls.add(mess_addr_bts);
 			controls.add(buttons);
 
 			// Add Reactive Tabs

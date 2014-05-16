@@ -101,6 +101,9 @@ define(
 
 		Station.prototype.over = function(x, y, zoom){
 
+			if(this.coordinates == undefined)
+				return false;
+
 			var pos = Location_Conversions.latlong_to_tilexy(this.coordinates, zoom);
 
 			if(this.image){
@@ -127,7 +130,7 @@ define(
 
 		Station.prototype.render = function(ctx, x, y, zoom){
 
-			if(this.visible){
+			if(this.visible && this.coordinates != undefined){
 
 				var pos = Location_Conversions.latlong_to_tilexy(this.coordinates, zoom),
 					last = pos,

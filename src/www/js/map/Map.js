@@ -985,9 +985,13 @@ define(
 			 */
 			for(j = 0; j < this.objects.length; j++){
 
-				var pos = Location_Conversions.latlong_to_tilexy(this.objects[j].get_coordinates(), this.zoom);
+				var coord = this.objects[j].get_coordinates();
+				if(coord != undefined){
 
-				this.objects[j].render(this.ctx, this.canvas.width/2 + (pos.x - this.position.x)*Map.TILE_SIDE_LENGTH, this.canvas.height/2 + (pos.y - this.position.y)*Map.TILE_SIDE_LENGTH, this.zoom);
+					var pos = Location_Conversions.latlong_to_tilexy(coord, this.zoom);
+					this.objects[j].render(this.ctx, this.canvas.width/2 + (pos.x - this.position.x)*Map.TILE_SIDE_LENGTH, this.canvas.height/2 + (pos.y - this.position.y)*Map.TILE_SIDE_LENGTH, this.zoom);
+
+				}
 
 			}
 

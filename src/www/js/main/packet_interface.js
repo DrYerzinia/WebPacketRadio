@@ -3,8 +3,8 @@ define(
 	 	'main/Station',
 	 	'main/Packet_Manager',
 	 	'map/Icon',
-	 	'math/math',
 	 	'packet/APRSPacket',
+	 	'util/misc/math',
 	 	'util/config',
 	 	'util/ui'
 	],
@@ -12,8 +12,8 @@ define(
 		Station,
 		Packet_Manager,
 		Icon,
-		math,
 		APRSPacket,
+		math,
 		config,
 		ui
 	){
@@ -58,8 +58,11 @@ define(
 				);
 
 				var new_station = packet_interface.manager.add_packet(packet, packet_interface.update_map);
-				if(new_station)
+				if(new_station){
+
+					new_station.visible = packet_interface.table.filter.flt.call(packet_interface.table.filter, ['', new_station.callsign + '-' + new_station.ssid]);
 					packet_interface.map.add_object(new_station);
+				}
 
 				// Log detailed packet info to console
 				if(config.log_packets)
