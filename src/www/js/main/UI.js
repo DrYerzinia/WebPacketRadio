@@ -290,7 +290,11 @@ define(
 					if(messaging.message.get_value().charAt(0) == '@')
 						messaging.location();
 
-					messaging.symbol = APRSPacket.code_from_sym(this.image.name.slice(0, this.image.name.length - 4));
+					var sym_name = this.image.name.slice(0, this.image.name.length - 4);
+					
+					messaging.symbol = APRSPacket.code_from_sym(sym_name);
+
+					localStorage['symbol'] = this.image.name;
 					symbol_button.set_image(this.image);
 					controls_page.change_to(0);
 
