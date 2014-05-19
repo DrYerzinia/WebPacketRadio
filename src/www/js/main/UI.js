@@ -200,7 +200,7 @@ define(
 			remote.init(remote_button);
 
 			// Set-Up Messaging
-			messaging.init(source_input, ssid_input, dest_input, message_input, APRSPacket.code_from_sym(current_symbol.slice(0, current_symbol.length - 4)));
+			messaging.init(source_input, ssid_input, dest_input, dest_ssid_input, message_input, APRSPacket.code_from_sym(current_symbol.slice(0, current_symbol.length - 4)));
 
 			if(localStorage['source_address'])
 				source_input.input.value = localStorage['source_address'];
@@ -286,6 +286,9 @@ define(
 
 			var load_list = [],
 				ret_func = function(){
+
+					if(messaging.message.get_value().charAt(0) == '@')
+						messaging.location();
 
 					messaging.symbol = APRSPacket.code_from_sym(this.image.name.slice(0, this.image.name.length - 4));
 					symbol_button.set_image(this.image);

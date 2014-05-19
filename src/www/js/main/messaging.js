@@ -18,11 +18,12 @@ define(
 
 		var messaging = {};
 
-		messaging.init = function(source, ssid, destination, message, symbol){
+		messaging.init = function(source, ssid, destination, dest_ssid, message, symbol){
 
 			messaging.source = source;
 			messaging.ssid = ssid;
 			messaging.destination = destination;
+			messaging.dest_ssid = dest_ssid;
 			messaging.message = message;
 
 			messaging.symbol = symbol;
@@ -55,9 +56,10 @@ define(
 		messaging.generate = function(){
 
 			var message = messaging.message.get_value(),
-			source_address = messaging.source.get_value(),
-			source_ssid = parseFloat(messaging.ssid.get_value()),
-			destination_address = messaging.destination.get_value();
+				source_address = messaging.source.get_value(),
+				source_ssid = parseFloat(messaging.ssid.get_value()),
+				destination_address = messaging.destination.get_value(),
+				dest_ssid = messaging.dest_ssid.get_value();
 
 			var message_data = [];
 			for(var i = 0; i < message.length; i++)
@@ -65,7 +67,7 @@ define(
 			
 			var packet = new APRSPacket(message_data);
 			packet.set_source_address(source_address, source_ssid);
-			packet.set_destination_address(destination_address, 0);
+			packet.set_destination_address(destination_address, dest_ssid);
 			packet.set_control(APRSPacket.STD_CONTROL);
 			packet.set_PID(APRSPacket.STD_PID);
 			packet.set_message_data(message_data);
