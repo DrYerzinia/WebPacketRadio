@@ -33,6 +33,9 @@ define(
 
 			this.image = Image_Loader.get(path + img);
 
+			this.is_loaded = false;
+			this.loaders = [];
+
 			var t = this;
 			ajax.get(
 				path + json,
@@ -52,6 +55,8 @@ define(
 		 */
 		Sprite_Sheet.prototype._generate_sprites = function(data){
 
+			var i;
+
 			this.sprite_list = data.frames;
 
 			for(var key in this.sprite_list){
@@ -61,6 +66,24 @@ define(
 
 				}
 			}
+
+			this.is_loaded = true;
+
+			for(i = 0; i < this.loaders.length; i++){
+
+				this.loaders[i].call(this);
+
+			};
+
+		};
+
+		Sprite_Sheet.prototype.on_load = function(callback){
+
+			if(this.is_loaded)
+				callback.call(this);
+
+			else
+				this.loaders.push(callback);
 
 		};
 

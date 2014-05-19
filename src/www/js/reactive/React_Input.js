@@ -19,6 +19,8 @@ define(
 		 */
 		var React_Input = function(name, properties){
 
+			var t = this;
+
 			this.self = document.createElement('div');
 
 			this.self.style.padding = '5px';
@@ -106,6 +108,21 @@ define(
 					break;
 			}
 
+			this.input.onchange = function(e){
+
+				if(t.change)
+					t.change(e);
+
+			};
+			this.input.onkeyup = this.input.onchange;
+
+			this.input.onblur = function(e){
+
+				if(t.blur)
+					t.blur(e);
+
+			};
+
 			this.input.classList.add('react-input');
 
 			if(properties.display_settings.position && properties.display_settings.position == 'right')
@@ -118,6 +135,12 @@ define(
 		React_Input.prototype.get_value = function(){
 
 			return this.input.value;
+
+		};
+
+		React_Input.prototype.shift_value = function(value){
+
+			this.input.value = value + this.input.value;
 
 		};
 

@@ -16,8 +16,10 @@ define(
 	 	'reactive/React_Table',
 	 	'reactive/React_Settings',
 	 	'reactive/React_Button',
+	 	'reactive/React_Image_Button',
 	 	'reactive/React_Input',
 
+	 	'main/Symbol_Sprite_Sheet',
 	 	'main/remote',
 	 	'main/iss_sample',
 	 	'main/packet_interface',
@@ -34,8 +36,10 @@ define(
 		React_Table,
 		React_Settings,
 		React_Button,
+		React_Image_Button,
 		React_Input,
 
+		Symbol_Sprite_Sheet,
 		remote,
 		iss_sample,
 		packet_interface,
@@ -93,16 +97,17 @@ define(
 					// GPS on/off
 
 			var controls =  new React_Pane(React_Pane.VERTICAL),
+				controls_page = new React_Paged(),
 				address_bar =  new React_Pane(React_Pane.HORIZONTAL),
 				addr_mess =  new React_Pane(React_Pane.VERTICAL),
 				mess_addr_bts = new React_Pane(React_Pane.HORIZONTAL),
 				buttons = new React_Pane(React_Pane.HORIZONTAL),
 
-				map_page = new React_Paged(),
+				icon_pane = new React_Pane(React_Pane.VERTICAL),
+				filter_pane = new React_Pane(React_Pane.VERTICAL),
+
 				map_pane = new React_Pane(React_Pane.VERTICAL),
-				mode_page = new React_Paged(),
 				mode_pane = new React_Pane(React_Pane.VERTICAL),
-				beacon_page = new React_Paged(),
 				beacon_pane = new React_Pane(React_Pane.VERTICAL);
 				settings_page = new React_Paged(),
 				settings_btns = new React_Pane(React_Pane.VERTICAL),
@@ -130,7 +135,9 @@ define(
 				 		 	 	function(val){
 
 				 		 			var coord = packet_interface.manager.stations[val].coordinates;
-				 		 			packet_interface.map.center_at(coord);
+				 		 			if(coord)
+				 		 				packet_interface.map.center_at(coord);
+				 		 			// TODO: Else notify user this station does not have coordinates
 
 				 		 		}
 				 		 	],
@@ -158,6 +165,9 @@ define(
 				ssid_input = new React_Input('S SSID', {display_settings: {display: false, name_space: true}, type: 'select', def: '', type_properties: {options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}}),
 				dest_input = new React_Input('Destination', {display_settings: {display: true}, type: 'text', size_override: {width: 120}}),
 				dest_ssid_input = new React_Input('D SSID', {display_settings: {display: false, name_space: true}, type: 'select', def: '', type_properties: {options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}}),
+				symbol_button = new React_Image_Button(),
+				symbol_pane =  new React_Pane(React_Pane.VERTICAL, {width: 20, height: 50}),
+				symbol_filler = new React_Pane(React_Pane.VERTICAL, {width: 'fill', height: 'fill'}),
 
 				decoder_btn = new React_Button('Decoder', function(){settings_page.change_to(1);}),
 				map_btn = new React_Button('Map', function(){settings_page.change_to(2);}),
@@ -176,7 +186,8 @@ define(
 
 				listen_button = new React_Button('Listen', listen.start_stop),
 				iss_button = new React_Button('ISS', iss_sample.start),
-				remote_button = new React_Button('Remote Decoder', remote.start_stop);
+				remote_button = new React_Button('Remote Decoder', remote.start_stop),
+				current_symbol = 'Laptop.gif';
 
 			// Set-Up  Packet Interface
 			packet_interface.init(map, packet_table);
@@ -186,6 +197,35 @@ define(
 
 			// Set-Up Messaging
 			messaging.init(source_input, ssid_input, dest_input, message_input);
+
+			if(localStorage['source_address'])
+				source_input.input.value = localStorage['source_address'];
+			if(localStorage['source_ssid'])
+				ssid_input.input.value = localStorage['source_ssid'];
+			if(localStorage['dest_address'])
+				dest_input.input.value = localStorage['dest_address'];
+			if(localStorage['dest_ssid'])
+				dest_ssid_input.input.value = localStorage['dest_ssid'];
+
+			if(localStorage['symbol'])
+				current_symbol = localStorage['symbol'];
+
+			source_input.blur = function(e){
+				source_input.input.value = source_input.input.value.toUpperCase();
+				localStorage['source_address'] = source_input.input.value;
+			};
+			ssid_input.blur = function(e){
+				localStorage['source_ssid'] = ssid_input.input.value;
+			};
+			ssid_input.change = ssid_input.blur;
+			dest_input.blur = function(e){
+				dest_input.input.value = dest_input.input.value.toUpperCase();
+				localStorage['dest_address'] = dest_input.input.value;
+			};
+			dest_ssid_input.blur = function(e){
+				localStorage['dest_ssid'] = dest_ssid_input.input.value;
+			};
+			dest_ssid_input.change = dest_ssid_input.blur;
 
 			// Set-Up Demodulator
 			listen.init(listen_button);
@@ -217,36 +257,40 @@ define(
 			map_pane.add(filler2);
 			map_pane.add(map_back_btn);
 
-			map_page.add(map_pane);
-
 			mode_pane.add(digi_mode);
 			mode_pane.add(forward_url);
 			mode_pane.add(filler3);
 			mode_pane.add(mode_back_btn);
-
-			mode_page.add(mode_pane);
 
 			beacon_pane.add(beacon_active);
 			beacon_pane.add(beacon_status);
 			beacon_pane.add(filler4);
 			beacon_pane.add(beacon_back_btn);
 
-			beacon_page.add(beacon_pane);
-
 			settings_page.add(settings_btns);
 			settings_page.add(decoder_set_pn);
-			settings_page.add(map_page);
-			settings_page.add(mode_page);
-			settings_page.add(beacon_page);
+			settings_page.add(map_pane);
+			settings_page.add(mode_pane);
+			settings_page.add(beacon_pane);
 
 			buttons.add(listen_button);
 			buttons.add(iss_button);
 			buttons.add(remote_button);
 
+			symbol_pane.add(symbol_filler);
+			symbol_pane.add(symbol_button);
+
 			address_bar.add(source_input);
 			address_bar.add(ssid_input);
+			address_bar.add(symbol_pane);
 			address_bar.add(dest_input);
 			address_bar.add(dest_ssid_input);
+
+			Symbol_Sprite_Sheet.on_load(
+				function(){
+					symbol_button.set_image(this.get_sprite(current_symbol));
+				}
+			);
 
 			message_bts.add(send_button);
 			message_bts.add(loc_button);
@@ -263,12 +307,14 @@ define(
 			controls.add(mess_addr_bts);
 			controls.add(buttons);
 
+			controls_page.add(controls);
+
 			// Add Reactive Tabs
 			UI.main.add(
 				new React_Tabs(
 					[
 					 	new React_Resizable(map, map.self),
-					 	controls,
+					 	controls_page,
 					 	packet_table,
 					 	settings_page
 					],

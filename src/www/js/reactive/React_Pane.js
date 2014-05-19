@@ -156,13 +156,6 @@ define(
 
 			}
 
-			if(this.size_override){
-				if(this.size_override.height)
-					h = this.size_override.height;
-				if(this.size_override.width)
-					w = this.size_override.width;
-			}
-
 			if(total_w > width){
 				h += h;
 			}
@@ -171,6 +164,13 @@ define(
 				h = 'fill';
 			else
 				w = 'fill';
+
+			if(this.size_override){
+				if(this.size_override.height)
+					h = this.size_override.height;
+				if(this.size_override.width)
+					w = this.size_override.width;
+			}
 
 			return {width: w, height: h};
 

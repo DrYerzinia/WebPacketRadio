@@ -32,7 +32,7 @@ define(
 			Location.get_location(
 				function(position){
 
-					messaging.message.set_value(APRS_Pos_TS.generate_message_text(position.coords));
+					messaging.message.shift_value(APRS_Pos_TS.generate_message_text(position.coords));
 
 				}
 			);

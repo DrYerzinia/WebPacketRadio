@@ -41,7 +41,7 @@ define(
 				if(t.callback)
 					t.callback(e);
 
-			}
+			};
 
 			this.self.classList.add('react-button');
 
