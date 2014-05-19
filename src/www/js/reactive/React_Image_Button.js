@@ -28,7 +28,7 @@ define(
 			this.self.onclick = function(e){
 
 				if(t.callback)
-					t.callback(e);
+					t.callback.call(t, e);
 
 			};
 

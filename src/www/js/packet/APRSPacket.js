@@ -500,6 +500,21 @@ define(
 		// ^ Unused
 	};
 
+
+	APRSPacket.code_from_sym = function(sym){
+
+		for(var key in APRSPacket.SYMBOL_TABLE){
+			if(APRSPacket.SYMBOL_TABLE.hasOwnProperty(key) && APRSPacket.SYMBOL_TABLE[key] == sym){
+
+				return key;
+
+			}
+		}
+
+		throw "Symbol not found: " + sym;
+
+	};
+
 	/**
 	 * @property SSID_SYMBOL_TABLE
 	 * @type Array

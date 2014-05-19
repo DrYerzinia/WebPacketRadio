@@ -23,7 +23,9 @@ define(
 		/**
 		 * @constructor
 		 */
-		var Sprite = function(image, frame){
+		var Sprite = function(name, image, frame){
+
+			this.name = name;
 
 			/**
 			 * Image this sprite is on

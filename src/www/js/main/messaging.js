@@ -18,12 +18,14 @@ define(
 
 		var messaging = {};
 
-		messaging.init = function(source, ssid, destination, message){
+		messaging.init = function(source, ssid, destination, message, symbol){
 
 			messaging.source = source;
 			messaging.ssid = ssid;
 			messaging.destination = destination;
 			messaging.message = message;
+
+			messaging.symbol = symbol;
 
 		};
 
@@ -32,7 +34,18 @@ define(
 			Location.get_location(
 				function(position){
 
-					messaging.message.shift_value(APRS_Pos_TS.generate_message_text(position.coords));
+					var current_text = messaging.message.get_value(),
+						gps_text = APRS_Pos_TS.generate_message_text(position.coords, '/', messaging.symbol);
+
+					if(current_text.charAt(0) == '@' && current_text.length >= 27){
+
+						messaging.message.set_value(gps_text + current_text.slice(27, current_text.length));
+
+					} else {
+
+						messaging.message.shift_value(gps_text);
+
+					}
 
 				}
 			);

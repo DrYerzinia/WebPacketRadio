@@ -62,7 +62,7 @@ define(
 			for(var key in this.sprite_list){
 				if(this.sprite_list.hasOwnProperty(key)){
 
-					this.sprites[key] = new Sprite(this.image.image, this.sprite_list[key].frame);
+					this.sprites[key] = new Sprite(key, this.image.image, this.sprite_list[key].frame);
 
 				}
 			}

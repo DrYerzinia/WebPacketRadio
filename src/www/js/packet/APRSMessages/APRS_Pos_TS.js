@@ -20,7 +20,7 @@ define(
 		math
 	){
 		
-		var APRS_Pos_TS = function(packet){
+		var APRS_Pos_TS = function(packet, symbol, symbol_table){
 
 			console.log("Parsing APRS_Pos_TS");
 
@@ -76,7 +76,7 @@ define(
 				str += 'N';
 
 			// Symbol Table
-			str += '/';
+			str += symbol_table;
 
 			// Longitude
 			deg = Math.floor(Math.abs(coords.longitude));
@@ -95,7 +95,7 @@ define(
 				str += 'E';
 
 			// Symbol
-			str += '_';
+			str += symbol;
 
 			//
 

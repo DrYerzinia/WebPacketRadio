@@ -25,7 +25,9 @@ define(
 	 	'main/packet_interface',
 	 	'main/messaging',
 	 	'main/listen',
-	 	'main/settings'
+	 	'main/settings',
+
+	 	'packet/APRSPacket'
 	],
 	function(
 		React_Pane,
@@ -45,7 +47,9 @@ define(
 		packet_interface,
 		messaging,
 		listen,
-		settings
+		settings,
+
+		APRSPacket
 	){
 
 		var UI = {};
@@ -98,12 +102,11 @@ define(
 
 			var controls =  new React_Pane(React_Pane.VERTICAL),
 				controls_page = new React_Paged(),
-				address_bar =  new React_Pane(React_Pane.HORIZONTAL),
-				addr_mess =  new React_Pane(React_Pane.VERTICAL),
+				address_bar = new React_Pane(React_Pane.HORIZONTAL),
+				addr_mess = new React_Pane(React_Pane.VERTICAL),
 				mess_addr_bts = new React_Pane(React_Pane.HORIZONTAL),
 				buttons = new React_Pane(React_Pane.HORIZONTAL),
 
-				icon_pane = new React_Pane(React_Pane.VERTICAL),
 				filter_pane = new React_Pane(React_Pane.VERTICAL),
 
 				map_pane = new React_Pane(React_Pane.VERTICAL),
@@ -165,9 +168,10 @@ define(
 				ssid_input = new React_Input('S SSID', {display_settings: {display: false, name_space: true}, type: 'select', def: '', type_properties: {options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}}),
 				dest_input = new React_Input('Destination', {display_settings: {display: true}, type: 'text', size_override: {width: 120}}),
 				dest_ssid_input = new React_Input('D SSID', {display_settings: {display: false, name_space: true}, type: 'select', def: '', type_properties: {options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}}),
-				symbol_button = new React_Image_Button(),
-				symbol_pane =  new React_Pane(React_Pane.VERTICAL, {width: 20, height: 50}),
+				symbol_button = new React_Image_Button(undefined, function(){controls_page.change_to(1);}),
+				symbol_pane =  new React_Pane(React_Pane.VERTICAL, {width: 20, height: 48}),
 				symbol_filler = new React_Pane(React_Pane.VERTICAL, {width: 'fill', height: 'fill'}),
+				symbols_pane =  new React_Pane(React_Pane.HORIZONTAL),
 
 				decoder_btn = new React_Button('Decoder', function(){settings_page.change_to(1);}),
 				map_btn = new React_Button('Map', function(){settings_page.change_to(2);}),
@@ -196,7 +200,7 @@ define(
 			remote.init(remote_button);
 
 			// Set-Up Messaging
-			messaging.init(source_input, ssid_input, dest_input, message_input);
+			messaging.init(source_input, ssid_input, dest_input, message_input, APRSPacket.code_from_sym(current_symbol.slice(0, current_symbol.length - 4)));
 
 			if(localStorage['source_address'])
 				source_input.input.value = localStorage['source_address'];
@@ -280,6 +284,35 @@ define(
 			symbol_pane.add(symbol_filler);
 			symbol_pane.add(symbol_button);
 
+			var load_list = [],
+				ret_func = function(){
+
+					messaging.symbol = APRSPacket.code_from_sym(this.image.name.slice(0, this.image.name.length - 4));
+					symbol_button.set_image(this.image);
+					controls_page.change_to(0);
+
+				};
+
+			for(var key in APRSPacket.SYMBOL_TABLE){
+				if(APRSPacket.SYMBOL_TABLE.hasOwnProperty(key)){
+
+					var sym_name = APRSPacket.SYMBOL_TABLE[key],
+						sym_button = new React_Image_Button(undefined, ret_func),
+						sym_to_load = [sym_button, sym_name];
+
+					symbols_pane.add(sym_button);
+					load_list.push(sym_to_load);
+
+				}
+			}
+
+			Symbol_Sprite_Sheet.on_load(
+				function(){
+					for(var i = 0; i < load_list.length; i++)
+						load_list[i][0].set_image(this.get_sprite(load_list[i][1] + '.gif'));
+				}
+			);
+
 			address_bar.add(source_input);
 			address_bar.add(ssid_input);
 			address_bar.add(symbol_pane);
@@ -308,6 +341,7 @@ define(
 			controls.add(buttons);
 
 			controls_page.add(controls);
+			controls_page.add(symbols_pane);
 
 			// Add Reactive Tabs
 			UI.main.add(
