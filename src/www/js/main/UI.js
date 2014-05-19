@@ -301,7 +301,7 @@ define(
 				};
 
 			for(var key in APRSPacket.SYMBOL_TABLE){
-				if(APRSPacket.SYMBOL_TABLE.hasOwnProperty(key)){
+				if(APRSPacket.SYMBOL_TABLE.hasOwnProperty(key) && APRSPacket.SYMBOL_TABLE[key] != 'Reserved'){
 
 					var sym_name = APRSPacket.SYMBOL_TABLE[key],
 						sym_button = new React_Image_Button(undefined, ret_func),
