@@ -27,7 +27,7 @@ define(
 			i = APRS_Parser.parse_lat_lon(this, packet, i);
 			i++;
 
-			if(this.symbol_code === '_'){
+			if(this.symbol_code === '_' && packet.message_data.length > i + 3 && packet.message_data[i + 3] == 47){
 
 				i = APRS_Parser.parse_wind(this, packet, i);
 				i = APRS_Parser.parse_WX(this, packet, i);
