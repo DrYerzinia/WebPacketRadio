@@ -22,13 +22,17 @@ define(
 	 	'main/Symbol_Sprite_Sheet',
 	 	'main/remote',
 	 	'main/iss_sample',
+	 	'main/Location_Manager',
 	 	'main/packet_interface',
 	 	'main/messaging',
 	 	'main/listen',
 	 	'main/settings',
+	 	'main/Station',
 
-	 	'packet/APRSPacket'
-	],
+	 	'packet/APRSPacket',
+
+	 	'util/Location'
+	 ],
 	function(
 		React_Pane,
 		React_Paged,
@@ -44,12 +48,16 @@ define(
 		Symbol_Sprite_Sheet,
 		remote,
 		iss_sample,
+		Location_Manager,
 		packet_interface,
 		messaging,
 		listen,
 		settings,
+		Station,
 
-		APRSPacket
+		APRSPacket,
+
+		Location
 	){
 
 		var UI = {};
@@ -231,6 +239,12 @@ define(
 			};
 			dest_ssid_input.change = dest_ssid_input.blur;
 
+			Location_Manager.self_station = new Station(source_input.input.value, ssid_input.input.value);
+			Location_Manager.self_station.status.symbol_table = '/';
+			Location_Manager.self_station.status.symbol = APRSPacket.code_from_sym(current_symbol.slice(0, current_symbol.length-4));
+
+			map.add_object(Location_Manager.self_station);
+
 			// Set-Up Demodulator
 			listen.init(listen_button);
 
@@ -253,6 +267,17 @@ define(
 			decoder_set_pn.add(filler);
 			decoder_set_pn.add(settings_save_btn);
 
+			show_position.change = function(e){
+
+				if(e.srcElement.checked)
+					Location.watch_position(
+							Location_Manager.update_map_position
+					);
+				else
+					Location.unwatch_position(Location_Manager.update_map_position);
+
+			};
+
 			map_pane.add(auto_cache);
 			map_pane.add(phg_render);
 			map_pane.add(show_position);
@@ -265,6 +290,21 @@ define(
 			mode_pane.add(forward_url);
 			mode_pane.add(filler3);
 			mode_pane.add(mode_back_btn);
+
+			beacon_active.change = function(e){
+
+				if(e.srcElement.checked)
+					Location.watch_position(Location_Manager.send_beacon, undefined, undefined);
+				else
+					Location.unwatch_position(Location_Manager.send_beacon);
+
+			};
+
+			beacon_status.change = function(e){
+
+				Location_Manager.beacon_status_message = beacon_status.get_value();
+
+			};
 
 			beacon_pane.add(beacon_active);
 			beacon_pane.add(beacon_status);
@@ -293,6 +333,11 @@ define(
 					var sym_name = this.image.name.slice(0, this.image.name.length - 4);
 					
 					messaging.symbol = APRSPacket.code_from_sym(sym_name);
+
+					Location_Manager.self_station.status.symbol = messaging.symbol;
+					Location_Manager.self_station.set_image(Symbol_Sprite_Sheet.get_sprite(sym_name + '.gif'));
+
+					map.render();
 
 					localStorage['symbol'] = this.image.name;
 					symbol_button.set_image(this.image);

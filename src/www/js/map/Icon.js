@@ -52,6 +52,12 @@ define(
 
 		};
 
+		Icon.prototype.set_image = function(image){
+
+			this.image = image;
+
+		};
+
 		/**
 		 * Tells if the icon is visible or not
 		 * @method is_visible
