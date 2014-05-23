@@ -768,7 +768,7 @@ define(
 
 				this.zoom++;
 
-			} else if(this.zoom > 0){
+			} else if(d < 0 && this.zoom > 0){
 				
 				this.position.x = ((this.position.x - ((px - 0.5) * (this.canvas.width / Map.TILE_SIDE_LENGTH))) / 2);
 				this.position.y = ((this.position.y - ((py - 0.5) * (this.canvas.height / Map.TILE_SIDE_LENGTH))) / 2);
@@ -776,11 +776,6 @@ define(
 				this.zoom--;
 
 			}
-
-			if(this.zoom < 0)
-				this.zoom = 0;
-			else if(this.zoom > 18)
-				this.zoom = 18;
 
 			this.render();
 
