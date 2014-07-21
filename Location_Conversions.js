@@ -14,8 +14,8 @@
 
 define(
 	[
-	 	'map/XY',
-	 	'map/LatLong'
+	 	'./XY',
+	 	'./LatLong'
     ],
 	function(
 		XY,

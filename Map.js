@@ -15,11 +15,11 @@
 
 define(
 	[
-	 	'map/Tile',
-	 	'map/Tile_Loader',
-	 	'map/Location_Conversions',
-	 	'map/LatLong',
-	 	'map/XY',
+	 	'./Tile',
+	 	'./Tile_Loader',
+	 	'./Location_Conversions',
+	 	'./LatLong',
+	 	'./XY',
 	 	'util/dom',
 	 	'util/touch/Touch'
 	],

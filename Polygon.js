@@ -1,8 +1,8 @@
 define(
 	[
-	 	'map/Map',
-	 	'map/LatLong',
-	 	'map/Location_Conversions',
+	 	'./Map',
+	 	'./LatLong',
+	 	'./Location_Conversions',
 	 	'Geometry/Point2D',
 	 	'Geometry/Dimension2D',
 	 	'Geometry/Rectangle'

@@ -13,7 +13,7 @@
 
 define(
 	[
-	 	'map/Tile'
+	 	'./Tile'
 	],
 	function(
 		Tile
