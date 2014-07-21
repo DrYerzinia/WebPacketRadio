@@ -5,7 +5,7 @@ define(
 
 	 	'packet/APRSPacket',
 
-	 	'map/LatLong'
+	 	'Map/LatLong'
  	],
 	function(
 		Station,

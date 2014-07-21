@@ -21,8 +21,8 @@ requirejs.config({
 
 require(
 	[
-	 	'map/Map',
-	 	'map/LatLong',
+	 	'Map/Map',
+	 	'Map/LatLong',
 	 	'main/UI'
 	],
 	function(

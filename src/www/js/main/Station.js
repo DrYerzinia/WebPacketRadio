@@ -2,10 +2,10 @@ define(
 	[
 	 	'main/Symbol_Sprite_Sheet',
 	 	'main/Station_Status',
-	 	'map/Location_Conversions',
-	 	'map/LatLong',
-	 	'map/Icon',
-	 	'map/Map'
+	 	'Map/Location_Conversions',
+	 	'Map/LatLong',
+	 	'Map/Icon',
+	 	'Map/Map'
 	],
 	function(
 		Symbol_Sprite_Sheet,

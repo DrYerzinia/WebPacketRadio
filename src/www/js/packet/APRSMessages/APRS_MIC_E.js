@@ -13,7 +13,7 @@
 define(
 	[
 	 	'main/Station_Status',
-	 	'map/LatLong'
+	 	'Map/LatLong'
 	],
 	function(
 		Station_Status,

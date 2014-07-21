@@ -13,7 +13,7 @@
 
 define(
 	[
-	 	'map/LatLong',
+	 	'Map/LatLong',
 	 	'util/misc/math',
 	 	'util/misc/string'
 	],

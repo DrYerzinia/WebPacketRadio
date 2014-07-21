@@ -2,7 +2,7 @@ define(
 	[
 	 	'main/Station',
 	 	'main/Packet_Manager',
-	 	'map/Icon',
+	 	'Map/Icon',
 	 	'packet/APRSPacket',
 	 	'util/misc/math',
 	 	'util/config',
